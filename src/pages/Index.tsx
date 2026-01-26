@@ -1,12 +1,28 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from 'react';
+import { Header } from '@/components/Header';
+import { LandingPage } from '@/components/LandingPage';
+import { Dashboard } from '@/components/Dashboard';
+
+type View = 'landing' | 'dashboard';
 
 const Index = () => {
+  const [currentView, setCurrentView] = useState<View>('landing');
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header 
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+      />
+      
+      {currentView === 'landing' ? (
+        <LandingPage onGetStarted={() => setCurrentView('dashboard')} />
+      ) : (
+        <Dashboard />
+      )}
     </div>
   );
 };
