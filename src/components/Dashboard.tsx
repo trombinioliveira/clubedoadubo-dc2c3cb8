@@ -4,22 +4,24 @@ import { StatsOverview } from './StatsOverview';
 import { FifoQueueCard } from './FifoQueueCard';
 import { ImpactWaveCard } from './ImpactWaveCard';
 import { ProCard } from './ProCard';
+import { PurchaseProModal } from './PurchaseProModal';
 import { Button } from '@/components/ui/button';
-import { Plus, Filter } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 
 export const Dashboard = () => {
   const [selectedProId, setSelectedProId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
 
   const filteredPros = activeTab === 'all' 
     ? mockPros 
     : mockPros.filter(p => p.status === activeTab);
 
-  const handleActivatePro = () => {
-    toast.success('PRO ativado com sucesso!', {
-      description: 'Você ativou 1 PRO (100g de resíduo) por R$ 1,00',
+  const handlePurchaseConfirm = (quantity: number) => {
+    toast.success(`${quantity} PROs ativados com sucesso!`, {
+      description: `Você ativou ${quantity} PROs (${(quantity * 100 / 1000).toFixed(1)} kg de resíduo) por R$ ${quantity.toFixed(2)}`,
     });
   };
 
@@ -37,7 +39,7 @@ export const Dashboard = () => {
                 Acompanhe seus PROs e seu impacto no ciclo
               </p>
             </div>
-            <Button onClick={handleActivatePro} variant="hero" size="lg">
+            <Button onClick={() => setPurchaseModalOpen(true)} variant="hero" size="lg">
               <Plus className="w-5 h-5" />
               Ativar PROs
             </Button>
@@ -45,6 +47,12 @@ export const Dashboard = () => {
         </div>
       </div>
 
+      {/* Purchase Modal */}
+      <PurchaseProModal
+        open={purchaseModalOpen}
+        onOpenChange={setPurchaseModalOpen}
+        onConfirm={handlePurchaseConfirm}
+      />
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Stats */}
         <StatsOverview pros={mockPros} />
