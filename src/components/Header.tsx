@@ -1,11 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Leaf, Menu, X } from 'lucide-react';
+import { Leaf, Menu, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+type View = 'landing' | 'dashboard' | 'dreams';
+
 interface HeaderProps {
-  currentView: 'landing' | 'dashboard';
-  onNavigate: (view: 'landing' | 'dashboard') => void;
+  currentView: View;
+  onNavigate: (view: View) => void;
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
 }
@@ -36,6 +38,16 @@ export const Header = ({ currentView, onNavigate, menuOpen, setMenuOpen }: Heade
           >
             Como funciona
           </button>
+          <button 
+            onClick={() => onNavigate('dreams')}
+            className={cn(
+              "text-sm font-medium transition-colors flex items-center gap-1",
+              currentView === 'dreams' ? "text-primary" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Sparkles className="w-4 h-4" />
+            Meus Sonhos
+          </button>
           <Button 
             onClick={() => onNavigate('dashboard')}
             variant={currentView === 'dashboard' ? 'default' : 'outline'}
@@ -59,15 +71,31 @@ export const Header = ({ currentView, onNavigate, menuOpen, setMenuOpen }: Heade
           <div className="container mx-auto px-4 py-4 space-y-3">
             <button 
               onClick={() => { onNavigate('landing'); setMenuOpen(false); }}
-              className="block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors"
+              className={cn(
+                "block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors",
+                currentView === 'landing' && "text-primary font-medium"
+              )}
             >
               Como funciona
             </button>
             <button 
               onClick={() => { onNavigate('dashboard'); setMenuOpen(false); }}
-              className="block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors font-medium text-primary"
+              className={cn(
+                "block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors",
+                currentView === 'dashboard' && "text-primary font-medium"
+              )}
             >
               Meus PROs
+            </button>
+            <button 
+              onClick={() => { onNavigate('dreams'); setMenuOpen(false); }}
+              className={cn(
+                "block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors flex items-center gap-2",
+                currentView === 'dreams' && "text-primary font-medium"
+              )}
+            >
+              <Sparkles className="w-4 h-4" />
+              Meus Sonhos
             </button>
           </div>
         </div>
