@@ -14,16 +14,348 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      batches: {
+        Row: {
+          batch_type: Database["public"]["Enums"]["batch_type"]
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          ready_date: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["batch_status"]
+          total_weight_grams: number
+          updated_at: string
+        }
+        Insert: {
+          batch_type?: Database["public"]["Enums"]["batch_type"]
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ready_date?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          total_weight_grams?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_type?: Database["public"]["Enums"]["batch_type"]
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          ready_date?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          total_weight_grams?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collection_points: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          name: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dreams: {
+        Row: {
+          created_at: string
+          current_amount: number
+          id: string
+          is_completed: boolean
+          target_amount: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number
+          id?: string
+          is_completed?: boolean
+          target_amount: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number
+          id?: string
+          is_completed?: boolean
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fifo_queue: {
+        Row: {
+          created_at: string
+          id: string
+          paid_at: string | null
+          position: number
+          pro_id: string
+          status: Database["public"]["Enums"]["pro_status"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          position: number
+          pro_id: string
+          status?: Database["public"]["Enums"]["pro_status"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          position?: number
+          pro_id?: string
+          status?: Database["public"]["Enums"]["pro_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fifo_queue_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: true
+            referencedRelation: "pros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          referral_code: string | null
+          referred_by: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pros: {
+        Row: {
+          batch_id: string | null
+          code: string
+          collection_point_id: string | null
+          created_at: string
+          dream_id: string | null
+          fifo_position: number
+          id: string
+          paid_at: string | null
+          processed_at: string | null
+          sold_at: string | null
+          status: Database["public"]["Enums"]["pro_status"]
+          user_id: string
+          weight_grams: number
+        }
+        Insert: {
+          batch_id?: string | null
+          code: string
+          collection_point_id?: string | null
+          created_at?: string
+          dream_id?: string | null
+          fifo_position: number
+          id?: string
+          paid_at?: string | null
+          processed_at?: string | null
+          sold_at?: string | null
+          status?: Database["public"]["Enums"]["pro_status"]
+          user_id: string
+          weight_grams?: number
+        }
+        Update: {
+          batch_id?: string | null
+          code?: string
+          collection_point_id?: string | null
+          created_at?: string
+          dream_id?: string | null
+          fifo_position?: number
+          id?: string
+          paid_at?: string | null
+          processed_at?: string | null
+          sold_at?: string | null
+          status?: Database["public"]["Enums"]["pro_status"]
+          user_id?: string
+          weight_grams?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pros_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pros_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "collection_points"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pros_dream_id_fkey"
+            columns: ["dream_id"]
+            isOneToOne: false
+            referencedRelation: "dreams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weighings: {
+        Row: {
+          collection_point_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          user_id: string
+          weighed_at: string
+          weighed_by: string
+          weight_grams: number
+        }
+        Insert: {
+          collection_point_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          user_id: string
+          weighed_at?: string
+          weighed_by: string
+          weight_grams: number
+        }
+        Update: {
+          collection_point_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+          weighed_at?: string
+          weighed_by?: string
+          weight_grams?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weighings_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "collection_points"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_pro_code: { Args: never; Returns: string }
+      generate_referral_code: { Args: never; Returns: string }
+      get_next_fifo_position: { Args: never; Returns: number }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "staff" | "client"
+      batch_status: "processing" | "ready" | "partial_sold" | "sold"
+      batch_type: "composting" | "vermicomposting"
+      pro_status: "processing" | "ready" | "sold" | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +482,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "staff", "client"],
+      batch_status: ["processing", "ready", "partial_sold", "sold"],
+      batch_type: ["composting", "vermicomposting"],
+      pro_status: ["processing", "ready", "sold", "paid"],
+    },
   },
 } as const

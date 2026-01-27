@@ -1,8 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FifoQueue } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { QueueIcon } from './icons/CycleIcons';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, ExternalLink } from 'lucide-react';
 
 interface FifoQueueCardProps {
   queue: FifoQueue;
@@ -38,12 +40,20 @@ export const FifoQueueCard = ({ queue }: FifoQueueCardProps) => {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center justify-center gap-2 p-3 bg-accent/20 rounded-lg">
+          <div className="flex items-center justify-center gap-2 p-3 bg-accent/20 rounded-lg mb-4">
             <TrendingUp className="w-5 h-5 text-accent-foreground" />
             <p className="font-semibold">
               Faltam <span className="text-secondary">{queue.salesUntilPayment} vendas</span> para seu pagamento
             </p>
           </div>
+
+          {/* Link to full queue */}
+          <Link to="/fifo">
+            <Button variant="outline" className="w-full">
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Ver fila completa
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
