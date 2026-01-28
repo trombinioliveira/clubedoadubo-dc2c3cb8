@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
+import { ReferralsPage } from "@/features/referrals";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,12 @@ const App = () => (
               <Route path="/fifo" element={
                 <ProtectedRoute>
                   <FifoQueuePage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/indicacoes" element={
+                <ProtectedRoute>
+                  <ReferralsPage />
                 </ProtectedRoute>
               } />
               
