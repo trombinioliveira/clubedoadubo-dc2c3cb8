@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ImpactWave, PRO } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WaveIcon } from './icons/CycleIcons';
-import { Users, Leaf, Wind, Link2, Calendar, ShoppingCart, Share2, Copy } from 'lucide-react';
+import { Users, Leaf, Wind, Link2, Calendar, ShoppingCart, Share2, Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -195,9 +196,14 @@ export const ImpactWaveTabsCard = ({ wave, referralCode, pros }: ImpactWaveTabsC
                   <Copy className="w-3 h-3" />
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground text-center">
-                Em breve: comissões por indicações na economia circular!
-              </p>
+              
+              {/* Link to full referrals page */}
+              <Link to="/indicacoes">
+                <Button variant="outline" className="w-full" size="sm">
+                  <ExternalLink className="w-3 h-3 mr-2" />
+                  Ver todas as indicações
+                </Button>
+              </Link>
             </div>
           </TabsContent>
         </Tabs>
