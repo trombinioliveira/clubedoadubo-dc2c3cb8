@@ -185,15 +185,33 @@ export function WeighingsManagement() {
       }
 
       // Insert all PROs at once
-      const { error: prosError } = await supabase
+      const { data: createdPros, error: prosError } = await supabase
         .from('pros')
-        .insert(prosToCreate);
+        .insert(prosToCreate)
+        .select('id, fifo_position');
 
       if (prosError) {
         throw new Error('Erro ao criar PROs: ' + prosError.message);
       }
 
-      toast.success(`Pesagem registrada! ${proCount} PRO(s) criado(s) com sucesso!`);
+      // Insert all PROs into FIFO queue
+      if (createdPros && createdPros.length > 0) {
+        const fifoEntries = createdPros.map((pro) => ({
+          pro_id: pro.id,
+          position: pro.fifo_position,
+          status: 'processing' as const
+        }));
+
+        const { error: fifoError } = await supabase
+          .from('fifo_queue')
+          .insert(fifoEntries);
+
+        if (fifoError) {
+          throw new Error('Erro ao inserir na fila FIFO: ' + fifoError.message);
+        }
+      }
+
+      toast.success(`Pesagem registrada! ${proCount} PRO(s) criado(s) e adicionados à fila!`);
       setIsAddOpen(false);
       setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
       fetchData();
