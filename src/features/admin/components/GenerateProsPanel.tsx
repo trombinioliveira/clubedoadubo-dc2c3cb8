@@ -12,12 +12,6 @@ import { toast } from 'sonner';
 
 type WeightUnit = 'kg' | 'ton';
 
-interface CollectionPoint {
-  id: string;
-  name: string;
-  city: string;
-}
-
 interface Profile {
   id: string;
   user_id: string;
@@ -30,8 +24,6 @@ export function GenerateProsPanel() {
   const [weight, setWeight] = useState('');
   const [unit, setUnit] = useState<WeightUnit>('kg');
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [selectedCollectionPointId, setSelectedCollectionPointId] = useState('');
-  const [collectionPoints, setCollectionPoints] = useState<CollectionPoint[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,13 +39,12 @@ export function GenerateProsPanel() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [pointsRes, profilesRes] = await Promise.all([
-        supabase.from('collection_points').select('id, name, city').eq('is_active', true),
-        supabase.from('profiles').select('id, user_id, full_name, email')
-      ]);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name, email');
 
-      if (pointsRes.data) setCollectionPoints(pointsRes.data);
-      if (profilesRes.data) setProfiles(profilesRes.data);
+      if (error) throw error;
+      if (data) setProfiles(data);
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Erro ao carregar dados');
@@ -90,11 +81,6 @@ export function GenerateProsPanel() {
       return;
     }
 
-    if (!selectedCollectionPointId) {
-      toast.error('Selecione um ponto de coleta');
-      return;
-    }
-
     const prosCount = calculateProsCount();
     if (prosCount === 0) {
       toast.error('Peso insuficiente para gerar PROs (mínimo 100g)');
@@ -106,20 +92,6 @@ export function GenerateProsPanel() {
 
     try {
       const generatedCodes: string[] = [];
-      const weightGrams = getWeightInGrams();
-
-      // First, register the weighing
-      const { error: weighingError } = await supabase
-        .from('weighings')
-        .insert({
-          user_id: selectedUserId,
-          collection_point_id: selectedCollectionPointId,
-          weight_grams: weightGrams,
-          weighed_by: user.id,
-          notes: `Geração de ${prosCount} PROs`
-        });
-
-      if (weighingError) throw weighingError;
 
       // Generate PROs in batches to avoid timeout
       const batchSize = 50;
@@ -143,7 +115,6 @@ export function GenerateProsPanel() {
           prosToInsert.push({
             code,
             user_id: selectedUserId,
-            collection_point_id: selectedCollectionPointId,
             weight_grams: 100, // Each PRO = 100g
             fifo_position: position,
             status: 'processing' as const // Starts in "Coleta" (processing status maps to collection phase)
@@ -158,13 +129,6 @@ export function GenerateProsPanel() {
           .insert(prosToInsert);
 
         if (prosError) throw prosError;
-
-        // Insert into FIFO queue
-        const fifoEntries = prosToInsert.map((pro, idx) => ({
-          pro_id: '', // Will be updated after insert
-          position: pro.fifo_position,
-          status: 'processing' as const
-        }));
 
         // Get the inserted PROs to get their IDs
         const { data: insertedPros, error: fetchError } = await supabase
@@ -249,23 +213,6 @@ export function GenerateProsPanel() {
           </Select>
         </div>
 
-        {/* Collection Point Selection */}
-        <div className="space-y-2">
-          <Label htmlFor="collection-point">Ponto de Coleta *</Label>
-          <Select value={selectedCollectionPointId} onValueChange={setSelectedCollectionPointId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o ponto de coleta" />
-            </SelectTrigger>
-            <SelectContent>
-              {collectionPoints.map((point) => (
-                <SelectItem key={point.id} value={point.id}>
-                  {point.name} - {point.city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Weight Input */}
         <div className="space-y-2">
           <Label htmlFor="weight">Peso dos Resíduos *</Label>
@@ -321,7 +268,7 @@ export function GenerateProsPanel() {
         {/* Generate Button */}
         <Button 
           onClick={handleGenerate}
-          disabled={isGenerating || prosCount === 0 || !selectedUserId || !selectedCollectionPointId}
+          disabled={isGenerating || prosCount === 0 || !selectedUserId}
           className="w-full gap-2"
           size="lg"
         >
