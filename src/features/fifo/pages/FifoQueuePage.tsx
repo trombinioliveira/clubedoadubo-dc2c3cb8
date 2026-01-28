@@ -7,26 +7,21 @@ import { Input } from '@/components/ui/input';
 import { 
   ListOrdered, 
   Search,
-  Truck,
-  Factory,
-  Leaf,
-  Package,
-  DollarSign,
-  Check,
-  Clock,
+  ChevronRight,
   User,
-  ChevronRight
+  Calendar,
+  Scale,
+  Leaf,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type ProStatus = 'processing' | 'ready' | 'sold' | 'paid';
 
@@ -43,6 +38,9 @@ interface FifoEntry {
     status: ProStatus;
     weight_grams: number;
     created_at: string;
+    processed_at: string | null;
+    sold_at: string | null;
+    paid_at: string | null;
   };
 }
 
@@ -52,13 +50,19 @@ interface Profile {
   referral_code: string | null;
 }
 
-// Define stage progression - which stages are complete for each status
-const statusStages = {
-  processing: { coleta: true, processamento: true, producao: false, venda: false, pago: false },
-  ready: { coleta: true, processamento: true, producao: true, venda: false, pago: false },
-  sold: { coleta: true, processamento: true, producao: true, venda: true, pago: false },
-  paid: { coleta: true, processamento: true, producao: true, venda: true, pago: true }
+// Map status to stage index (1-4, 5 = result)
+const getStageIndex = (status: ProStatus): number => {
+  const stages: Record<ProStatus, number> = {
+    processing: 2,
+    ready: 3,
+    sold: 4,
+    paid: 5
+  };
+  return stages[status];
 };
+
+const stageLabels = ['1', '2', '3', '4', 'R$'];
+const stageDescriptions = ['Coleta', 'Processamento', 'Produção', 'Venda', 'Pago'];
 
 export default function FifoQueuePage() {
   const { user } = useAuth();
@@ -66,6 +70,7 @@ export default function FifoQueuePage() {
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEntry, setSelectedEntry] = useState<FifoEntry | null>(null);
   const [stats, setStats] = useState({
     totalInQueue: 0,
     processing: 0,
@@ -133,121 +138,97 @@ export default function FifoQueuePage() {
     return matchesSearch;
   });
 
-  const StageIcon = ({ completed, icon: Icon, label }: { completed: boolean; icon: React.ElementType; label: string }) => (
-    <div className="flex flex-col items-center gap-1">
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-        completed 
-          ? 'bg-primary text-primary-foreground' 
-          : 'bg-muted text-muted-foreground'
-      }`}>
-        {completed ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-      </div>
-      <span className={`text-[10px] font-medium ${completed ? 'text-primary' : 'text-muted-foreground'}`}>
-        {label}
-      </span>
-    </div>
-  );
+  const getStatusLabel = (status: ProStatus) => {
+    const labels: Record<ProStatus, string> = {
+      processing: 'Em Processamento',
+      ready: 'Pronto (Adubo)',
+      sold: 'Vendido',
+      paid: 'Pago'
+    };
+    return labels[status];
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <ListOrdered className="w-5 h-5 text-primary-foreground" />
             </div>
-            Fila FIFO - Visão Simplificada
+            Fila FIFO
           </h1>
           <p className="text-muted-foreground mt-2">
-            Acompanhe o fluxo completo de cada resíduo: da coleta ao pagamento. Primeiro a entrar, primeiro a receber.
+            Acompanhe cada resíduo percorrendo as etapas. Clique no número para ver detalhes.
           </p>
         </div>
 
-        {/* Stats Summary */}
-        <Card className="mb-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span>Processamento de Resíduo Orgânico</span>
-              <Badge variant="secondary" className="ml-auto">
-                {stats.totalInQueue} PROs na fila
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Stage Legend */}
-            <div className="flex items-center justify-between gap-2 p-4 bg-muted/50 rounded-lg flex-wrap">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Truck className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">📍 Etapa 1</p>
-                  <p className="text-xs text-muted-foreground">Coleta do resíduo</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Factory className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">📍 Etapa 2</p>
-                  <p className="text-xs text-muted-foreground">Processamento</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Leaf className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">📍 Etapa 3</p>
-                  <p className="text-xs text-muted-foreground">Produção do adubo</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Package className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">📍 Etapa 4</p>
-                  <p className="text-xs text-muted-foreground">Vendido</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <DollarSign className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-emerald-600">🔄 Resultado</p>
-                  <p className="text-xs text-muted-foreground">Pago R$ 2,00</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Search */}
+        {/* Stage Legend - Compact */}
         <Card className="mb-6">
           <CardContent className="py-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por Nº PRO, ID ou nome..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex items-center justify-center gap-1 sm:gap-4">
+              {stageLabels.map((label, idx) => (
+                <React.Fragment key={label}>
+                  <div className="flex flex-col items-center">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                      idx === 4 
+                        ? 'bg-emerald-500 text-white' 
+                        : 'bg-primary text-primary-foreground'
+                    }`}>
+                      {label}
+                    </div>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                      {stageDescriptions[idx]}
+                    </span>
+                  </div>
+                  {idx < 4 && (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Queue Table */}
+        {/* Stats */}
+        <div className="grid grid-cols-5 gap-2 mb-6">
+          {[
+            { label: 'Total', value: stats.totalInQueue, color: 'bg-muted' },
+            { label: 'Etapa 2', value: stats.processing, color: 'bg-primary/20' },
+            { label: 'Etapa 3', value: stats.ready, color: 'bg-primary/40' },
+            { label: 'Etapa 4', value: stats.sold, color: 'bg-primary/60' },
+            { label: 'Pagos', value: stats.paid, color: 'bg-emerald-500/20' },
+          ].map((stat) => (
+            <Card key={stat.label} className={stat.color}>
+              <CardContent className="py-3 px-2 text-center">
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por código, nome..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Queue Visual - Compact Grid */}
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          <CardHeader className="py-3 bg-muted/50">
+            <CardTitle className="text-sm flex items-center justify-between">
+              <span>Fila de Processamento</span>
+              <Badge variant="outline">{filteredQueue.length} PROs</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
             {isLoading ? (
               <div className="flex justify-center py-12">
                 <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
@@ -260,175 +241,203 @@ export default function FifoQueuePage() {
                 </p>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="w-[80px] text-center font-bold">Posição</TableHead>
-                    <TableHead className="font-bold">Nº PRO</TableHead>
-                    <TableHead className="font-bold">ID PRO</TableHead>
-                    <TableHead className="font-bold">Participante</TableHead>
-                    <TableHead className="text-center font-bold w-[100px]">
-                      <div className="flex flex-col items-center">
-                        <Truck className="w-4 h-4 mb-1" />
-                        <span className="text-xs">Coleta</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center font-bold w-[100px]">
-                      <div className="flex flex-col items-center">
-                        <Factory className="w-4 h-4 mb-1" />
-                        <span className="text-xs">Processamento</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center font-bold w-[100px]">
-                      <div className="flex flex-col items-center">
-                        <Leaf className="w-4 h-4 mb-1" />
-                        <span className="text-xs">100% Pronto</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center font-bold w-[100px]">
-                      <div className="flex flex-col items-center">
-                        <Package className="w-4 h-4 mb-1" />
-                        <span className="text-xs">Vendido</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center font-bold w-[100px]">
-                      <div className="flex flex-col items-center">
-                        <DollarSign className="w-4 h-4 mb-1 text-emerald-600" />
-                        <span className="text-xs text-emerald-600">Pago</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-right font-bold">Data</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredQueue.map((entry) => {
-                    const profile = profiles[entry.pro?.user_id];
-                    const isUserPro = user && entry.pro?.user_id === user.id;
-                    const stages = statusStages[entry.status];
+              <div className="space-y-2">
+                {filteredQueue.map((entry) => {
+                  const profile = profiles[entry.pro?.user_id];
+                  const isUserPro = user && entry.pro?.user_id === user.id;
+                  const currentStage = getStageIndex(entry.status);
 
-                    return (
-                      <TableRow 
-                        key={entry.id}
-                        className={isUserPro ? 'bg-primary/5 border-l-4 border-l-primary' : ''}
-                      >
-                        <TableCell className="text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="text-xl font-bold text-foreground">{entry.position}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-primary">{entry.pro?.code}</span>
-                            {isUserPro && (
-                              <Badge variant="secondary" className="text-[10px] px-1.5">
-                                Seu
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm text-muted-foreground">
-                          {entry.pro?.id?.substring(0, 8).toUpperCase()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                              <User className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">
-                                {profile?.full_name || 'Participante'}
-                              </p>
-                              {profile?.referral_code && (
-                                <p className="text-xs text-muted-foreground">
-                                  ID: {profile.referral_code}
-                                </p>
+                  return (
+                    <div 
+                      key={entry.id}
+                      className={`flex items-center gap-2 p-2 rounded-lg transition-colors hover:bg-muted/50 ${
+                        isUserPro ? 'bg-primary/5 border-l-4 border-l-primary' : 'bg-background border border-border'
+                      }`}
+                    >
+                      {/* Position */}
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground flex-shrink-0">
+                        {entry.position}
+                      </div>
+
+                      {/* Stage Progress */}
+                      <div className="flex items-center gap-1 flex-1">
+                        {stageLabels.map((label, idx) => {
+                          const stageNum = idx + 1;
+                          const isActive = stageNum <= currentStage;
+                          const isCurrent = stageNum === currentStage;
+                          const isPaid = idx === 4 && entry.status === 'paid';
+
+                          return (
+                            <React.Fragment key={label}>
+                              <button
+                                onClick={() => setSelectedEntry(entry)}
+                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-all cursor-pointer hover:scale-110 ${
+                                  isPaid
+                                    ? 'bg-emerald-500 text-white shadow-md'
+                                    : isActive
+                                      ? isCurrent
+                                        ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30'
+                                        : 'bg-primary/80 text-primary-foreground'
+                                      : 'bg-muted text-muted-foreground'
+                                }`}
+                                title={`Clique para ver detalhes - ${entry.pro?.code}`}
+                              >
+                                {label}
+                              </button>
+                              {idx < 4 && (
+                                <div className={`h-0.5 w-2 sm:w-4 ${
+                                  stageNum < currentStage ? 'bg-primary' : 'bg-muted'
+                                }`} />
                               )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        {/* Stage Columns */}
-                        <TableCell className="text-center">
-                          <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
-                            stages.coleta ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}>
-                            {stages.coleta ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4 text-muted-foreground" />}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
-                            stages.processamento ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}>
-                            {stages.processamento ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4 text-muted-foreground" />}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
-                            stages.producao ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}>
-                            {stages.producao ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4 text-muted-foreground" />}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
-                            stages.venda ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}>
-                            {stages.venda ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4 text-muted-foreground" />}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
-                            stages.pago ? 'bg-emerald-500 text-white' : 'bg-muted'
-                          }`}>
-                            {stages.pago ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4 text-muted-foreground" />}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex flex-col items-end">
-                            <span className="text-sm font-medium">
-                              {format(new Date(entry.created_at), "dd/MM/yy", { locale: ptBR })}
-                            </span>
-                            {entry.paid_at && (
-                              <span className="text-xs text-emerald-600">
-                                Pago: {format(new Date(entry.paid_at), "dd/MM/yy", { locale: ptBR })}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            )}
-          </div>
-        </Card>
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
 
-        {/* Legend Footer */}
-        <Card className="mt-6">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-center gap-8 flex-wrap text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                  <Check className="w-3 h-3" />
-                </div>
-                <span className="text-muted-foreground">Etapa concluída</span>
+                      {/* PRO Info */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right hidden sm:block">
+                          <p className="text-xs font-mono text-primary font-semibold">
+                            {entry.pro?.code}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {profile?.full_name?.split(' ')[0] || 'Participante'}
+                          </p>
+                        </div>
+                        {isUserPro && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5">
+                            Seu
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                  <Clock className="w-3 h-3 text-muted-foreground" />
-                </div>
-                <span className="text-muted-foreground">Aguardando</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                  <Check className="w-3 h-3" />
-                </div>
-                <span className="text-muted-foreground">R$ 2,00 liberado</span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Footer Info */}
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Primeiro a entrar na fila, primeiro a receber. Cada PRO = 100g de resíduo = R$ 2,00 ao final do ciclo.
+        </p>
       </div>
+
+      {/* Detail Modal */}
+      <Dialog open={!!selectedEntry} onOpenChange={() => setSelectedEntry(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Leaf className="w-5 h-5 text-primary" />
+              Resumo do PRO
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedEntry && (
+            <div className="space-y-4">
+              {/* PRO Code */}
+              <div className="text-center p-4 bg-primary/10 rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Código</p>
+                <p className="text-2xl font-bold font-mono text-primary">
+                  {selectedEntry.pro?.code}
+                </p>
+              </div>
+
+              {/* Status Visual */}
+              <div className="flex items-center justify-center gap-1">
+                {stageLabels.map((label, idx) => {
+                  const stageNum = idx + 1;
+                  const currentStage = getStageIndex(selectedEntry.status);
+                  const isActive = stageNum <= currentStage;
+                  const isPaid = idx === 4 && selectedEntry.status === 'paid';
+
+                  return (
+                    <React.Fragment key={label}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${
+                        isPaid
+                          ? 'bg-emerald-500 text-white'
+                          : isActive
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {label}
+                      </div>
+                      {idx < 4 && (
+                        <div className={`h-0.5 w-3 ${
+                          stageNum < currentStage ? 'bg-primary' : 'bg-muted'
+                        }`} />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                    <ListOrdered className="w-4 h-4" />
+                    <span className="text-xs">Posição na Fila</span>
+                  </div>
+                  <p className="text-xl font-bold">{selectedEntry.position}º</p>
+                </div>
+
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                    <Scale className="w-4 h-4" />
+                    <span className="text-xs">Peso</span>
+                  </div>
+                  <p className="text-xl font-bold">{selectedEntry.pro?.weight_grams}g</p>
+                </div>
+
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                    <User className="w-4 h-4" />
+                    <span className="text-xs">Participante</span>
+                  </div>
+                  <p className="text-sm font-medium truncate">
+                    {profiles[selectedEntry.pro?.user_id]?.full_name || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                    <Calendar className="w-4 h-4" />
+                    <span className="text-xs">Data de Entrada</span>
+                  </div>
+                  <p className="text-sm font-medium">
+                    {format(new Date(selectedEntry.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="p-4 bg-primary/10 rounded-lg text-center">
+                <p className="text-xs text-muted-foreground mb-1">Status Atual</p>
+                <Badge variant="default" className={`text-sm ${
+                  selectedEntry.status === 'paid' ? 'bg-emerald-500' : ''
+                }`}>
+                  {getStatusLabel(selectedEntry.status)}
+                </Badge>
+                {selectedEntry.status === 'paid' && selectedEntry.paid_at && (
+                  <p className="text-xs text-emerald-600 mt-2">
+                    Pago em {format(new Date(selectedEntry.paid_at), "dd/MM/yyyy", { locale: ptBR })}
+                  </p>
+                )}
+              </div>
+
+              {/* Value Info */}
+              <div className="text-center p-3 border border-dashed border-primary/30 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  Valor ao completar o ciclo
+                </p>
+                <p className="text-2xl font-bold text-emerald-600">R$ 2,00</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
