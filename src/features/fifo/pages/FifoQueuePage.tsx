@@ -7,12 +7,11 @@ import { Input } from '@/components/ui/input';
 import { 
   ListOrdered, 
   Search,
-  ChevronRight,
   User,
   Calendar,
   Scale,
   Leaf,
-  X
+  ArrowDown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -50,19 +49,13 @@ interface Profile {
   referral_code: string | null;
 }
 
-// Map status to stage index (1-4, 5 = result)
-const getStageIndex = (status: ProStatus): number => {
-  const stages: Record<ProStatus, number> = {
-    processing: 2,
-    ready: 3,
-    sold: 4,
-    paid: 5
-  };
-  return stages[status];
-};
-
-const stageLabels = ['1', '2', '3', '4', 'R$'];
-const stageDescriptions = ['Coleta', 'Processamento', 'Produção', 'Venda', 'Pago'];
+const stageConfig = [
+  { key: 'coleta', label: '1', title: 'Coleta', icon: '📍', statuses: [] as ProStatus[] },
+  { key: 'processing', label: '2', title: 'Processamento', icon: '🏭', statuses: ['processing'] as ProStatus[] },
+  { key: 'ready', label: '3', title: 'Produção', icon: '🌾', statuses: ['ready'] as ProStatus[] },
+  { key: 'sold', label: '4', title: 'Venda', icon: '📦', statuses: ['sold'] as ProStatus[] },
+  { key: 'paid', label: 'R$', title: 'Pago', icon: '💰', statuses: ['paid'] as ProStatus[] },
+];
 
 export default function FifoQueuePage() {
   const { user } = useAuth();
@@ -138,6 +131,12 @@ export default function FifoQueuePage() {
     return matchesSearch;
   });
 
+  // Group entries by status for column display
+  const getEntriesByStatus = (statuses: ProStatus[]) => {
+    if (statuses.length === 0) return []; // Coleta column shows nothing (entry point)
+    return filteredQueue.filter(entry => statuses.includes(entry.status));
+  };
+
   const getStatusLabel = (status: ProStatus) => {
     const labels: Record<ProStatus, string> = {
       processing: 'Em Processamento',
@@ -148,11 +147,21 @@ export default function FifoQueuePage() {
     return labels[status];
   };
 
+  const getStageIndex = (status: ProStatus): number => {
+    const stages: Record<ProStatus, number> = {
+      processing: 2,
+      ready: 3,
+      sold: 4,
+      paid: 5
+    };
+    return stages[status];
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <ListOrdered className="w-5 h-5 text-primary-foreground" />
@@ -160,163 +169,125 @@ export default function FifoQueuePage() {
             Fila FIFO
           </h1>
           <p className="text-muted-foreground mt-2">
-            Acompanhe cada resíduo percorrendo as etapas. Clique no número para ver detalhes.
+            Acompanhe os resíduos passando por cada etapa. Clique em um PRO para ver detalhes.
           </p>
-        </div>
-
-        {/* Stage Legend - Compact */}
-        <Card className="mb-6">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-center gap-1 sm:gap-4">
-              {stageLabels.map((label, idx) => (
-                <React.Fragment key={label}>
-                  <div className="flex flex-col items-center">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                      idx === 4 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-primary text-primary-foreground'
-                    }`}>
-                      {label}
-                    </div>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-                      {stageDescriptions[idx]}
-                    </span>
-                  </div>
-                  {idx < 4 && (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Stats */}
-        <div className="grid grid-cols-5 gap-2 mb-6">
-          {[
-            { label: 'Total', value: stats.totalInQueue, color: 'bg-muted' },
-            { label: 'Etapa 2', value: stats.processing, color: 'bg-primary/20' },
-            { label: 'Etapa 3', value: stats.ready, color: 'bg-primary/40' },
-            { label: 'Etapa 4', value: stats.sold, color: 'bg-primary/60' },
-            { label: 'Pagos', value: stats.paid, color: 'bg-emerald-500/20' },
-          ].map((stat) => (
-            <Card key={stat.label} className={stat.color}>
-              <CardContent className="py-3 px-2 text-center">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground">{stat.label}</p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
 
         {/* Search */}
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por código, nome..."
+            placeholder="Buscar por código ou nome..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 max-w-md"
           />
         </div>
 
-        {/* Queue Visual - Compact Grid */}
-        <Card className="overflow-hidden">
-          <CardHeader className="py-3 bg-muted/50">
-            <CardTitle className="text-sm flex items-center justify-between">
-              <span>Fila de Processamento</span>
-              <Badge variant="outline">{filteredQueue.length} PROs</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
-              </div>
-            ) : filteredQueue.length === 0 ? (
-              <div className="py-12 text-center">
-                <ListOrdered className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-                <p className="text-lg font-medium text-muted-foreground">
-                  {searchTerm ? 'Nenhum PRO encontrado' : 'Nenhum PRO na fila ainda'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredQueue.map((entry) => {
-                  const profile = profiles[entry.pro?.user_id];
-                  const isUserPro = user && entry.pro?.user_id === user.id;
-                  const currentStage = getStageIndex(entry.status);
-
-                  return (
-                    <div 
-                      key={entry.id}
-                      className={`flex items-center gap-2 p-2 rounded-lg transition-colors hover:bg-muted/50 ${
-                        isUserPro ? 'bg-primary/5 border-l-4 border-l-primary' : 'bg-background border border-border'
-                      }`}
-                    >
-                      {/* Position */}
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground flex-shrink-0">
-                        {entry.position}
+        {/* Column-based Queue Visualization */}
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-5 gap-2 md:gap-4">
+            {stageConfig.map((stage, stageIdx) => {
+              const entries = getEntriesByStatus(stage.statuses);
+              const count = stage.key === 'coleta' ? stats.totalInQueue : entries.length;
+              const isPaidColumn = stage.key === 'paid';
+              
+              return (
+                <div key={stage.key} className="flex flex-col">
+                  {/* Column Header */}
+                  <Card className={`mb-2 ${isPaidColumn ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-primary/5 border-primary/20'}`}>
+                    <CardContent className="p-3 text-center">
+                      <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center font-bold text-lg mb-1 ${
+                        isPaidColumn 
+                          ? 'bg-emerald-500 text-white' 
+                          : 'bg-primary text-primary-foreground'
+                      }`}>
+                        {stage.label}
                       </div>
+                      <p className="text-xs font-medium text-foreground">{stage.icon} {stage.title}</p>
+                      <Badge variant="secondary" className="mt-1 text-xs">
+                        {count}
+                      </Badge>
+                    </CardContent>
+                  </Card>
 
-                      {/* Stage Progress */}
-                      <div className="flex items-center gap-1 flex-1">
-                        {stageLabels.map((label, idx) => {
-                          const stageNum = idx + 1;
-                          const isActive = stageNum <= currentStage;
-                          const isCurrent = stageNum === currentStage;
-                          const isPaid = idx === 4 && entry.status === 'paid';
+                  {/* Arrow indicator */}
+                  {stageIdx < 4 && (
+                    <div className="flex justify-center mb-2">
+                      <ArrowDown className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  )}
+
+                  {/* Column Content - PRO items */}
+                  <div className="flex-1 space-y-1 min-h-[200px]">
+                    {stage.key === 'coleta' ? (
+                      // Coleta column shows a summary/entry point
+                      <Card className="border-dashed border-2 border-primary/30">
+                        <CardContent className="p-3 text-center">
+                          <p className="text-xs text-muted-foreground">
+                            Entrada de resíduos
+                          </p>
+                          <p className="text-2xl font-bold text-primary mt-1">
+                            {stats.totalInQueue}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            PROs no sistema
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ) : entries.length === 0 ? (
+                      <div className="p-4 text-center text-muted-foreground">
+                        <p className="text-xs">Nenhum PRO</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
+                        {entries.map((entry) => {
+                          const profile = profiles[entry.pro?.user_id];
+                          const isUserPro = user && entry.pro?.user_id === user.id;
 
                           return (
-                            <React.Fragment key={label}>
-                              <button
-                                onClick={() => setSelectedEntry(entry)}
-                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-all cursor-pointer hover:scale-110 ${
-                                  isPaid
-                                    ? 'bg-emerald-500 text-white shadow-md'
-                                    : isActive
-                                      ? isCurrent
-                                        ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30'
-                                        : 'bg-primary/80 text-primary-foreground'
-                                      : 'bg-muted text-muted-foreground'
-                                }`}
-                                title={`Clique para ver detalhes - ${entry.pro?.code}`}
-                              >
-                                {label}
-                              </button>
-                              {idx < 4 && (
-                                <div className={`h-0.5 w-2 sm:w-4 ${
-                                  stageNum < currentStage ? 'bg-primary' : 'bg-muted'
-                                }`} />
-                              )}
-                            </React.Fragment>
+                            <button
+                              key={entry.id}
+                              onClick={() => setSelectedEntry(entry)}
+                              className={`w-full p-2 rounded-lg text-left transition-all hover:scale-[1.02] hover:shadow-md cursor-pointer ${
+                                isUserPro 
+                                  ? 'bg-primary/20 border-2 border-primary ring-2 ring-primary/20' 
+                                  : isPaidColumn
+                                    ? 'bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20'
+                                    : 'bg-card border border-border hover:bg-muted/50'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="text-[10px] font-mono font-bold text-primary truncate">
+                                  {entry.pro?.code?.slice(-6)}
+                                </span>
+                                {isUserPro && (
+                                  <Badge variant="default" className="text-[8px] px-1 py-0 h-4">
+                                    Seu
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-[9px] text-muted-foreground truncate mt-0.5">
+                                {profile?.full_name?.split(' ')[0] || 'Participante'}
+                              </p>
+                              <p className="text-[8px] text-muted-foreground">
+                                #{entry.position}
+                              </p>
+                            </button>
                           );
                         })}
                       </div>
-
-                      {/* PRO Info */}
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-xs font-mono text-primary font-semibold">
-                            {entry.pro?.code}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {profile?.full_name?.split(' ')[0] || 'Participante'}
-                          </p>
-                        </div>
-                        {isUserPro && (
-                          <Badge variant="secondary" className="text-[10px] px-1.5">
-                            Seu
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Footer Info */}
         <p className="text-center text-xs text-muted-foreground mt-6">
@@ -346,14 +317,14 @@ export default function FifoQueuePage() {
 
               {/* Status Visual */}
               <div className="flex items-center justify-center gap-1">
-                {stageLabels.map((label, idx) => {
-                  const stageNum = idx + 1;
+                {stageConfig.slice(1).map((stage, idx) => {
+                  const stageNum = idx + 2;
                   const currentStage = getStageIndex(selectedEntry.status);
                   const isActive = stageNum <= currentStage;
-                  const isPaid = idx === 4 && selectedEntry.status === 'paid';
+                  const isPaid = stage.key === 'paid' && selectedEntry.status === 'paid';
 
                   return (
-                    <React.Fragment key={label}>
+                    <React.Fragment key={stage.key}>
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${
                         isPaid
                           ? 'bg-emerald-500 text-white'
@@ -361,9 +332,9 @@ export default function FifoQueuePage() {
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground'
                       }`}>
-                        {label}
+                        {stage.label}
                       </div>
-                      {idx < 4 && (
+                      {idx < 3 && (
                         <div className={`h-0.5 w-3 ${
                           stageNum < currentStage ? 'bg-primary' : 'bg-muted'
                         }`} />
