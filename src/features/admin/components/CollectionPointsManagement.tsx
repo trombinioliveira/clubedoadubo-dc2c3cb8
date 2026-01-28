@@ -8,11 +8,29 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { Plus, MapPin, Edit } from 'lucide-react';
+import { Plus, MapPin, Edit, ChevronDown, ChevronRight, Scale, Calendar, Clock, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
+interface PRO {
+  id: string;
+  code: string;
+  status: string;
+  fifo_position: number;
+}
+
+interface Weighing {
+  id: string;
+  weight_grams: number;
+  weighed_at: string;
+  weighed_by: string;
+  notes: string | null;
+  user_profile?: { full_name: string };
+  staff_profile?: { full_name: string };
+  pros?: PRO[];
+}
 
 interface CollectionPoint {
   id: string;
@@ -22,14 +40,37 @@ interface CollectionPoint {
   state: string;
   is_active: boolean;
   created_at: string;
+  weighings?: Weighing[];
 }
+
+const getStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    processing: 'Em processamento',
+    ready: 'Virou adubo',
+    sold: 'Adubo vendido',
+    paid: 'Pagamento liberado',
+  };
+  return labels[status] || status;
+};
+
+const getStatusColor = (status: string) => {
+  const colors: Record<string, string> = {
+    processing: 'bg-amber-500/20 text-amber-700 border-amber-500/30',
+    ready: 'bg-green-500/20 text-green-700 border-green-500/30',
+    sold: 'bg-blue-500/20 text-blue-700 border-blue-500/30',
+    paid: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30',
+  };
+  return colors[status] || 'bg-muted text-muted-foreground';
+};
 
 export function CollectionPointsManagement() {
   const { user } = useAuth();
   const [points, setPoints] = useState<CollectionPoint[]>([]);
+  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingPoint, setEditingPoint] = useState<CollectionPoint | null>(null);
+  const [expandedPoints, setExpandedPoints] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -44,7 +85,8 @@ export function CollectionPointsManagement() {
   const fetchPoints = async () => {
     setIsLoading(true);
     
-    const { data, error } = await supabase
+    // Fetch collection points
+    const { data: pointsData, error } = await supabase
       .from('collection_points')
       .select('*')
       .order('name', { ascending: true });
@@ -52,11 +94,59 @@ export function CollectionPointsManagement() {
     if (error) {
       toast.error('Erro ao carregar pontos de coleta');
       console.error(error);
-    } else {
-      setPoints(data as CollectionPoint[] || []);
+      setIsLoading(false);
+      return;
+    }
+
+    // Fetch profiles for name lookup
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('user_id, full_name');
+
+    setProfiles(profilesData || []);
+
+    // For each point, fetch weighings and their PROs
+    const pointsWithWeighings: CollectionPoint[] = [];
+    
+    for (const point of (pointsData || [])) {
+      const { data: weighingsData } = await supabase
+        .from('weighings')
+        .select('id, weight_grams, weighed_at, weighed_by, notes, user_id')
+        .eq('collection_point_id', point.id)
+        .order('weighed_at', { ascending: false })
+        .limit(50);
+
+      const weighingsWithPros: Weighing[] = [];
+      
+      for (const weighing of (weighingsData || [])) {
+        // Fetch PROs for this weighing
+        const { data: prosData } = await supabase
+          .from('pros')
+          .select('id, code, status, fifo_position')
+          .eq('collection_point_id', point.id)
+          .eq('user_id', weighing.user_id)
+          .gte('created_at', new Date(new Date(weighing.weighed_at).getTime() - 60000).toISOString())
+          .lte('created_at', new Date(new Date(weighing.weighed_at).getTime() + 60000).toISOString())
+          .order('fifo_position', { ascending: true });
+
+        weighingsWithPros.push({
+          ...weighing,
+          pros: prosData || []
+        });
+      }
+
+      pointsWithWeighings.push({
+        ...point,
+        weighings: weighingsWithPros
+      });
     }
     
+    setPoints(pointsWithWeighings);
     setIsLoading(false);
+  };
+
+  const getProfileName = (userId: string) => {
+    return profiles.find(p => p.user_id === userId)?.full_name || 'Desconhecido';
   };
 
   const createPoint = async () => {
@@ -135,6 +225,26 @@ export function CollectionPointsManagement() {
     });
   };
 
+  const toggleExpanded = (pointId: string) => {
+    setExpandedPoints(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(pointId)) {
+        newSet.delete(pointId);
+      } else {
+        newSet.add(pointId);
+      }
+      return newSet;
+    });
+  };
+
+  const getTotalPros = (point: CollectionPoint) => {
+    return point.weighings?.reduce((acc, w) => acc + (w.pros?.length || 0), 0) || 0;
+  };
+
+  const getTotalWeight = (point: CollectionPoint) => {
+    return point.weighings?.reduce((acc, w) => acc + w.weight_grams, 0) || 0;
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -198,111 +308,179 @@ export function CollectionPointsManagement() {
           <div className="flex justify-center py-8">
             <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
           </div>
+        ) : points.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            Nenhum ponto de coleta cadastrado
+          </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Endereço</TableHead>
-                  <TableHead>Cidade/Estado</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Criado em</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {points.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      Nenhum ponto de coleta cadastrado
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  points.map((point) => (
-                    <TableRow key={point.id}>
-                      <TableCell className="font-medium">{point.name}</TableCell>
-                      <TableCell>{point.address}</TableCell>
-                      <TableCell>{point.city}/{point.state}</TableCell>
-                      <TableCell>
-                        <Badge variant={point.is_active ? 'default' : 'secondary'}>
-                          {point.is_active ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(point.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={point.is_active}
-                            onCheckedChange={() => toggleActive(point)}
-                          />
-                          <Dialog open={editingPoint?.id === point.id} onOpenChange={(open) => {
-                            if (!open) {
-                              setEditingPoint(null);
-                              setFormData({ name: '', address: '', city: '', state: 'SP' });
-                            }
-                          }}>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => openEditDialog(point)}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Editar Ponto de Coleta</DialogTitle>
-                              </DialogHeader>
-                              <div className="space-y-4 pt-4">
-                                <div className="space-y-2">
-                                  <Label>Nome</Label>
-                                  <Input
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>Endereço</Label>
-                                  <Input
-                                    value={formData.address}
-                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="space-y-2">
-                                    <Label>Cidade</Label>
-                                    <Input
-                                      value={formData.city}
-                                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label>Estado</Label>
-                                    <Input
-                                      value={formData.state}
-                                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                                      maxLength={2}
-                                    />
-                                  </div>
-                                </div>
-                                <Button onClick={updatePoint} className="w-full">
-                                  Salvar Alterações
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+          <div className="space-y-3">
+            {points.map((point) => (
+              <Collapsible
+                key={point.id}
+                open={expandedPoints.has(point.id)}
+                onOpenChange={() => toggleExpanded(point.id)}
+              >
+                <div className="border rounded-lg">
+                  <div className="flex items-center justify-between p-4">
+                    <CollapsibleTrigger asChild>
+                      <div className="flex items-center gap-3 cursor-pointer flex-1">
+                        {expandedPoints.has(point.id) ? (
+                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                        )}
+                        <MapPin className="w-5 h-5 text-primary" />
+                        <div>
+                          <div className="font-medium">{point.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {point.address} • {point.city}/{point.state}
+                          </div>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                      </div>
+                    </CollapsibleTrigger>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right text-sm">
+                        <div className="font-medium">{getTotalWeight(point).toLocaleString()}g</div>
+                        <div className="text-muted-foreground flex items-center gap-1">
+                          <Package className="w-3 h-3" />
+                          {getTotalPros(point)} PROs
+                        </div>
+                      </div>
+                      <Badge variant={point.is_active ? 'default' : 'secondary'}>
+                        {point.is_active ? 'Ativo' : 'Inativo'}
+                      </Badge>
+                      <Switch
+                        checked={point.is_active}
+                        onCheckedChange={() => toggleActive(point)}
+                      />
+                      <Dialog open={editingPoint?.id === point.id} onOpenChange={(open) => {
+                        if (!open) {
+                          setEditingPoint(null);
+                          setFormData({ name: '', address: '', city: '', state: 'SP' });
+                        }
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openEditDialog(point)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Editar Ponto de Coleta</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                              <Label>Nome</Label>
+                              <Input
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Endereço</Label>
+                              <Input
+                                value={formData.address}
+                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label>Cidade</Label>
+                                <Input
+                                  value={formData.city}
+                                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Estado</Label>
+                                <Input
+                                  value={formData.state}
+                                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                                  maxLength={2}
+                                />
+                              </div>
+                            </div>
+                            <Button onClick={updatePoint} className="w-full">
+                              Salvar Alterações
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                  
+                  <CollapsibleContent>
+                    <div className="border-t p-4 bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium flex items-center gap-2">
+                          <Scale className="w-4 h-4" />
+                          Pesagens ({point.weighings?.length || 0})
+                        </h4>
+                        <span className="text-sm text-muted-foreground">
+                          Criado em {format(new Date(point.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </span>
+                      </div>
+                      
+                      {point.weighings && point.weighings.length > 0 ? (
+                        <div className="space-y-3">
+                          {point.weighings.map((weighing) => (
+                            <div key={weighing.id} className="bg-background border rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                                    {format(new Date(weighing.weighed_at), "dd/MM/yyyy", { locale: ptBR })}
+                                    <Clock className="w-4 h-4 text-muted-foreground ml-2" />
+                                    {format(new Date(weighing.weighed_at), "HH:mm:ss", { locale: ptBR })}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="font-medium">{weighing.weight_grams}g</span>
+                                  <span className="text-primary ml-2">
+                                    ({weighing.pros?.length || Math.floor(weighing.weight_grams / 100)} PROs)
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground mb-2">
+                                Registrado por: {getProfileName(weighing.weighed_by)}
+                                {weighing.notes && <span> • {weighing.notes}</span>}
+                              </div>
+                              
+                              {weighing.pros && weighing.pros.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {weighing.pros.map((pro) => (
+                                    <div 
+                                      key={pro.id} 
+                                      className="flex items-center gap-2 px-2 py-1 bg-muted rounded text-xs"
+                                    >
+                                      <span className="font-mono font-medium">{pro.code}</span>
+                                      <Badge className={`text-xs ${getStatusColor(pro.status)}`}>
+                                        {getStatusLabel(pro.status)}
+                                      </Badge>
+                                      <span className="text-muted-foreground">#{pro.fifo_position}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground text-center py-4">
+                          Nenhuma pesagem registrada neste ponto
+                        </div>
+                      )}
+                    </div>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            ))}
           </div>
         )}
       </CardContent>
