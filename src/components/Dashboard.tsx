@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { mockPros, mockFifoQueue, mockImpactWave, mockUser } from '@/data/mockData';
+import { mockPros, mockImpactWave, mockUser } from '@/data/mockData';
 import { StatsOverview } from './StatsOverview';
-import { FifoQueueCard } from './FifoQueueCard';
-import { ImpactWaveCard } from './ImpactWaveCard';
+import { UserProsQueueCard } from './UserProsQueueCard';
+import { ImpactWaveTabsCard } from './ImpactWaveTabsCard';
 import { ProCard } from './ProCard';
 import { PurchaseProModal } from './PurchaseProModal';
 import { Button } from '@/components/ui/button';
@@ -95,8 +95,8 @@ export const Dashboard = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <FifoQueueCard queue={mockFifoQueue} />
-            <ImpactWaveCard wave={mockImpactWave} referralCode={mockUser.referralCode} />
+            <UserProsQueueCard pros={mockPros} />
+            <ImpactWaveTabsCard wave={mockImpactWave} referralCode={mockUser.referralCode} pros={mockPros} />
           </div>
         </div>
 
