@@ -8,9 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { Plus, MapPin, Edit, ChevronDown, ChevronRight, Scale, Calendar, Clock, Package } from 'lucide-react';
+import { Plus, MapPin, Edit, ChevronDown, ChevronRight, Scale, Calendar, Clock, Package, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -26,9 +27,8 @@ interface Weighing {
   weight_grams: number;
   weighed_at: string;
   weighed_by: string;
+  user_id: string;
   notes: string | null;
-  user_profile?: { full_name: string };
-  staff_profile?: { full_name: string };
   pros?: PRO[];
 }
 
@@ -85,30 +85,25 @@ export function CollectionPointsManagement() {
   const fetchPoints = async () => {
     setIsLoading(true);
     
-    // Fetch collection points
-    const { data: pointsData, error } = await supabase
-      .from('collection_points')
-      .select('*')
-      .order('name', { ascending: true });
+    // Fetch all data in parallel
+    const [pointsResult, profilesResult] = await Promise.all([
+      supabase.from('collection_points').select('*').order('name', { ascending: true }),
+      supabase.from('profiles').select('user_id, full_name')
+    ]);
 
-    if (error) {
+    if (pointsResult.error) {
       toast.error('Erro ao carregar pontos de coleta');
-      console.error(error);
+      console.error(pointsResult.error);
       setIsLoading(false);
       return;
     }
 
-    // Fetch profiles for name lookup
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('user_id, full_name');
-
-    setProfiles(profilesData || []);
+    setProfiles(profilesResult.data || []);
 
     // For each point, fetch weighings and their PROs
     const pointsWithWeighings: CollectionPoint[] = [];
     
-    for (const point of (pointsData || [])) {
+    for (const point of (pointsResult.data || [])) {
       const { data: weighingsData } = await supabase
         .from('weighings')
         .select('id, weight_grams, weighed_at, weighed_by, notes, user_id')
@@ -119,7 +114,6 @@ export function CollectionPointsManagement() {
       const weighingsWithPros: Weighing[] = [];
       
       for (const weighing of (weighingsData || [])) {
-        // Fetch PROs for this weighing
         const { data: prosData } = await supabase
           .from('pros')
           .select('id, code, status, fifo_position')
@@ -213,6 +207,81 @@ export function CollectionPointsManagement() {
 
     toast.success(point.is_active ? 'Ponto desativado' : 'Ponto ativado');
     fetchPoints();
+  };
+
+  const deletePoint = async (pointId: string) => {
+    try {
+      // First delete all PROs associated with this collection point
+      const { error: prosError } = await supabase
+        .from('pros')
+        .delete()
+        .eq('collection_point_id', pointId);
+
+      if (prosError) {
+        throw new Error('Erro ao deletar PROs: ' + prosError.message);
+      }
+
+      // Then delete all weighings
+      const { error: weighingsError } = await supabase
+        .from('weighings')
+        .delete()
+        .eq('collection_point_id', pointId);
+
+      if (weighingsError) {
+        throw new Error('Erro ao deletar pesagens: ' + weighingsError.message);
+      }
+
+      // Finally delete the collection point
+      const { error } = await supabase
+        .from('collection_points')
+        .delete()
+        .eq('id', pointId);
+
+      if (error) {
+        throw new Error('Erro ao deletar ponto: ' + error.message);
+      }
+
+      toast.success('Ponto de coleta deletado com sucesso!');
+      fetchPoints();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao deletar');
+      console.error(error);
+    }
+  };
+
+  const deleteWeighing = async (weighingId: string, pros: PRO[] | undefined, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    try {
+      // Delete associated PROs first
+      if (pros && pros.length > 0) {
+        const proIds = pros.map(p => p.id);
+        const { error: prosError } = await supabase
+          .from('pros')
+          .delete()
+          .in('id', proIds);
+
+        if (prosError) {
+          throw new Error('Erro ao deletar PROs: ' + prosError.message);
+        }
+      }
+
+      // Delete the weighing
+      const { error } = await supabase
+        .from('weighings')
+        .delete()
+        .eq('id', weighingId);
+
+      if (error) {
+        throw new Error('Erro ao deletar pesagem: ' + error.message);
+      }
+
+      toast.success('Pesagem deletada com sucesso!');
+      fetchPoints();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao deletar');
+      console.error(error);
+    }
   };
 
   const openEditDialog = (point: CollectionPoint) => {
@@ -341,7 +410,7 @@ export function CollectionPointsManagement() {
                     </CollapsibleTrigger>
                     <div className="flex items-center gap-4">
                       <div className="text-right text-sm">
-                        <div className="font-medium">{getTotalWeight(point).toLocaleString()}g</div>
+                        <div className="font-medium">{(getTotalWeight(point) / 1000).toFixed(2)} kg</div>
                         <div className="text-muted-foreground flex items-center gap-1">
                           <Package className="w-3 h-3" />
                           {getTotalPros(point)} PROs
@@ -411,6 +480,34 @@ export function CollectionPointsManagement() {
                           </div>
                         </DialogContent>
                       </Dialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Deletar Ponto de Coleta?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Isso irá deletar o ponto de coleta, todas as pesagens e PROs associados. Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => deletePoint(point.id)}
+                            >
+                              Deletar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                   
@@ -439,16 +536,47 @@ export function CollectionPointsManagement() {
                                     {format(new Date(weighing.weighed_at), "HH:mm:ss", { locale: ptBR })}
                                   </div>
                                 </div>
-                                <div className="text-right">
-                                  <span className="font-medium">{weighing.weight_grams}g</span>
-                                  <span className="text-primary ml-2">
-                                    ({weighing.pros?.length || Math.floor(weighing.weight_grams / 100)} PROs)
-                                  </span>
+                                <div className="flex items-center gap-3">
+                                  <div className="text-right">
+                                    <span className="font-medium">{(weighing.weight_grams / 1000).toFixed(2)} kg</span>
+                                    <span className="text-primary ml-2">
+                                      ({weighing.pros?.length || Math.floor(weighing.weight_grams / 100)} PROs)
+                                    </span>
+                                  </div>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm"
+                                        className="text-destructive hover:text-destructive"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Deletar Pesagem?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Isso irá deletar a pesagem e todos os {weighing.pros?.length || 0} PROs associados.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                          onClick={(e) => deleteWeighing(weighing.id, weighing.pros, e)}
+                                        >
+                                          Deletar
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
                                 </div>
                               </div>
                               
                               <div className="text-xs text-muted-foreground mb-2">
-                                Registrado por: {getProfileName(weighing.weighed_by)}
+                                Cliente: {getProfileName(weighing.user_id)} • Registrado por: {getProfileName(weighing.weighed_by)}
                                 {weighing.notes && <span> • {weighing.notes}</span>}
                               </div>
                               
