@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { Plus, Scale, Calendar, Clock, ChevronDown, ChevronRight, Package } from 'lucide-react';
+import { Plus, Scale, Calendar, Clock, ChevronDown, ChevronRight, Package, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -68,11 +68,12 @@ export function WeighingsManagement() {
   const [profiles, setProfiles] = useState<{ id: string; user_id: string; full_name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [expandedWeighings, setExpandedWeighings] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     collection_point_id: '',
     user_id: '',
-    weight_grams: 0,
+    weight_kg: 0,
     notes: ''
   });
 
@@ -83,36 +84,23 @@ export function WeighingsManagement() {
   const fetchData = async () => {
     setIsLoading(true);
     
-    // Fetch weighings
-    const { data: weighingsData, error: weighingsError } = await supabase
-      .from('weighings')
-      .select('*')
-      .order('weighed_at', { ascending: false });
+    // Fetch all data in parallel
+    const [weighingsResult, pointsResult, profilesResult] = await Promise.all([
+      supabase.from('weighings').select('*').order('weighed_at', { ascending: false }),
+      supabase.from('collection_points').select('id, name').eq('is_active', true).order('name'),
+      supabase.from('profiles').select('id, user_id, full_name').order('full_name')
+    ]);
 
-    if (weighingsError) {
+    if (weighingsResult.error) {
       toast.error('Erro ao carregar pesagens');
-      console.error(weighingsError);
+      console.error(weighingsResult.error);
     }
 
-    // Fetch collection points
-    const { data: pointsData } = await supabase
-      .from('collection_points')
-      .select('id, name')
-      .eq('is_active', true)
-      .order('name');
-
-    // Fetch profiles
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('id, user_id, full_name')
-      .order('full_name');
-
-    // Fetch PROs for each weighing (by collection_point_id and user_id match on created_at)
+    // Fetch PROs for all weighings
     const weighingsWithPros: Weighing[] = [];
     
-    if (weighingsData) {
-      for (const weighing of weighingsData) {
-        // Fetch PROs created for this user at this collection point around the weighing time
+    if (weighingsResult.data) {
+      for (const weighing of weighingsResult.data) {
         const { data: prosData } = await supabase
           .from('pros')
           .select('id, code, status, fifo_position, created_at')
@@ -130,84 +118,124 @@ export function WeighingsManagement() {
     }
 
     setWeighings(weighingsWithPros);
-    setCollectionPoints(pointsData || []);
-    setProfiles(profilesData || []);
+    setCollectionPoints(pointsResult.data || []);
+    setProfiles(profilesResult.data || []);
     setIsLoading(false);
   };
 
   const createWeighing = async () => {
-    if (!formData.collection_point_id || !formData.user_id || !formData.weight_grams) {
+    if (!formData.collection_point_id || !formData.user_id || !formData.weight_kg) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
 
-    const proCount = Math.floor(formData.weight_grams / 100);
+    const weightGrams = Math.round(formData.weight_kg * 1000);
+    const proCount = Math.floor(weightGrams / 100);
+    
     if (proCount < 1) {
-      toast.error('Peso mínimo de 100g para gerar 1 PRO');
+      toast.error('Peso mínimo de 0.1 kg para gerar 1 PRO');
       return;
     }
 
-    // Create the weighing
-    const { data: weighingData, error: weighingError } = await supabase
-      .from('weighings')
-      .insert({
-        collection_point_id: formData.collection_point_id,
-        user_id: formData.user_id,
-        weight_grams: formData.weight_grams,
-        weighed_by: user?.id,
-        notes: formData.notes || null
-      })
-      .select()
-      .single();
+    setIsCreating(true);
 
-    if (weighingError) {
-      toast.error('Erro ao registrar pesagem');
-      console.error(weighingError);
-      return;
-    }
+    try {
+      // Create the weighing first
+      const { data: weighingData, error: weighingError } = await supabase
+        .from('weighings')
+        .insert({
+          collection_point_id: formData.collection_point_id,
+          user_id: formData.user_id,
+          weight_grams: weightGrams,
+          weighed_by: user?.id,
+          notes: formData.notes || null
+        })
+        .select()
+        .single();
 
-    // Create PROs for this weighing (100g = 1 PRO)
-    const prosToCreate = [];
-    for (let i = 0; i < proCount; i++) {
-      // Get next FIFO position
-      const { data: nextPosData } = await supabase.rpc('get_next_fifo_position');
-      const fifoPosition = (nextPosData as number) + i;
+      if (weighingError) {
+        throw new Error('Erro ao registrar pesagem: ' + weighingError.message);
+      }
 
-      // Generate unique PRO code
-      const { data: proCodeData } = await supabase.rpc('generate_pro_code');
+      // Get the next FIFO position once
+      const { data: nextPosData, error: posError } = await supabase.rpc('get_next_fifo_position');
       
-      prosToCreate.push({
-        code: proCodeData as string,
-        user_id: formData.user_id,
-        collection_point_id: formData.collection_point_id,
-        weight_grams: 100,
-        fifo_position: fifoPosition,
-        status: 'processing' as const
-      });
+      if (posError) {
+        throw new Error('Erro ao obter posição FIFO: ' + posError.message);
+      }
+
+      const startPosition = nextPosData as number;
+
+      // Create all PROs in batch
+      const prosToCreate = [];
+      const year = new Date().getFullYear();
+      
+      for (let i = 0; i < proCount; i++) {
+        const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const code = `PRO-${year}-${randomCode}${(startPosition + i).toString().padStart(4, '0')}`;
+        
+        prosToCreate.push({
+          code: code,
+          user_id: formData.user_id,
+          collection_point_id: formData.collection_point_id,
+          weight_grams: 100,
+          fifo_position: startPosition + i,
+          status: 'processing' as const
+        });
+      }
+
+      // Insert all PROs at once
+      const { error: prosError } = await supabase
+        .from('pros')
+        .insert(prosToCreate);
+
+      if (prosError) {
+        throw new Error('Erro ao criar PROs: ' + prosError.message);
+      }
+
+      toast.success(`Pesagem registrada! ${proCount} PRO(s) criado(s) com sucesso!`);
+      setIsAddOpen(false);
+      setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao processar pesagem');
+      console.error(error);
+    } finally {
+      setIsCreating(false);
     }
+  };
 
-    // Insert all PROs
-    const { error: prosError } = await supabase
-      .from('pros')
-      .insert(prosToCreate);
+  const deleteWeighing = async (weighingId: string, pros: PRO[] | undefined) => {
+    try {
+      // Delete associated PROs first
+      if (pros && pros.length > 0) {
+        const proIds = pros.map(p => p.id);
+        const { error: prosError } = await supabase
+          .from('pros')
+          .delete()
+          .in('id', proIds);
 
-    if (prosError) {
-      toast.error('Erro ao criar PROs');
-      console.error(prosError);
-      return;
+        if (prosError) {
+          throw new Error('Erro ao deletar PROs: ' + prosError.message);
+        }
+      }
+
+      // Delete the weighing
+      const { error } = await supabase
+        .from('weighings')
+        .delete()
+        .eq('id', weighingId);
+
+      if (error) {
+        throw new Error('Erro ao deletar pesagem: ' + error.message);
+      }
+
+      toast.success('Pesagem e PROs deletados com sucesso!');
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao deletar');
+      console.error(error);
     }
-
-    // Also add to FIFO queue
-    const fifoEntries = prosToCreate.map((pro, index) => ({
-      pro_id: '', // Will be updated after fetching
-      position: pro.fifo_position,
-      status: 'processing' as const
-    }));
-
-    toast.success(`Pesagem registrada! ${proCount} PRO(s) criado(s) com sucesso!`);
-    setIsAddOpen(false);
-    setFormData({ collection_point_id: '', user_id: '', weight_grams: 0, notes: '' });
-    fetchData();
   };
 
   const getPointName = (pointId: string) => {
@@ -285,15 +313,16 @@ export function WeighingsManagement() {
               </div>
 
               <div className="space-y-2">
-                <Label>Peso (gramas) *</Label>
+                <Label>Peso (Kg) *</Label>
                 <Input
                   type="number"
-                  placeholder="500"
-                  value={formData.weight_grams || ''}
-                  onChange={(e) => setFormData({ ...formData, weight_grams: parseInt(e.target.value) || 0 })}
+                  step="0.1"
+                  placeholder="1.5"
+                  value={formData.weight_kg || ''}
+                  onChange={(e) => setFormData({ ...formData, weight_kg: parseFloat(e.target.value) || 0 })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  = {Math.floor(formData.weight_grams / 100)} PRO(s) serão gerados (100g = 1 PRO)
+                  = {Math.floor((formData.weight_kg * 1000) / 100)} PRO(s) serão gerados (0.1 kg = 1 PRO)
                 </p>
               </div>
 
@@ -306,8 +335,8 @@ export function WeighingsManagement() {
                 />
               </div>
 
-              <Button onClick={createWeighing} className="w-full">
-                Registrar Pesagem e Gerar PROs
+              <Button onClick={createWeighing} className="w-full" disabled={isCreating}>
+                {isCreating ? 'Processando...' : 'Registrar Pesagem e Gerar PROs'}
               </Button>
             </div>
           </DialogContent>
@@ -355,12 +384,41 @@ export function WeighingsManagement() {
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <div className="font-medium">{weighing.weight_grams}g</div>
+                            <div className="font-medium">{(weighing.weight_grams / 1000).toFixed(2)} kg</div>
                             <div className="text-sm text-primary flex items-center gap-1">
                               <Package className="w-3 h-3" />
                               {weighing.pros?.length || Math.floor(weighing.weight_grams / 100)} PROs
                             </div>
                           </div>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-destructive hover:text-destructive"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Deletar Pesagem?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Isso irá deletar a pesagem e todos os {weighing.pros?.length || 0} PROs associados. Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => deleteWeighing(weighing.id, weighing.pros)}
+                                >
+                                  Deletar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                     </CollapsibleTrigger>
@@ -395,7 +453,7 @@ export function WeighingsManagement() {
                           </div>
                         ) : (
                           <div className="text-sm text-muted-foreground italic">
-                            Nenhum PRO registrado ainda (pesagem anterior à funcionalidade)
+                            Nenhum PRO registrado ainda
                           </div>
                         )}
                       </div>
