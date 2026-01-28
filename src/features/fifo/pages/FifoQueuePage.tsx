@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { 
   ListOrdered, 
   Search,
@@ -11,7 +12,8 @@ import {
   Calendar,
   Scale,
   Leaf,
-  ArrowDown
+  ArrowDown,
+  Filter
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -63,6 +65,7 @@ export default function FifoQueuePage() {
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showOnlyMine, setShowOnlyMine] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<FifoEntry | null>(null);
   const [stats, setStats] = useState({
     totalInQueue: 0,
@@ -128,7 +131,9 @@ export default function FifoQueuePage() {
       profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       profile?.referral_code?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesSearch;
+    const matchesMineFilter = !showOnlyMine || (user && entry.pro?.user_id === user.id);
+    
+    return matchesSearch && matchesMineFilter;
   });
 
   // Group entries by status for column display
@@ -173,15 +178,26 @@ export default function FifoQueuePage() {
           </p>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por código ou nome..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 max-w-md"
-          />
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por código ou nome..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button
+            variant={showOnlyMine ? "default" : "outline"}
+            onClick={() => setShowOnlyMine(!showOnlyMine)}
+            className="gap-2"
+            disabled={!user}
+          >
+            <Filter className="w-4 h-4" />
+            Meus PROs
+          </Button>
         </div>
 
         {/* Column-based Queue Visualization */}
