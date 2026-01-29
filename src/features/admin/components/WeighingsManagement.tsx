@@ -98,18 +98,22 @@ export function WeighingsManagement() {
       console.error(weighingsResult.error);
     }
 
-    // Fetch PROs for all weighings
+    // Fetch PROs for all weighings based on collection_point_id and processed_at timestamp
     const weighingsWithPros: Weighing[] = [];
     
     if (weighingsResult.data) {
       for (const weighing of weighingsResult.data) {
+        // Get PROs that were processed at this collection point around the weighing time
+        const weighingTime = new Date(weighing.weighed_at);
+        const startTime = new Date(weighingTime.getTime() - 60000).toISOString();
+        const endTime = new Date(weighingTime.getTime() + 60000).toISOString();
+        
         const { data: prosData } = await supabase
           .from('pros')
           .select('id, code, status, fifo_position, created_at')
-          .eq('user_id', weighing.user_id)
           .eq('collection_point_id', weighing.collection_point_id)
-          .gte('created_at', new Date(new Date(weighing.weighed_at).getTime() - 60000).toISOString())
-          .lte('created_at', new Date(new Date(weighing.weighed_at).getTime() + 60000).toISOString())
+          .gte('processed_at', startTime)
+          .lte('processed_at', endTime)
           .order('fifo_position', { ascending: true });
 
         weighingsWithPros.push({
