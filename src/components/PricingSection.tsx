@@ -149,210 +149,204 @@ const AvulsaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
   </div>
 );
 
-const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
-  <div className="space-y-8">
-    {/* Assinatura de PROs */}
-    <div>
-      <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-        <span className="text-2xl">🌾</span> Assinatura de PROs
-      </h3>
-      <p className="text-muted-foreground mb-4">Impacto contínuo + participação automática no ciclo</p>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { name: 'Semente', pros: 10, price: 10, icon: Sprout },
-          { name: 'Muda', pros: 25, price: 25, icon: Leaf },
-          { name: 'Árvore', pros: 50, price: 50, icon: TreeDeciduous },
-          { name: 'Livre', pros: null, price: null, icon: Star },
-        ].map((plan) => (
-          <Card key={plan.name} className="hover:shadow-elevated transition-shadow">
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <plan.icon className="w-5 h-5 text-primary" />
-                <CardTitle className="text-lg">Plano {plan.name}</CardTitle>
-              </div>
-              <CardDescription>
-                {plan.pros ? `${plan.pros} PROs/mês` : 'Valor escolhido por você'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
-                {plan.price ? (
-                  <>
-                    <span className="text-2xl font-bold text-primary">R$ {plan.price}</span>
-                    <span className="text-muted-foreground">/mês</span>
-                  </>
+const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
+  const proPlans = [
+    { name: 'Semente', pros: 10, price: 10, icon: Sprout, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=ZNI2HOF' },
+    { name: 'Muda', pros: 25, price: 25, icon: Leaf, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=RYR5AYT' },
+    { name: 'Árvore', pros: 50, price: 50, icon: TreeDeciduous, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=M6SMJ2V' },
+    { name: 'Livre', pros: null, price: null, icon: Star, link: null },
+  ];
+
+  const aduboPlans = [
+    { name: 'Adubo Granulado', description: '0,5 kg mensal', price: 15, icon: Leaf, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=I5X3FYG' },
+    { name: 'Adubo Líquido', description: '500 ml mensal', price: 10, icon: Droplets, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=ZB6UOD7' },
+    { name: 'Granulado + Líquido', description: 'Ambos os adubos mensais', price: 22, icon: Star, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=SWPRZQA', combo: true },
+  ];
+
+  return (
+    <div className="space-y-8">
+      {/* Assinatura de PROs */}
+      <div>
+        <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+          <span className="text-2xl">🌾</span> Assinatura de PROs
+        </h3>
+        <p className="text-muted-foreground mb-4">Impacto contínuo + participação automática no ciclo</p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {proPlans.map((plan) => (
+            <Card key={plan.name} className="hover:shadow-elevated transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <plan.icon className="w-5 h-5 text-primary" />
+                  <CardTitle className="text-lg">Plano {plan.name}</CardTitle>
+                </div>
+                <CardDescription>
+                  {plan.pros ? `${plan.pros} PROs/mês` : 'Valor escolhido por você'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  {plan.price ? (
+                    <>
+                      <span className="text-2xl font-bold text-primary">R$ {plan.price}</span>
+                      <span className="text-muted-foreground">/mês</span>
+                    </>
+                  ) : (
+                    <span className="text-lg font-medium text-muted-foreground">Personalizado</span>
+                  )}
+                </div>
+                {plan.link ? (
+                  <Button asChild className="w-full">
+                    <a href={plan.link} target="_blank" rel="noopener noreferrer">
+                      Assinar
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </a>
+                  </Button>
                 ) : (
-                  <span className="text-lg font-medium text-muted-foreground">Personalizado</span>
+                  <Button onClick={onGetStarted} className="w-full">
+                    Assinar
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Assinatura de Adubos */}
+      <div>
+        <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+          <span className="text-2xl">🪴</span> Assinatura de Adubos
+        </h3>
+        <p className="text-muted-foreground mb-4">Entrega recorrente em casa + impacto local</p>
+        <div className="grid md:grid-cols-3 gap-4">
+          {aduboPlans.map((plan) => (
+            <Card key={plan.name} className={`hover:shadow-elevated transition-shadow ${plan.combo ? 'border-primary/50' : ''}`}>
+              <CardHeader className="pb-2">
+                {plan.combo && <Badge className="w-fit mb-2">Combo</Badge>}
+                <div className="flex items-center gap-2">
+                  <plan.icon className={`w-5 h-5 ${plan.combo ? 'text-accent' : 'text-primary'}`} />
+                  <CardTitle className="text-lg">{plan.name}</CardTitle>
+                </div>
+                <CardDescription>{plan.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <span className="text-2xl font-bold text-primary">R$ {plan.price}</span>
+                  <span className="text-muted-foreground">/mês</span>
+                </div>
+                <Button asChild className="w-full">
+                  <a href={plan.link} target="_blank" rel="noopener noreferrer">
+                    Assinar
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CicloPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
+  const cicloPlans = [
+    {
+      name: 'Semente',
+      emoji: '🌱',
+      pros: 10,
+      adubos: 1,
+      price: 25,
+      icon: Sprout,
+      link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=ETDZIY8',
+    },
+    {
+      name: 'Muda',
+      emoji: '🌿',
+      pros: 25,
+      adubos: 2,
+      price: 50,
+      popular: true,
+      icon: TreeDeciduous,
+      link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=GL2VODG',
+    },
+    {
+      name: 'Árvore',
+      emoji: '🌳',
+      pros: 50,
+      adubos: 3,
+      price: 90,
+      icon: TreePine,
+      link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=8YH02Y6',
+    },
+  ];
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <Badge variant="default" className="mb-2">
+          ⭐ Modelo-chave do Clube do Adubo
+        </Badge>
+        <h3 className="text-xl font-bold text-foreground">
+          Assinatura "Fechar o Ciclo"
+        </h3>
+        <p className="text-muted-foreground">Adubo + PROs no mesmo plano</p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {cicloPlans.map((plan) => (
+          <Card
+            key={plan.name}
+            className={`relative hover:shadow-elevated transition-shadow ${
+              plan.popular ? 'border-primary shadow-glow' : ''
+            }`}
+          >
+            {plan.popular && (
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                Mais popular
+              </Badge>
+            )}
+            <CardHeader className="text-center pb-2">
+              <div className="text-4xl mb-2">{plan.emoji}</div>
+              <CardTitle>Plano {plan.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="mb-4">
+                <span className="text-4xl font-bold text-primary">R$ {plan.price}</span>
+                <span className="text-muted-foreground">/mês</span>
               </div>
-              <Button onClick={onGetStarted} className="w-full">
-                Assinar
-                <ArrowRight className="w-4 h-4 ml-2" />
+              <ul className="text-sm text-muted-foreground space-y-2 mb-6">
+                <li className="flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  {plan.pros} PROs/mês
+                </li>
+                <li className="flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  {plan.adubos} adubo{plan.adubos > 1 ? 's' : ''}/mês
+                </li>
+                <li className="flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  Combinação flexível
+                </li>
+              </ul>
+              <Button
+                asChild
+                variant={plan.popular ? 'hero' : 'default'}
+                className="w-full"
+              >
+                <a href={plan.link} target="_blank" rel="noopener noreferrer">
+                  Assinar agora
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </a>
               </Button>
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
-
-    {/* Assinatura de Adubos */}
-    <div>
-      <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-        <span className="text-2xl">🪴</span> Assinatura de Adubos
-      </h3>
-      <p className="text-muted-foreground mb-4">Entrega recorrente em casa + impacto local</p>
-      <div className="grid md:grid-cols-3 gap-4">
-        <Card className="hover:shadow-elevated transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Leaf className="w-5 h-5 text-primary" />
-              <CardTitle className="text-lg">Adubo Granulado</CardTitle>
-            </div>
-            <CardDescription>0,5 kg mensal</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <span className="text-2xl font-bold text-primary">R$ 15</span>
-              <span className="text-muted-foreground">/mês</span>
-            </div>
-            <Button onClick={onGetStarted} className="w-full">
-              Assinar
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-elevated transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Droplets className="w-5 h-5 text-primary" />
-              <CardTitle className="text-lg">Adubo Líquido</CardTitle>
-            </div>
-            <CardDescription>500 ml mensal</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <span className="text-2xl font-bold text-primary">R$ 10</span>
-              <span className="text-muted-foreground">/mês</span>
-            </div>
-            <Button onClick={onGetStarted} className="w-full">
-              Assinar
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-elevated transition-shadow border-primary/50">
-          <CardHeader className="pb-2">
-            <Badge className="w-fit mb-2">Combo</Badge>
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-accent" />
-              <CardTitle className="text-lg">Granulado + Líquido</CardTitle>
-            </div>
-            <CardDescription>Ambos os adubos mensais</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <span className="text-2xl font-bold text-primary">R$ 22</span>
-              <span className="text-muted-foreground">/mês</span>
-            </div>
-            <Button onClick={onGetStarted} className="w-full">
-              Assinar
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  </div>
-);
-
-const CicloPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
-  <div>
-    <div className="text-center mb-6">
-      <Badge variant="default" className="mb-2">
-        ⭐ Modelo-chave do Clube do Adubo
-      </Badge>
-      <h3 className="text-xl font-bold text-foreground">
-        Assinatura "Fechar o Ciclo"
-      </h3>
-      <p className="text-muted-foreground">Adubo + PROs no mesmo plano</p>
-    </div>
-
-    <div className="grid md:grid-cols-3 gap-6">
-      {[
-        {
-          name: 'Semente',
-          emoji: '🌱',
-          pros: 10,
-          adubos: 1,
-          price: 25,
-          icon: Sprout,
-        },
-        {
-          name: 'Muda',
-          emoji: '🌿',
-          pros: 25,
-          adubos: 2,
-          price: 50,
-          popular: true,
-          icon: TreeDeciduous,
-        },
-        {
-          name: 'Árvore',
-          emoji: '🌳',
-          pros: 50,
-          adubos: 3,
-          price: 90,
-          icon: TreePine,
-        },
-      ].map((plan) => (
-        <Card
-          key={plan.name}
-          className={`relative hover:shadow-elevated transition-shadow ${
-            plan.popular ? 'border-primary shadow-glow' : ''
-          }`}
-        >
-          {plan.popular && (
-            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-              Mais popular
-            </Badge>
-          )}
-          <CardHeader className="text-center pb-2">
-            <div className="text-4xl mb-2">{plan.emoji}</div>
-            <CardTitle>Plano {plan.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="mb-4">
-              <span className="text-4xl font-bold text-primary">R$ {plan.price}</span>
-              <span className="text-muted-foreground">/mês</span>
-            </div>
-            <ul className="text-sm text-muted-foreground space-y-2 mb-6">
-              <li className="flex items-center justify-center gap-2">
-                <Check className="w-4 h-4 text-primary" />
-                {plan.pros} PROs/mês
-              </li>
-              <li className="flex items-center justify-center gap-2">
-                <Check className="w-4 h-4 text-primary" />
-                {plan.adubos} adubo{plan.adubos > 1 ? 's' : ''}/mês
-              </li>
-              <li className="flex items-center justify-center gap-2">
-                <Check className="w-4 h-4 text-primary" />
-                Combinação flexível
-              </li>
-            </ul>
-            <Button
-              onClick={onGetStarted}
-              variant={plan.popular ? 'hero' : 'default'}
-              className="w-full"
-            >
-              Assinar agora
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 const KitsPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
   <div className="grid md:grid-cols-2 gap-6">
