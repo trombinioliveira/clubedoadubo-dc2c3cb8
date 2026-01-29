@@ -24,7 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type ProStatus = 'processing' | 'ready' | 'sold' | 'paid';
+type ProStatus = 'pending' | 'processing' | 'ready' | 'sold' | 'paid';
 
 interface FifoEntry {
   id: string;
@@ -52,7 +52,7 @@ interface Profile {
 }
 
 const stageConfig = [
-  { key: 'coleta', label: '1', title: 'Coleta', icon: '📍', statuses: [] as ProStatus[] },
+  { key: 'pending', label: '1', title: 'Coleta', icon: '📍', statuses: ['pending'] as ProStatus[] },
   { key: 'processing', label: '2', title: 'Processamento', icon: '🏭', statuses: ['processing'] as ProStatus[] },
   { key: 'ready', label: '3', title: 'Produção', icon: '🌾', statuses: ['ready'] as ProStatus[] },
   { key: 'sold', label: '4', title: 'Venda', icon: '📦', statuses: ['sold'] as ProStatus[] },
@@ -69,6 +69,7 @@ export default function FifoQueuePage() {
   const [selectedEntry, setSelectedEntry] = useState<FifoEntry | null>(null);
   const [stats, setStats] = useState({
     totalInQueue: 0,
+    pending: 0,
     processing: 0,
     ready: 0,
     sold: 0,
@@ -107,6 +108,7 @@ export default function FifoQueuePage() {
 
     const typedQueue = (queueData || []) as FifoEntry[];
 
+    const pending = typedQueue.filter(q => q.status === 'pending').length;
     const processing = typedQueue.filter(q => q.status === 'processing').length;
     const ready = typedQueue.filter(q => q.status === 'ready').length;
     const sold = typedQueue.filter(q => q.status === 'sold').length;
@@ -116,6 +118,7 @@ export default function FifoQueuePage() {
     setProfiles(profilesMap);
     setStats({
       totalInQueue: typedQueue.length,
+      pending,
       processing,
       ready,
       sold,
@@ -138,12 +141,12 @@ export default function FifoQueuePage() {
 
   // Group entries by status for column display
   const getEntriesByStatus = (statuses: ProStatus[]) => {
-    if (statuses.length === 0) return []; // Coleta column shows nothing (entry point)
     return filteredQueue.filter(entry => statuses.includes(entry.status));
   };
 
   const getStatusLabel = (status: ProStatus) => {
     const labels: Record<ProStatus, string> = {
+      pending: 'Aguardando Coleta',
       processing: 'Em Processamento',
       ready: 'Pronto (Adubo)',
       sold: 'Vendido',
@@ -154,6 +157,7 @@ export default function FifoQueuePage() {
 
   const getStageIndex = (status: ProStatus): number => {
     const stages: Record<ProStatus, number> = {
+      pending: 1,
       processing: 2,
       ready: 3,
       sold: 4,
@@ -209,18 +213,27 @@ export default function FifoQueuePage() {
           <div className="grid grid-cols-5 gap-2 md:gap-4">
             {stageConfig.map((stage, stageIdx) => {
               const entries = getEntriesByStatus(stage.statuses);
-              const count = stage.key === 'coleta' ? stats.totalInQueue : entries.length;
+              const count = entries.length;
               const isPaidColumn = stage.key === 'paid';
+              const isPendingColumn = stage.key === 'pending';
               
               return (
                 <div key={stage.key} className="flex flex-col">
                   {/* Column Header */}
-                  <Card className={`mb-2 ${isPaidColumn ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-primary/5 border-primary/20'}`}>
+                  <Card className={`mb-2 ${
+                    isPaidColumn 
+                      ? 'bg-emerald-500/10 border-emerald-500/30' 
+                      : isPendingColumn
+                        ? 'bg-amber-500/10 border-amber-500/30'
+                        : 'bg-primary/5 border-primary/20'
+                  }`}>
                     <CardContent className="p-3 text-center">
                       <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center font-bold text-lg mb-1 ${
                         isPaidColumn 
                           ? 'bg-emerald-500 text-white' 
-                          : 'bg-primary text-primary-foreground'
+                          : isPendingColumn
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-primary text-primary-foreground'
                       }`}>
                         {stage.label}
                       </div>
@@ -240,22 +253,7 @@ export default function FifoQueuePage() {
 
                   {/* Column Content - PRO items */}
                   <div className="flex-1 space-y-1 min-h-[200px]">
-                    {stage.key === 'coleta' ? (
-                      // Coleta column shows a summary/entry point
-                      <Card className="border-dashed border-2 border-primary/30">
-                        <CardContent className="p-3 text-center">
-                          <p className="text-xs text-muted-foreground">
-                            Entrada de resíduos
-                          </p>
-                          <p className="text-2xl font-bold text-primary mt-1">
-                            {stats.totalInQueue}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            PROs no sistema
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ) : entries.length === 0 ? (
+                    {entries.length === 0 ? (
                       <div className="p-4 text-center text-muted-foreground">
                         <p className="text-xs">Nenhum PRO</p>
                       </div>
@@ -274,7 +272,9 @@ export default function FifoQueuePage() {
                                   ? 'bg-primary/20 border-2 border-primary ring-2 ring-primary/20' 
                                   : isPaidColumn
                                     ? 'bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20'
-                                    : 'bg-card border border-border hover:bg-muted/50'
+                                    : isPendingColumn
+                                      ? 'bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20'
+                                      : 'bg-card border border-border hover:bg-muted/50'
                               }`}
                             >
                               <div className="flex items-center justify-between gap-1">

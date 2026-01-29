@@ -355,7 +355,7 @@ export type Database = {
       app_role: "admin" | "staff" | "client"
       batch_status: "processing" | "ready" | "partial_sold" | "sold"
       batch_type: "composting" | "vermicomposting"
-      pro_status: "processing" | "ready" | "sold" | "paid"
+      pro_status: "pending" | "processing" | "ready" | "sold" | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -486,7 +486,7 @@ export const Constants = {
       app_role: ["admin", "staff", "client"],
       batch_status: ["processing", "ready", "partial_sold", "sold"],
       batch_type: ["composting", "vermicomposting"],
-      pro_status: ["processing", "ready", "sold", "paid"],
+      pro_status: ["pending", "processing", "ready", "sold", "paid"],
     },
   },
 } as const

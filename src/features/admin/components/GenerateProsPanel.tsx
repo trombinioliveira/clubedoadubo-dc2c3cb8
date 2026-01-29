@@ -117,7 +117,7 @@ export function GenerateProsPanel() {
             user_id: selectedUserId,
             weight_grams: 100, // Each PRO = 100g
             fifo_position: position,
-            status: 'processing' as const // Starts in "Coleta" (processing status maps to collection phase)
+            status: 'pending' as const // Starts as 'pending' (not yet collected)
           });
 
           generatedCodes.push(code);
@@ -142,7 +142,7 @@ export function GenerateProsPanel() {
           const fifoInserts = insertedPros.map(pro => ({
             pro_id: pro.id,
             position: prosToInsert.find(p => p.code === pro.code)?.fifo_position || 0,
-            status: 'processing' as const
+            status: 'pending' as const
           }));
 
           const { error: fifoError } = await supabase
