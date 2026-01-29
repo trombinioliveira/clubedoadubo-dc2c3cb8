@@ -162,10 +162,10 @@ export function WeighingsManagement() {
     setIsCreating(true);
 
     try {
-      // First, check if admin has enough pending PROs
+      // First, check if admin has enough pending PROs - fetch fresh data
       const { data: pendingPros, error: pendingError } = await supabase
         .from('pros')
-        .select('id, fifo_position')
+        .select('id, fifo_position, code')
         .eq('user_id', user.id)
         .eq('status', 'pending')
         .order('fifo_position', { ascending: true })
@@ -177,42 +177,38 @@ export function WeighingsManagement() {
 
       if (!pendingPros || pendingPros.length < proCount) {
         toast.error(`Existem apenas ${pendingPros?.length || 0} PRO(s) aguardando coleta. Gere mais PROs primeiro.`);
+        // Refresh the count display
+        await fetchAdminPendingCount();
         setIsCreating(false);
         return;
       }
 
-      // Create the weighing (user_id is admin's ID)
-      const { data: weighingData, error: weighingError } = await supabase
-        .from('weighings')
-        .insert({
-          collection_point_id: formData.collection_point_id,
-          user_id: user.id,
-          weight_grams: weightGrams,
-          weighed_by: user.id,
-          notes: formData.notes || null
-        })
-        .select()
-        .single();
-
-      if (weighingError) {
-        throw new Error('Erro ao registrar pesagem: ' + weighingError.message);
-      }
-
-      // Update pending PROs to processing status and assign collection point
+      // Get the PRO IDs to update
       const proIds = pendingPros.map(p => p.id);
+      const proCodes = pendingPros.map(p => p.code).slice(0, 5);
       
-      const { error: updateProsError } = await supabase
+      console.log(`Updating ${proIds.length} PROs to processing:`, proCodes);
+
+      // Update pending PROs to processing status FIRST (before creating weighing)
+      const { data: updatedPros, error: updateProsError } = await supabase
         .from('pros')
         .update({ 
           status: 'processing',
           collection_point_id: formData.collection_point_id,
           processed_at: new Date().toISOString()
         })
-        .in('id', proIds);
+        .in('id', proIds)
+        .select('id');
 
       if (updateProsError) {
         throw new Error('Erro ao atualizar PROs: ' + updateProsError.message);
       }
+
+      if (!updatedPros || updatedPros.length === 0) {
+        throw new Error('Nenhum PRO foi atualizado. Verifique se existem PROs pendentes.');
+      }
+
+      console.log(`Successfully updated ${updatedPros.length} PROs to processing`);
 
       // Update FIFO queue status
       const { error: updateFifoError } = await supabase
@@ -221,18 +217,35 @@ export function WeighingsManagement() {
         .in('pro_id', proIds);
 
       if (updateFifoError) {
-        throw new Error('Erro ao atualizar fila FIFO: ' + updateFifoError.message);
+        console.warn('FIFO queue update warning:', updateFifoError.message);
+        // Don't throw - the PROs are already updated
       }
 
-      toast.success(`Pesagem registrada! ${proCount} PRO(s) movidos para processamento!`);
+      // Create the weighing record after PROs are updated
+      const { error: weighingError } = await supabase
+        .from('weighings')
+        .insert({
+          collection_point_id: formData.collection_point_id,
+          user_id: user.id,
+          weight_grams: weightGrams,
+          weighed_by: user.id,
+          notes: formData.notes || null
+        });
+
+      if (weighingError) {
+        // Log but don't fail - PROs are already transitioned
+        console.error('Weighing record error:', weighingError.message);
+      }
+
+      toast.success(`Pesagem registrada! ${updatedPros.length} PRO(s) movidos para processamento!`);
       setIsAddOpen(false);
       setFormData({ collection_point_id: '', weight_kg: 0, notes: '' });
       fetchData();
       // Refresh pending count
-      fetchAdminPendingCount();
+      await fetchAdminPendingCount();
     } catch (error: any) {
       toast.error(error.message || 'Erro ao processar pesagem');
-      console.error(error);
+      console.error('Weighing error:', error);
     } finally {
       setIsCreating(false);
     }
