@@ -4,7 +4,7 @@ import { CycleVisual } from './CycleVisual';
 import { Card, CardContent } from '@/components/ui/card';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from './icons/CycleIcons';
 import { ArrowRight, CheckCircle, Leaf, Recycle, TrendingUp, Users } from 'lucide-react';
-
+import { PricingSection } from './PricingSection';
 interface LandingPageProps {
   onGetStarted: () => void;
 }
@@ -137,6 +137,9 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           </div>
         </div>
       </section>
+
+      {/* Pricing Section */}
+      <PricingSection onGetStarted={onGetStarted} />
 
       {/* CTA */}
       <section className="py-16 md:py-24">
