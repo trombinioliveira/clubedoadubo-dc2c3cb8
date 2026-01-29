@@ -72,12 +72,13 @@ export function WeighingsManagement() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [expandedWeighings, setExpandedWeighings] = useState<Set<string>>(new Set());
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     collection_point_id: '',
     user_id: '',
     weight_kg: 0,
     notes: ''
   });
+  const [selectedUserPendingCount, setSelectedUserPendingCount] = useState<number>(0);
 
   useEffect(() => {
     fetchData();
@@ -211,6 +212,7 @@ export function WeighingsManagement() {
       toast.success(`Pesagem registrada! ${proCount} PRO(s) movidos para processamento!`);
       setIsAddOpen(false);
       setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
+      setSelectedUserPendingCount(0);
       fetchData();
     } catch (error: any) {
       toast.error(error.message || 'Erro ao processar pesagem');
@@ -277,7 +279,13 @@ export function WeighingsManagement() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Registro de Pesagens</CardTitle>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <Dialog open={isAddOpen} onOpenChange={(open) => {
+          setIsAddOpen(open);
+          if (!open) {
+            setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
+            setSelectedUserPendingCount(0);
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="earth-gradient">
               <Plus className="w-4 h-4 mr-2" />
@@ -312,7 +320,16 @@ export function WeighingsManagement() {
                 <Label>Usuário *</Label>
                 <Select 
                   value={formData.user_id} 
-                  onValueChange={(v) => setFormData({ ...formData, user_id: v })}
+                  onValueChange={async (v) => {
+                    setFormData({ ...formData, user_id: v });
+                    // Fetch pending PROs count for selected user
+                    const { count } = await supabase
+                      .from('pros')
+                      .select('*', { count: 'exact', head: true })
+                      .eq('user_id', v)
+                      .eq('status', 'pending');
+                    setSelectedUserPendingCount(count || 0);
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o usuário" />
@@ -325,9 +342,13 @@ export function WeighingsManagement() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  PROs pendentes serão movidos para processamento
-                </p>
+                {formData.user_id && (
+                  <p className={`text-xs ${selectedUserPendingCount > 0 ? 'text-green-600' : 'text-destructive'}`}>
+                    {selectedUserPendingCount > 0 
+                      ? `✓ ${selectedUserPendingCount} PRO(s) aguardando coleta`
+                      : '✗ Usuário não possui PROs aguardando coleta. Gere PROs primeiro.'}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
