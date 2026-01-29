@@ -43,6 +43,7 @@ interface Weighing {
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
+    pending: 'Aguardando coleta',
     processing: 'Em processamento',
     ready: 'Virou adubo',
     sold: 'Adubo vendido',
@@ -53,6 +54,7 @@ const getStatusLabel = (status: string) => {
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
+    pending: 'bg-gray-500/20 text-gray-700 border-gray-500/30',
     processing: 'bg-amber-500/20 text-amber-700 border-amber-500/30',
     ready: 'bg-green-500/20 text-green-700 border-green-500/30',
     sold: 'bg-blue-500/20 text-blue-700 border-blue-500/30',
@@ -140,7 +142,26 @@ export function WeighingsManagement() {
     setIsCreating(true);
 
     try {
-      // Create the weighing first
+      // First, check if user has enough pending PROs
+      const { data: pendingPros, error: pendingError } = await supabase
+        .from('pros')
+        .select('id, fifo_position')
+        .eq('user_id', formData.user_id)
+        .eq('status', 'pending')
+        .order('fifo_position', { ascending: true })
+        .limit(proCount);
+
+      if (pendingError) {
+        throw new Error('Erro ao buscar PROs pendentes: ' + pendingError.message);
+      }
+
+      if (!pendingPros || pendingPros.length < proCount) {
+        toast.error(`Cliente possui apenas ${pendingPros?.length || 0} PRO(s) aguardando coleta. Gere mais PROs primeiro.`);
+        setIsCreating(false);
+        return;
+      }
+
+      // Create the weighing
       const { data: weighingData, error: weighingError } = await supabase
         .from('weighings')
         .insert({
@@ -157,61 +178,33 @@ export function WeighingsManagement() {
         throw new Error('Erro ao registrar pesagem: ' + weighingError.message);
       }
 
-      // Get the next FIFO position once
-      const { data: nextPosData, error: posError } = await supabase.rpc('get_next_fifo_position');
+      // Update pending PROs to processing status and assign collection point
+      const proIds = pendingPros.map(p => p.id);
       
-      if (posError) {
-        throw new Error('Erro ao obter posição FIFO: ' + posError.message);
-      }
-
-      const startPosition = nextPosData as number;
-
-      // Create all PROs in batch
-      const prosToCreate = [];
-      const year = new Date().getFullYear();
-      
-      for (let i = 0; i < proCount; i++) {
-        const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const code = `PRO-${year}-${randomCode}${(startPosition + i).toString().padStart(4, '0')}`;
-        
-        prosToCreate.push({
-          code: code,
-          user_id: formData.user_id,
-          collection_point_id: formData.collection_point_id,
-          weight_grams: 100,
-          fifo_position: startPosition + i,
-          status: 'processing' as const
-        });
-      }
-
-      // Insert all PROs at once
-      const { data: createdPros, error: prosError } = await supabase
+      const { error: updateProsError } = await supabase
         .from('pros')
-        .insert(prosToCreate)
-        .select('id, fifo_position');
+        .update({ 
+          status: 'processing',
+          collection_point_id: formData.collection_point_id,
+          processed_at: new Date().toISOString()
+        })
+        .in('id', proIds);
 
-      if (prosError) {
-        throw new Error('Erro ao criar PROs: ' + prosError.message);
+      if (updateProsError) {
+        throw new Error('Erro ao atualizar PROs: ' + updateProsError.message);
       }
 
-      // Insert all PROs into FIFO queue
-      if (createdPros && createdPros.length > 0) {
-        const fifoEntries = createdPros.map((pro) => ({
-          pro_id: pro.id,
-          position: pro.fifo_position,
-          status: 'processing' as const
-        }));
+      // Update FIFO queue status
+      const { error: updateFifoError } = await supabase
+        .from('fifo_queue')
+        .update({ status: 'processing' })
+        .in('pro_id', proIds);
 
-        const { error: fifoError } = await supabase
-          .from('fifo_queue')
-          .insert(fifoEntries);
-
-        if (fifoError) {
-          throw new Error('Erro ao inserir na fila FIFO: ' + fifoError.message);
-        }
+      if (updateFifoError) {
+        throw new Error('Erro ao atualizar fila FIFO: ' + updateFifoError.message);
       }
 
-      toast.success(`Pesagem registrada! ${proCount} PRO(s) criado(s) e adicionados à fila!`);
+      toast.success(`Pesagem registrada! ${proCount} PRO(s) movidos para processamento!`);
       setIsAddOpen(false);
       setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
       fetchData();
@@ -312,13 +305,13 @@ export function WeighingsManagement() {
               </div>
 
               <div className="space-y-2">
-                <Label>Cliente *</Label>
+                <Label>Usuário *</Label>
                 <Select 
                   value={formData.user_id} 
                   onValueChange={(v) => setFormData({ ...formData, user_id: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o cliente" />
+                    <SelectValue placeholder="Selecione o usuário" />
                   </SelectTrigger>
                   <SelectContent>
                     {profiles.map((profile) => (
@@ -328,6 +321,9 @@ export function WeighingsManagement() {
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  PROs pendentes serão movidos para processamento
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -340,7 +336,7 @@ export function WeighingsManagement() {
                   onChange={(e) => setFormData({ ...formData, weight_kg: parseFloat(e.target.value) || 0 })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  = {Math.floor((formData.weight_kg * 1000) / 100)} PRO(s) serão gerados (0.1 kg = 1 PRO)
+                  = {Math.floor((formData.weight_kg * 1000) / 100)} PRO(s) pendentes serão coletados (0.1 kg = 1 PRO)
                 </p>
               </div>
 
@@ -354,7 +350,7 @@ export function WeighingsManagement() {
               </div>
 
               <Button onClick={createWeighing} className="w-full" disabled={isCreating}>
-                {isCreating ? 'Processando...' : 'Registrar Pesagem e Gerar PROs'}
+                {isCreating ? 'Processando...' : 'Registrar Pesagem'}
               </Button>
             </div>
           </DialogContent>
