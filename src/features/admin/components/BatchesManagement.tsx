@@ -36,12 +36,29 @@ export function BatchesManagement() {
   const [newBatch, setNewBatch] = useState({
     code: '',
     batch_type: 'composting' as BatchType,
-    total_weight_grams: 0
+    solid_weight_kg: 0,
+    liquid_weight_kg: 0
   });
+  const [processingProsCount, setProcessingProsCount] = useState(0);
+
+  // Calculate total weight
+  const totalWeightKg = newBatch.solid_weight_kg + newBatch.liquid_weight_kg;
+  const totalWeightGrams = totalWeightKg * 1000;
+  const prosToMove = Math.floor(totalWeightGrams / 100);
 
   useEffect(() => {
     fetchBatches();
+    fetchProcessingProsCount();
   }, []);
+
+  const fetchProcessingProsCount = async () => {
+    const { count } = await supabase
+      .from('pros')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'processing');
+    
+    setProcessingProsCount(count || 0);
+  };
 
   const fetchBatches = async () => {
     setIsLoading(true);
@@ -67,28 +84,85 @@ export function BatchesManagement() {
       return;
     }
 
-    const { error } = await supabase
+    if (totalWeightGrams <= 0) {
+      toast.error('É necessário informar pelo menos um peso (sólido ou líquido)');
+      return;
+    }
+
+    if (prosToMove > processingProsCount) {
+      toast.error(`Não há PROs suficientes em processamento. Disponíveis: ${processingProsCount}, Necessários: ${prosToMove}`);
+      return;
+    }
+
+    // Create the batch first
+    const { data: batchData, error: batchError } = await supabase
       .from('batches')
       .insert({
         code: newBatch.code,
         batch_type: newBatch.batch_type,
-        total_weight_grams: newBatch.total_weight_grams,
+        total_weight_grams: totalWeightGrams,
         created_by: user?.id
-      });
+      })
+      .select('id')
+      .single();
 
-    if (error) {
-      if (error.code === '23505') {
+    if (batchError) {
+      if (batchError.code === '23505') {
         toast.error('Já existe um lote com este código');
       } else {
         toast.error('Erro ao criar lote');
+        console.error(batchError);
       }
       return;
     }
 
-    toast.success('Lote criado com sucesso!');
+    // Get the PROs to move from 'processing' to 'ready' (FIFO order - smallest position first)
+    const { data: prosToUpdate, error: prosSelectError } = await supabase
+      .from('pros')
+      .select('id')
+      .eq('status', 'processing')
+      .order('fifo_position', { ascending: true })
+      .limit(prosToMove);
+
+    if (prosSelectError || !prosToUpdate) {
+      toast.error('Erro ao buscar PROs para atualizar');
+      console.error(prosSelectError);
+      return;
+    }
+
+    const proIds = prosToUpdate.map(p => p.id);
+    const now = new Date().toISOString();
+
+    // Update PROs status to 'ready' and link to batch
+    const { error: prosUpdateError } = await supabase
+      .from('pros')
+      .update({ 
+        status: 'ready',
+        batch_id: batchData.id
+      })
+      .in('id', proIds);
+
+    if (prosUpdateError) {
+      toast.error('Erro ao atualizar status dos PROs');
+      console.error(prosUpdateError);
+      return;
+    }
+
+    // Update FIFO queue status
+    const { error: fifoError } = await supabase
+      .from('fifo_queue')
+      .update({ status: 'ready' })
+      .in('pro_id', proIds);
+
+    if (fifoError) {
+      console.error('Erro ao atualizar fila FIFO:', fifoError);
+    }
+
+    toast.success(`Lote criado com sucesso! ${prosToMove} PROs movidos para Produção.`);
     setIsAddOpen(false);
-    setNewBatch({ code: '', batch_type: 'composting', total_weight_grams: 0 });
+    setNewBatch({ code: '', batch_type: 'composting', solid_weight_kg: 0, liquid_weight_kg: 0 });
     fetchBatches();
+    fetchProcessingProsCount();
   };
 
   const updateBatchStatus = async (batchId: string, newStatus: BatchStatus) => {
@@ -165,16 +239,56 @@ export function BatchesManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Peso Total (gramas)</Label>
-                <Input
-                  type="number"
-                  placeholder="50000"
-                  value={newBatch.total_weight_grams || ''}
-                  onChange={(e) => setNewBatch({ ...newBatch, total_weight_grams: parseInt(e.target.value) || 0 })}
-                />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Sólido (Kg)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="0"
+                    value={newBatch.solid_weight_kg || ''}
+                    onChange={(e) => setNewBatch({ ...newBatch, solid_weight_kg: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Líquido (Kg)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="0"
+                    value={newBatch.liquid_weight_kg || ''}
+                    onChange={(e) => setNewBatch({ ...newBatch, liquid_weight_kg: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
               </div>
-              <Button onClick={createBatch} className="w-full">
+
+              <div className="bg-muted p-3 rounded-lg space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Peso Total:</span>
+                  <span className="font-medium">{totalWeightKg.toFixed(1)} Kg</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>PROs a mover para Produção:</span>
+                  <span className="font-medium">{prosToMove}</span>
+                </div>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>PROs em Processamento disponíveis:</span>
+                  <span>{processingProsCount}</span>
+                </div>
+              </div>
+
+              {prosToMove > processingProsCount && processingProsCount > 0 && (
+                <p className="text-sm text-destructive">
+                  Não há PROs suficientes em processamento. Reduza o peso ou aguarde mais coletas.
+                </p>
+              )}
+
+              <Button 
+                onClick={createBatch} 
+                className="w-full"
+                disabled={prosToMove > processingProsCount || prosToMove === 0}
+              >
                 Criar Lote
               </Button>
             </div>
