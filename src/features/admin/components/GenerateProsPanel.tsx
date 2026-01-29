@@ -33,11 +33,10 @@ export function GenerateProsPanel() {
   const { user } = useAuth();
   const [weight, setWeight] = useState('');
   const [unit, setUnit] = useState<WeightUnit>('kg');
-  const [selectedUserId, setSelectedUserId] = useState('');
-  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [generationHistory, setGenerationHistory] = useState<GenerationHistory[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [lastGeneration, setLastGeneration] = useState<{
     count: number;
     codes: string[];
@@ -131,11 +130,6 @@ export function GenerateProsPanel() {
       return;
     }
 
-    if (!selectedUserId) {
-      toast.error('Selecione um usuário');
-      return;
-    }
-
     const prosCount = calculateProsCount();
     if (prosCount === 0) {
       toast.error('Peso insuficiente para gerar PROs (mínimo 100g)');
@@ -169,7 +163,7 @@ export function GenerateProsPanel() {
 
           prosToInsert.push({
             code,
-            user_id: selectedUserId,
+            user_id: user.id, // PROs belong to admin who generates them
             weight_grams: 100, // Each PRO = 100g
             fifo_position: position,
             status: 'pending' as const // Starts as 'pending' (not yet collected)
@@ -254,22 +248,6 @@ export function GenerateProsPanel() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* User Selection */}
-        <div className="space-y-2">
-          <Label htmlFor="user">Usuário *</Label>
-          <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o usuário" />
-            </SelectTrigger>
-            <SelectContent>
-              {profiles.map((profile) => (
-                <SelectItem key={profile.user_id} value={profile.user_id}>
-                  {profile.full_name} ({profile.email})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Weight Input */}
         <div className="space-y-2">
@@ -326,7 +304,7 @@ export function GenerateProsPanel() {
         {/* Generate Button */}
         <Button 
           onClick={handleGenerate}
-          disabled={isGenerating || prosCount === 0 || !selectedUserId}
+          disabled={isGenerating || prosCount === 0}
           className="w-full gap-2"
           size="lg"
         >

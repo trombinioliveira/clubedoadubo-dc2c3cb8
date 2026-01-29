@@ -72,17 +72,32 @@ export function WeighingsManagement() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [expandedWeighings, setExpandedWeighings] = useState<Set<string>>(new Set());
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     collection_point_id: '',
-    user_id: '',
     weight_kg: 0,
     notes: ''
   });
-  const [selectedUserPendingCount, setSelectedUserPendingCount] = useState<number>(0);
+  const [adminPendingCount, setAdminPendingCount] = useState<number>(0);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchAdminPendingCount();
+    }
+  }, [user]);
+
+  const fetchAdminPendingCount = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from('pros')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'pending');
+    setAdminPendingCount(count || 0);
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -131,7 +146,7 @@ const [formData, setFormData] = useState({
   };
 
   const createWeighing = async () => {
-    if (!formData.collection_point_id || !formData.user_id || !formData.weight_kg) {
+    if (!formData.collection_point_id || !formData.weight_kg || !user) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -147,11 +162,11 @@ const [formData, setFormData] = useState({
     setIsCreating(true);
 
     try {
-      // First, check if user has enough pending PROs
+      // First, check if admin has enough pending PROs
       const { data: pendingPros, error: pendingError } = await supabase
         .from('pros')
         .select('id, fifo_position')
-        .eq('user_id', formData.user_id)
+        .eq('user_id', user.id)
         .eq('status', 'pending')
         .order('fifo_position', { ascending: true })
         .limit(proCount);
@@ -161,19 +176,19 @@ const [formData, setFormData] = useState({
       }
 
       if (!pendingPros || pendingPros.length < proCount) {
-        toast.error(`Cliente possui apenas ${pendingPros?.length || 0} PRO(s) aguardando coleta. Gere mais PROs primeiro.`);
+        toast.error(`Existem apenas ${pendingPros?.length || 0} PRO(s) aguardando coleta. Gere mais PROs primeiro.`);
         setIsCreating(false);
         return;
       }
 
-      // Create the weighing
+      // Create the weighing (user_id is admin's ID)
       const { data: weighingData, error: weighingError } = await supabase
         .from('weighings')
         .insert({
           collection_point_id: formData.collection_point_id,
-          user_id: formData.user_id,
+          user_id: user.id,
           weight_grams: weightGrams,
-          weighed_by: user?.id,
+          weighed_by: user.id,
           notes: formData.notes || null
         })
         .select()
@@ -211,9 +226,10 @@ const [formData, setFormData] = useState({
 
       toast.success(`Pesagem registrada! ${proCount} PRO(s) movidos para processamento!`);
       setIsAddOpen(false);
-      setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
-      setSelectedUserPendingCount(0);
+      setFormData({ collection_point_id: '', weight_kg: 0, notes: '' });
       fetchData();
+      // Refresh pending count
+      fetchAdminPendingCount();
     } catch (error: any) {
       toast.error(error.message || 'Erro ao processar pesagem');
       console.error(error);
@@ -282,8 +298,7 @@ const [formData, setFormData] = useState({
         <Dialog open={isAddOpen} onOpenChange={(open) => {
           setIsAddOpen(open);
           if (!open) {
-            setFormData({ collection_point_id: '', user_id: '', weight_kg: 0, notes: '' });
-            setSelectedUserPendingCount(0);
+            setFormData({ collection_point_id: '', weight_kg: 0, notes: '' });
           }
         }}>
           <DialogTrigger asChild>
@@ -297,6 +312,15 @@ const [formData, setFormData] = useState({
               <DialogTitle>Registrar Pesagem</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
+              {/* Admin pending PROs info */}
+              <div className={`p-3 rounded-lg ${adminPendingCount > 0 ? 'bg-green-50 border border-green-200' : 'bg-destructive/10 border border-destructive/30'}`}>
+                <p className={`text-sm font-medium ${adminPendingCount > 0 ? 'text-green-700' : 'text-destructive'}`}>
+                  {adminPendingCount > 0 
+                    ? `✓ ${adminPendingCount} PRO(s) aguardando coleta`
+                    : '✗ Nenhum PRO aguardando coleta. Gere PROs primeiro.'}
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <Label>Ponto de Coleta *</Label>
                 <Select 
@@ -317,41 +341,6 @@ const [formData, setFormData] = useState({
               </div>
 
               <div className="space-y-2">
-                <Label>Usuário *</Label>
-                <Select 
-                  value={formData.user_id} 
-                  onValueChange={async (v) => {
-                    setFormData({ ...formData, user_id: v });
-                    // Fetch pending PROs count for selected user
-                    const { count } = await supabase
-                      .from('pros')
-                      .select('*', { count: 'exact', head: true })
-                      .eq('user_id', v)
-                      .eq('status', 'pending');
-                    setSelectedUserPendingCount(count || 0);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o usuário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {profiles.map((profile) => (
-                      <SelectItem key={profile.id} value={profile.user_id}>
-                        {profile.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {formData.user_id && (
-                  <p className={`text-xs ${selectedUserPendingCount > 0 ? 'text-green-600' : 'text-destructive'}`}>
-                    {selectedUserPendingCount > 0 
-                      ? `✓ ${selectedUserPendingCount} PRO(s) aguardando coleta`
-                      : '✗ Usuário não possui PROs aguardando coleta. Gere PROs primeiro.'}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label>Peso (Kg) *</Label>
                 <Input
                   type="number"
@@ -361,7 +350,7 @@ const [formData, setFormData] = useState({
                   onChange={(e) => setFormData({ ...formData, weight_kg: parseFloat(e.target.value) || 0 })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  = {Math.floor((formData.weight_kg * 1000) / 100)} PRO(s) pendentes serão coletados (0.1 kg = 1 PRO)
+                  = {Math.floor((formData.weight_kg * 1000) / 100)} PRO(s) serão coletados (0.1 kg = 1 PRO)
                 </p>
               </div>
 
@@ -374,7 +363,11 @@ const [formData, setFormData] = useState({
                 />
               </div>
 
-              <Button onClick={createWeighing} className="w-full" disabled={isCreating}>
+              <Button 
+                onClick={createWeighing} 
+                className="w-full" 
+                disabled={isCreating || adminPendingCount === 0}
+              >
                 {isCreating ? 'Processando...' : 'Registrar Pesagem'}
               </Button>
             </div>
