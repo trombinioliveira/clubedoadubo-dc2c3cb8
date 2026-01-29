@@ -259,7 +259,9 @@ export default function FifoQueuePage() {
                       </div>
                     ) : (
                       <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
-                        {entries.map((entry) => {
+                        {entries
+                          .sort((a, b) => a.position - b.position)
+                          .map((entry) => {
                           const profile = profiles[entry.pro?.user_id];
                           const isUserPro = user && entry.pro?.user_id === user.id;
 
