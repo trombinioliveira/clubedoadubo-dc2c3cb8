@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import DashboardPage from "./pages/DashboardPage";
 import DreamsPage from "./pages/DreamsPage";
 import NotFound from "./pages/NotFound";
+import LandingCompra from "./pages/LandingCompra";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -30,6 +31,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/planos" element={<LandingCompra />} />
             
             <Route element={<AppLayout />}>
               <Route path="/" element={<Index />} />
