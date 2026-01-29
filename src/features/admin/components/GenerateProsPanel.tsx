@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Package, Scale, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Plus, Package, Scale, AlertCircle, CheckCircle2, History, Calendar, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type WeightUnit = 'kg' | 'ton';
 
@@ -19,6 +21,14 @@ interface Profile {
   email: string;
 }
 
+interface GenerationHistory {
+  date: string;
+  user_name: string;
+  user_id: string;
+  count: number;
+  codes: string[];
+}
+
 export function GenerateProsPanel() {
   const { user } = useAuth();
   const [weight, setWeight] = useState('');
@@ -27,6 +37,7 @@ export function GenerateProsPanel() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [generationHistory, setGenerationHistory] = useState<GenerationHistory[]>([]);
   const [lastGeneration, setLastGeneration] = useState<{
     count: number;
     codes: string[];
@@ -39,12 +50,56 @@ export function GenerateProsPanel() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Load profiles
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, user_id, full_name, email');
 
-      if (error) throw error;
-      if (data) setProfiles(data);
+      if (profilesError) throw profilesError;
+      if (profilesData) setProfiles(profilesData);
+
+      // Load generation history (PROs grouped by user and creation date)
+      const { data: prosData, error: prosError } = await supabase
+        .from('pros')
+        .select('code, user_id, created_at')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
+      if (prosError) throw prosError;
+
+      if (prosData && profilesData) {
+        // Group PROs by user and date (rounded to minute for grouping)
+        const grouped = new Map<string, GenerationHistory>();
+        
+        prosData.forEach(pro => {
+          const dateKey = pro.created_at.slice(0, 16); // YYYY-MM-DDTHH:MM
+          const key = `${pro.user_id}-${dateKey}`;
+          const profile = profilesData.find(p => p.user_id === pro.user_id);
+          
+          if (!grouped.has(key)) {
+            grouped.set(key, {
+              date: pro.created_at,
+              user_name: profile?.full_name || 'Usuário desconhecido',
+              user_id: pro.user_id,
+              count: 0,
+              codes: []
+            });
+          }
+          
+          const entry = grouped.get(key)!;
+          entry.count++;
+          if (entry.codes.length < 10) {
+            entry.codes.push(pro.code);
+          }
+        });
+
+        // Convert to array and sort by date descending
+        const historyArray = Array.from(grouped.values())
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .slice(0, 20); // Keep last 20 generations
+
+        setGenerationHistory(historyArray);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Erro ao carregar dados');
@@ -159,6 +214,9 @@ export function GenerateProsPanel() {
       });
 
       toast.success(`${prosCount} PROs gerados com sucesso!`);
+      
+      // Reload data to update history
+      await loadData();
       
       // Reset form
       setWeight('');
@@ -312,6 +370,51 @@ export function GenerateProsPanel() {
           </div>
         )}
       </CardContent>
+
+      {/* Generation History Section */}
+      {generationHistory.length > 0 && (
+        <CardContent className="border-t pt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <History className="w-5 h-5 text-muted-foreground" />
+            <h3 className="font-semibold">Histórico de Geração</h3>
+          </div>
+          <div className="space-y-3 max-h-80 overflow-y-auto">
+            {generationHistory.map((entry, idx) => (
+              <div 
+                key={`${entry.user_id}-${entry.date}-${idx}`}
+                className="p-3 bg-muted/30 rounded-lg border border-border/50"
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-sm">{entry.user_name}</span>
+                  </div>
+                  <Badge variant="secondary" className="gap-1">
+                    <Package className="w-3 h-3" />
+                    {entry.count} PROs
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                  <Calendar className="w-3 h-3" />
+                  {format(new Date(entry.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {entry.codes.map((code) => (
+                    <Badge key={code} variant="outline" className="text-[10px] font-mono">
+                      {code}
+                    </Badge>
+                  ))}
+                  {entry.count > 10 && (
+                    <Badge variant="secondary" className="text-[10px]">
+                      +{entry.count - 10} mais
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 }
