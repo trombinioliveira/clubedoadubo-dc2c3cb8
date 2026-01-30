@@ -11,7 +11,6 @@ interface GenerateRequest {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -32,81 +31,59 @@ Deno.serve(async (req) => {
 
     const prosCount = Math.floor(amount)
     
-    // Get starting position
-    const { data: startPosition, error: posError } = await supabase.rpc('get_next_fifo_position')
-    if (posError) throw posError
-
-    // Generate unique codes
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    const usedCodes = new Set<string>()
-    const generatedCodes: string[] = []
-
-    for (let i = 0; i < prosCount; i++) {
-      let code: string
-      do {
-        code = ''
-        for (let j = 0; j < 8; j++) {
-          code += chars[Math.floor(Math.random() * chars.length)]
-        }
-      } while (usedCodes.has(code))
-      usedCodes.add(code)
-      generatedCodes.push(code)
-    }
-
-    // Batch insert PROs
-    const BATCH_SIZE = 2000
+    // Process in batches of 10,000 to avoid timeout
+    const BATCH_SIZE = 10000
     const totalBatches = Math.ceil(prosCount / BATCH_SIZE)
-    const allInsertedPros: { id: string; code: string; fifo_position: number }[] = []
+    
+    let firstPosition: number | null = null
+    let lastPosition: number | null = null
+    let allSampleCodes: string[] = []
+    let totalGenerated = 0
+
+    console.log(`Starting generation of ${prosCount} PROs in ${totalBatches} batches`)
 
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-      const start = batchIndex * BATCH_SIZE
-      const end = Math.min(start + BATCH_SIZE, prosCount)
+      const batchAmount = Math.min(BATCH_SIZE, prosCount - (batchIndex * BATCH_SIZE))
       
-      const prosToInsert = []
-      for (let i = start; i < end; i++) {
-        prosToInsert.push({
-          code: generatedCodes[i],
-          user_id: userId,
-          weight_grams: 100,
-          fifo_position: (startPosition as number) + i,
-          status: 'pending'
-        })
+      console.log(`Processing batch ${batchIndex + 1}/${totalBatches}: ${batchAmount} PROs`)
+      
+      const { data, error } = await supabase.rpc('generate_pros_batch', {
+        p_amount: batchAmount,
+        p_user_id: userId
+      })
+
+      if (error) {
+        console.error(`Error in batch ${batchIndex + 1}:`, error)
+        throw error
       }
 
-      const { data: insertedPros, error: prosError } = await supabase
-        .from('pros')
-        .insert(prosToInsert)
-        .select('id, code, fifo_position')
-
-      if (prosError) throw prosError
-      if (insertedPros) allInsertedPros.push(...insertedPros)
-    }
-
-    // Batch insert FIFO entries
-    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-      const start = batchIndex * BATCH_SIZE
-      const end = Math.min(start + BATCH_SIZE, allInsertedPros.length)
+      if (data && data.length > 0) {
+        const result = data[0]
+        totalGenerated += result.total_generated
+        
+        if (firstPosition === null) {
+          firstPosition = result.first_position
+        }
+        lastPosition = result.last_position
+        
+        // Collect sample codes from first batch only
+        if (batchIndex === 0 && result.sample_codes) {
+          allSampleCodes = result.sample_codes
+        }
+      }
       
-      const fifoInserts = allInsertedPros.slice(start, end).map(pro => ({
-        pro_id: pro.id,
-        position: pro.fifo_position,
-        status: 'pending'
-      }))
-
-      const { error: fifoError } = await supabase
-        .from('fifo_queue')
-        .insert(fifoInserts)
-
-      if (fifoError) throw fifoError
+      console.log(`Batch ${batchIndex + 1} complete. Total so far: ${totalGenerated}`)
     }
+
+    console.log(`Generation complete. Total: ${totalGenerated} PROs`)
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        count: prosCount,
-        firstPosition: startPosition,
-        lastPosition: (startPosition as number) + prosCount - 1,
-        sampleCodes: generatedCodes.slice(0, 10)
+        count: totalGenerated,
+        firstPosition,
+        lastPosition,
+        sampleCodes: allSampleCodes
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
