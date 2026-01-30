@@ -26,29 +26,20 @@ import {
 
 type ProStatus = 'pending' | 'processing' | 'ready' | 'sold' | 'paid';
 
-interface FifoEntry {
-  id: string;
-  position: number;
-  status: ProStatus;
-  created_at: string;
-  paid_at: string | null;
-  pro: {
-    id: string;
-    code: string;
-    user_id: string;
-    status: ProStatus;
-    weight_grams: number;
-    created_at: string;
-    processed_at: string | null;
-    sold_at: string | null;
-    paid_at: string | null;
-  };
-}
-
-interface Profile {
-  user_id: string;
-  full_name: string;
-  referral_code: string | null;
+// Uses the secure get_fifo_queue_public RPC function that hides sensitive user data
+interface FifoQueuePublic {
+  queue_id: string;
+  queue_position: number;
+  queue_status: ProStatus;
+  queue_created_at: string;
+  queue_paid_at: string | null;
+  pro_id: string;
+  pro_code: string;
+  pro_weight_grams: number;
+  pro_status: ProStatus;
+  pro_created_at: string;
+  pro_user_id: string | null; // null for other users' PROs (privacy)
+  user_name: string; // 'Participante' for other users' PROs
 }
 
 const stageConfig = [
@@ -61,12 +52,11 @@ const stageConfig = [
 
 export default function FifoQueuePage() {
   const { user } = useAuth();
-  const [queue, setQueue] = useState<FifoEntry[]>([]);
-  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [queue, setQueue] = useState<FifoQueuePublic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showOnlyMine, setShowOnlyMine] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<FifoEntry | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<FifoQueuePublic | null>(null);
   const [stats, setStats] = useState({
     totalInQueue: 0,
     pending: 0,
@@ -83,13 +73,9 @@ export default function FifoQueuePage() {
   const fetchQueue = async () => {
     setIsLoading(true);
 
+    // Use the secure RPC function that hides sensitive user data
     const { data: queueData, error: queueError } = await supabase
-      .from('fifo_queue')
-      .select(`
-        *,
-        pro:pros(*)
-      `)
-      .order('position', { ascending: true });
+      .rpc('get_fifo_queue_public');
 
     if (queueError) {
       console.error('Error fetching queue:', queueError);
@@ -97,25 +83,15 @@ export default function FifoQueuePage() {
       return;
     }
 
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('user_id, full_name, referral_code');
+    const typedQueue = (queueData || []) as unknown as FifoQueuePublic[];
 
-    const profilesMap: Record<string, Profile> = {};
-    profilesData?.forEach((p: Profile) => {
-      profilesMap[p.user_id] = p;
-    });
-
-    const typedQueue = (queueData || []) as FifoEntry[];
-
-    const pending = typedQueue.filter(q => q.status === 'pending').length;
-    const processing = typedQueue.filter(q => q.status === 'processing').length;
-    const ready = typedQueue.filter(q => q.status === 'ready').length;
-    const sold = typedQueue.filter(q => q.status === 'sold').length;
-    const paid = typedQueue.filter(q => q.status === 'paid').length;
+    const pending = typedQueue.filter(q => q.queue_status === 'pending').length;
+    const processing = typedQueue.filter(q => q.queue_status === 'processing').length;
+    const ready = typedQueue.filter(q => q.queue_status === 'ready').length;
+    const sold = typedQueue.filter(q => q.queue_status === 'sold').length;
+    const paid = typedQueue.filter(q => q.queue_status === 'paid').length;
 
     setQueue(typedQueue);
-    setProfiles(profilesMap);
     setStats({
       totalInQueue: typedQueue.length,
       pending,
@@ -128,20 +104,18 @@ export default function FifoQueuePage() {
   };
 
   const filteredQueue = queue.filter(entry => {
-    const profile = profiles[entry.pro?.user_id];
     const matchesSearch = 
-      entry.pro?.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile?.referral_code?.toLowerCase().includes(searchTerm.toLowerCase());
+      entry.pro_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.user_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesMineFilter = !showOnlyMine || (user && entry.pro?.user_id === user.id);
+    const matchesMineFilter = !showOnlyMine || (user && entry.pro_user_id === user.id);
     
     return matchesSearch && matchesMineFilter;
   });
 
   // Group entries by status for column display
   const getEntriesByStatus = (statuses: ProStatus[]) => {
-    return filteredQueue.filter(entry => statuses.includes(entry.status));
+    return filteredQueue.filter(entry => statuses.includes(entry.queue_status));
   };
 
   const getStatusLabel = (status: ProStatus) => {
@@ -260,14 +234,13 @@ export default function FifoQueuePage() {
                     ) : (
                       <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
                         {entries
-                          .sort((a, b) => a.position - b.position)
+                          .sort((a, b) => a.queue_position - b.queue_position)
                           .map((entry) => {
-                          const profile = profiles[entry.pro?.user_id];
-                          const isUserPro = user && entry.pro?.user_id === user.id;
+                          const isUserPro = user && entry.pro_user_id === user.id;
 
                           return (
                             <button
-                              key={entry.id}
+                              key={entry.queue_id}
                               onClick={() => setSelectedEntry(entry)}
                               className={`w-full p-2 rounded-lg text-left transition-all hover:scale-[1.02] hover:shadow-md cursor-pointer ${
                                 isUserPro 
@@ -281,7 +254,7 @@ export default function FifoQueuePage() {
                             >
                               <div className="flex items-center justify-between gap-1">
                                 <span className="text-[10px] font-mono font-bold text-primary truncate">
-                                  {entry.pro?.code?.slice(-6)}
+                                  {entry.pro_code?.slice(-6)}
                                 </span>
                                 {isUserPro && (
                                   <Badge variant="default" className="text-[8px] px-1 py-0 h-4">
@@ -290,10 +263,10 @@ export default function FifoQueuePage() {
                                 )}
                               </div>
                               <p className="text-[9px] text-muted-foreground truncate mt-0.5">
-                                {profile?.full_name?.split(' ')[0] || 'Participante'}
+                                {entry.user_name?.split(' ')[0] || 'Participante'}
                               </p>
                               <p className="text-[8px] text-muted-foreground">
-                                #{entry.position}
+                                #{entry.queue_position}
                               </p>
                             </button>
                           );
@@ -329,7 +302,7 @@ export default function FifoQueuePage() {
               <div className="text-center p-4 bg-primary/10 rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">Código</p>
                 <p className="text-2xl font-bold font-mono text-primary">
-                  {selectedEntry.pro?.code}
+                  {selectedEntry.pro_code}
                 </p>
               </div>
 
@@ -337,9 +310,9 @@ export default function FifoQueuePage() {
               <div className="flex items-center justify-center gap-1">
                 {stageConfig.slice(1).map((stage, idx) => {
                   const stageNum = idx + 2;
-                  const currentStage = getStageIndex(selectedEntry.status);
+                  const currentStage = getStageIndex(selectedEntry.queue_status);
                   const isActive = stageNum <= currentStage;
-                  const isPaid = stage.key === 'paid' && selectedEntry.status === 'paid';
+                  const isPaid = stage.key === 'paid' && selectedEntry.queue_status === 'paid';
 
                   return (
                     <React.Fragment key={stage.key}>
@@ -369,7 +342,7 @@ export default function FifoQueuePage() {
                     <ListOrdered className="w-4 h-4" />
                     <span className="text-xs">Posição na Fila</span>
                   </div>
-                  <p className="text-xl font-bold">{selectedEntry.position}º</p>
+                  <p className="text-xl font-bold">{selectedEntry.queue_position}º</p>
                 </div>
 
                 <div className="p-3 bg-muted/50 rounded-lg">
@@ -377,7 +350,7 @@ export default function FifoQueuePage() {
                     <Scale className="w-4 h-4" />
                     <span className="text-xs">Peso</span>
                   </div>
-                  <p className="text-xl font-bold">{selectedEntry.pro?.weight_grams}g</p>
+                  <p className="text-xl font-bold">{selectedEntry.pro_weight_grams}g</p>
                 </div>
 
                 <div className="p-3 bg-muted/50 rounded-lg">
@@ -386,7 +359,7 @@ export default function FifoQueuePage() {
                     <span className="text-xs">Participante</span>
                   </div>
                   <p className="text-sm font-medium truncate">
-                    {profiles[selectedEntry.pro?.user_id]?.full_name || 'N/A'}
+                    {selectedEntry.user_name || 'Participante'}
                   </p>
                 </div>
 
@@ -396,7 +369,7 @@ export default function FifoQueuePage() {
                     <span className="text-xs">Data de Entrada</span>
                   </div>
                   <p className="text-sm font-medium">
-                    {format(new Date(selectedEntry.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                    {format(new Date(selectedEntry.queue_created_at), "dd/MM/yyyy", { locale: ptBR })}
                   </p>
                 </div>
               </div>
@@ -405,13 +378,13 @@ export default function FifoQueuePage() {
               <div className="p-4 bg-primary/10 rounded-lg text-center">
                 <p className="text-xs text-muted-foreground mb-1">Status Atual</p>
                 <Badge variant="default" className={`text-sm ${
-                  selectedEntry.status === 'paid' ? 'bg-emerald-500' : ''
+                  selectedEntry.queue_status === 'paid' ? 'bg-emerald-500' : ''
                 }`}>
-                  {getStatusLabel(selectedEntry.status)}
+                  {getStatusLabel(selectedEntry.queue_status)}
                 </Badge>
-                {selectedEntry.status === 'paid' && selectedEntry.paid_at && (
+                {selectedEntry.queue_status === 'paid' && selectedEntry.queue_paid_at && (
                   <p className="text-xs text-emerald-600 mt-2">
-                    Pago em {format(new Date(selectedEntry.paid_at), "dd/MM/yyyy", { locale: ptBR })}
+                    Pago em {format(new Date(selectedEntry.queue_paid_at), "dd/MM/yyyy", { locale: ptBR })}
                   </p>
                 )}
               </div>
