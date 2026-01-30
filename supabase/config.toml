@@ -2,3 +2,6 @@ project_id = "himgmfvanxftyxbzxjsu"
 
 [functions.webhook-purchase]
 verify_jwt = false
+
+[functions.webhook-purchase-declined]
+verify_jwt = false
