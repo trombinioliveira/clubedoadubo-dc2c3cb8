@@ -12,9 +12,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus, Store, Package, Truck, Edit, Calendar, Phone, MapPin, User, MessageSquare } from 'lucide-react';
+import { Plus, Store, Package, Truck, Edit, Calendar, Phone, MapPin, User, MessageSquare, Trash2 } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
+interface GranulatedProduct {
+  id: string;
+  packages: number;
+  kgPerPackage: number;
+}
+
+interface LiquidProduct {
+  id: string;
+  bottles: number;
+  litersPerBottle: number;
+}
 
 interface SalesPoint {
   id: string;
@@ -67,23 +79,52 @@ export function DistributionManagement() {
   const [isLoadingDistributions, setIsLoadingDistributions] = useState(true);
   const [isAddDistributionOpen, setIsAddDistributionOpen] = useState(false);
   const [readyProsCount, setReadyProsCount] = useState(0);
+  
+  // Multi-product state
+  const [granulatedProducts, setGranulatedProducts] = useState<GranulatedProduct[]>([]);
+  const [liquidProducts, setLiquidProducts] = useState<LiquidProduct[]>([]);
   const [newDistribution, setNewDistribution] = useState({
     sales_point_id: '',
-    granulated_packages: 0,
-    granulated_kg_per_package: 0,
-    liquid_bottles: 0,
-    liquid_liters_per_bottle: 0,
     other_items: '',
     observations: '',
     check_days: 7
   });
 
-  // Calculate total weight and PROs to move
-  const totalGranulatedKg = newDistribution.granulated_packages * newDistribution.granulated_kg_per_package;
-  const totalLiquidKg = newDistribution.liquid_bottles * newDistribution.liquid_liters_per_bottle;
+  // Calculate totals from multiple products
+  const totalGranulatedKg = granulatedProducts.reduce((sum, p) => sum + (p.packages * p.kgPerPackage), 0);
+  const totalLiquidKg = liquidProducts.reduce((sum, p) => sum + (p.bottles * p.litersPerBottle), 0);
   const totalWeightKg = totalGranulatedKg + totalLiquidKg;
   const totalWeightGrams = totalWeightKg * 1000;
   const prosToMove = Math.floor(totalWeightGrams / 100);
+
+  // Add/remove product helpers
+  const addGranulatedProduct = () => {
+    setGranulatedProducts([...granulatedProducts, { id: crypto.randomUUID(), packages: 0, kgPerPackage: 0 }]);
+  };
+
+  const updateGranulatedProduct = (id: string, field: 'packages' | 'kgPerPackage', value: number) => {
+    setGranulatedProducts(granulatedProducts.map(p => 
+      p.id === id ? { ...p, [field]: value } : p
+    ));
+  };
+
+  const removeGranulatedProduct = (id: string) => {
+    setGranulatedProducts(granulatedProducts.filter(p => p.id !== id));
+  };
+
+  const addLiquidProduct = () => {
+    setLiquidProducts([...liquidProducts, { id: crypto.randomUUID(), bottles: 0, litersPerBottle: 0 }]);
+  };
+
+  const updateLiquidProduct = (id: string, field: 'bottles' | 'litersPerBottle', value: number) => {
+    setLiquidProducts(liquidProducts.map(p => 
+      p.id === id ? { ...p, [field]: value } : p
+    ));
+  };
+
+  const removeLiquidProduct = (id: string) => {
+    setLiquidProducts(liquidProducts.filter(p => p.id !== id));
+  };
 
   useEffect(() => {
     fetchSalesPoints();
@@ -205,16 +246,39 @@ export function DistributionManagement() {
 
     const checkAt = addDays(new Date(), newDistribution.check_days);
 
+    // Calculate totals for storage (sum of all products)
+    const totalGranulatedPackages = granulatedProducts.reduce((sum, p) => sum + p.packages, 0);
+    const avgGranulatedKg = granulatedProducts.length > 0 
+      ? granulatedProducts.reduce((sum, p) => sum + p.kgPerPackage, 0) / granulatedProducts.length 
+      : 0;
+    const totalLiquidBottles = liquidProducts.reduce((sum, p) => sum + p.bottles, 0);
+    const avgLiquidLiters = liquidProducts.length > 0 
+      ? liquidProducts.reduce((sum, p) => sum + p.litersPerBottle, 0) / liquidProducts.length 
+      : 0;
+
+    // Build other_items to include product breakdown
+    const productDetails: string[] = [];
+    granulatedProducts.forEach(p => {
+      if (p.packages > 0) productDetails.push(`Granulado: ${p.packages}x ${p.kgPerPackage}Kg`);
+    });
+    liquidProducts.forEach(p => {
+      if (p.bottles > 0) productDetails.push(`Líquido: ${p.bottles}x ${p.litersPerBottle}L`);
+    });
+    const combinedOtherItems = [
+      productDetails.join('; '),
+      newDistribution.other_items
+    ].filter(Boolean).join(' | ');
+
     // Create the distribution record
     const { data: distData, error: distError } = await supabase
       .from('distributions')
       .insert({
         sales_point_id: newDistribution.sales_point_id || null,
-        granulated_packages: newDistribution.granulated_packages,
-        granulated_kg_per_package: newDistribution.granulated_kg_per_package,
-        liquid_bottles: newDistribution.liquid_bottles,
-        liquid_liters_per_bottle: newDistribution.liquid_liters_per_bottle,
-        other_items: newDistribution.other_items || null,
+        granulated_packages: totalGranulatedPackages,
+        granulated_kg_per_package: avgGranulatedKg,
+        liquid_bottles: totalLiquidBottles,
+        liquid_liters_per_bottle: avgLiquidLiters,
+        other_items: combinedOtherItems || null,
         observations: newDistribution.observations || null,
         check_at: checkAt.toISOString(),
         pros_moved: prosToMove,
@@ -273,12 +337,10 @@ export function DistributionManagement() {
 
     toast.success(`Distribuição registrada! ${prosToMove} PROs movidos para Venda.`);
     setIsAddDistributionOpen(false);
+    setGranulatedProducts([]);
+    setLiquidProducts([]);
     setNewDistribution({
       sales_point_id: '',
-      granulated_packages: 0,
-      granulated_kg_per_package: 0,
-      liquid_bottles: 0,
-      liquid_liters_per_bottle: 0,
       other_items: '',
       observations: '',
       check_days: 7
@@ -344,76 +406,124 @@ export function DistributionManagement() {
                       </Select>
                     </div>
 
-                    {/* Granulated */}
-                    <div className="border rounded-lg p-3 space-y-2">
-                      <Label className="font-semibold">🌾 Adubo Granulado</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Qtd. Pacotes</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={newDistribution.granulated_packages || ''}
-                            onChange={(e) => setNewDistribution({ 
-                              ...newDistribution, 
-                              granulated_packages: parseInt(e.target.value) || 0 
-                            })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Kg por Pacote</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={newDistribution.granulated_kg_per_package || ''}
-                            onChange={(e) => setNewDistribution({ 
-                              ...newDistribution, 
-                              granulated_kg_per_package: parseFloat(e.target.value) || 0 
-                            })}
-                          />
-                        </div>
+                    {/* Granulated Products */}
+                    <div className="border rounded-lg p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold">🌾 Adubo Granulado</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addGranulatedProduct}
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Adicionar
+                        </Button>
                       </div>
+                      
+                      {granulatedProducts.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-2">
+                          Clique em "Adicionar" para incluir adubo granulado
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {granulatedProducts.map((product, idx) => (
+                            <div key={product.id} className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground w-6">{idx + 1}.</span>
+                              <div className="flex-1 grid grid-cols-2 gap-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  placeholder="Qtd"
+                                  value={product.packages || ''}
+                                  onChange={(e) => updateGranulatedProduct(product.id, 'packages', parseInt(e.target.value) || 0)}
+                                />
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  placeholder="Kg/pacote"
+                                  value={product.kgPerPackage || ''}
+                                  onChange={(e) => updateGranulatedProduct(product.id, 'kgPerPackage', parseFloat(e.target.value) || 0)}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeGranulatedProduct(product.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
                       {totalGranulatedKg > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          Total: {totalGranulatedKg.toFixed(1)} Kg
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Total Granulado: {totalGranulatedKg.toFixed(1)} Kg
                         </p>
                       )}
                     </div>
 
-                    {/* Liquid */}
-                    <div className="border rounded-lg p-3 space-y-2">
-                      <Label className="font-semibold">💧 Adubo Líquido</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Qtd. Garrafas</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={newDistribution.liquid_bottles || ''}
-                            onChange={(e) => setNewDistribution({ 
-                              ...newDistribution, 
-                              liquid_bottles: parseInt(e.target.value) || 0 
-                            })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">L por Garrafa</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={newDistribution.liquid_liters_per_bottle || ''}
-                            onChange={(e) => setNewDistribution({ 
-                              ...newDistribution, 
-                              liquid_liters_per_bottle: parseFloat(e.target.value) || 0 
-                            })}
-                          />
-                        </div>
+                    {/* Liquid Products */}
+                    <div className="border rounded-lg p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold">💧 Adubo Líquido</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addLiquidProduct}
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Adicionar
+                        </Button>
                       </div>
+                      
+                      {liquidProducts.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-2">
+                          Clique em "Adicionar" para incluir adubo líquido
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {liquidProducts.map((product, idx) => (
+                            <div key={product.id} className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground w-6">{idx + 1}.</span>
+                              <div className="flex-1 grid grid-cols-2 gap-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  placeholder="Qtd"
+                                  value={product.bottles || ''}
+                                  onChange={(e) => updateLiquidProduct(product.id, 'bottles', parseInt(e.target.value) || 0)}
+                                />
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  placeholder="L/garrafa"
+                                  value={product.litersPerBottle || ''}
+                                  onChange={(e) => updateLiquidProduct(product.id, 'litersPerBottle', parseFloat(e.target.value) || 0)}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeLiquidProduct(product.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
                       {totalLiquidKg > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          Total: {totalLiquidKg.toFixed(1)} L (≈ Kg)
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Total Líquido: {totalLiquidKg.toFixed(1)} L
                         </p>
                       )}
                     </div>
