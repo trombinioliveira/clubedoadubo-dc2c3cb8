@@ -5,48 +5,75 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-token',
 };
 
-// Hash password using Web Crypto API (available in Deno)
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-}
-
-// Generate a secure temporary password based on document
+// Generate a secure temporary password based on document (CPF/CNPJ)
 function generateTempPassword(document: string): string {
   // Remove any non-numeric characters from CPF/CNPJ
   const cleanDoc = document.replace(/\D/g, '');
   return cleanDoc;
 }
 
-interface PurchasePayload {
-  // Common fields - will be adjusted after receiving test event
-  transaction_id?: string;
-  order_id?: string;
-  id?: string;
-  customer?: {
-    name?: string;
-    email?: string;
-    document?: string;
-    phone?: string;
+// Nexano webhook payload structure
+interface NexanoPayload {
+  event: string;
+  token: string;
+  offerCode: string;
+  client: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    cpf: string | null;
+    cnpj: string | null;
+    address?: {
+      country: string;
+      zipCode: string;
+      state: string;
+      city: string;
+      neighborhood: string;
+      street: string;
+      number: string;
+      complement: string;
+    };
   };
-  buyer?: {
-    name?: string;
-    email?: string;
-    document?: string;
-    phone?: string;
+  transaction: {
+    id: string;
+    identifier: string;
+    paymentMethod: string;
+    status: string;
+    originalAmount: number;
+    originalCurrency: string;
+    currency: string;
+    exchangeRate: number;
+    amount: number;
+    installments: number;
+    createdAt: string;
+    payedAt: string;
+    boletoInformation: unknown;
+    pixInformation: unknown;
   };
-  // Direct fields (alternative structure)
-  name?: string;
-  email?: string;
-  document?: string;
-  phone?: string;
-  // Event metadata
-  event?: string;
-  status?: string;
+  subscription?: {
+    id: string;
+    identifier: string;
+    intervalCount: number;
+    intervalType: string;
+    startAt: string;
+    cycle: number;
+    status: string;
+  };
+  orderItems: Array<{
+    id: string;
+    price: number;
+    product: {
+      id: string;
+      name: string;
+      externalId: string;
+    };
+  }>;
+  trackProps?: {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+  };
 }
 
 Deno.serve(async (req) => {
@@ -65,69 +92,57 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Log all headers for debugging
-    const headersObj: Record<string, string> = {};
-    req.headers.forEach((value, key) => {
-      headersObj[key] = value;
-    });
-    console.log('=== RECEIVED HEADERS ===');
-    console.log(JSON.stringify(headersObj, null, 2));
-
-    // Validate webhook token - checking multiple possible header names
-    const webhookToken = Deno.env.get('WEBHOOK_AUTH_TOKEN');
-    const possibleTokenHeaders = [
-      req.headers.get('X-Webhook-Token'),
-      req.headers.get('x-webhook-token'),
-      req.headers.get('Authorization')?.replace('Bearer ', ''),
-      req.headers.get('authorization')?.replace('Bearer ', ''),
-      req.headers.get('X-Auth-Token'),
-      req.headers.get('x-auth-token'),
-      req.headers.get('Webhook-Token'),
-      req.headers.get('webhook-token'),
-    ];
-    
-    const providedToken = possibleTokenHeaders.find(t => t && t !== '');
-    console.log('Expected token (first 4 chars):', webhookToken?.substring(0, 4) + '...');
-    console.log('Provided token (first 4 chars):', providedToken?.substring(0, 4) + '...');
-    
-    // Token validation
-    if (webhookToken && webhookToken !== '' && providedToken !== webhookToken) {
-      console.error('Token mismatch - Invalid webhook token provided');
-      // TEMPORARILY DISABLED FOR DEBUGGING - will log payload anyway
-      // return new Response(
-      //   JSON.stringify({ error: 'Unauthorized - Invalid token' }),
-      //   { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      // );
-    }
-
     // Parse the incoming payload
-    const payload: PurchasePayload = await req.json();
-    console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
+    const payload: NexanoPayload = await req.json();
+    console.log('Received webhook event:', payload.event);
+    console.log('Transaction ID:', payload.transaction?.id);
+    console.log('Client email:', payload.client?.email);
 
-    // Extract buyer data - flexible to handle different payload structures
-    const customerData = payload.customer || payload.buyer || {};
-    const name = customerData.name || payload.name;
-    const email = customerData.email || payload.email;
-    const document = customerData.document || payload.document;
-    const phone = customerData.phone || payload.phone;
-    const transactionId = payload.transaction_id || payload.order_id || payload.id;
-
-    // Validate required fields
-    if (!email) {
-      console.error('Missing required field: email');
+    // Validate webhook token from payload body
+    const webhookToken = Deno.env.get('WEBHOOK_AUTH_TOKEN');
+    const providedToken = payload.token;
+    
+    if (webhookToken && webhookToken !== '' && providedToken !== webhookToken) {
+      console.error('Invalid webhook token provided');
       return new Response(
-        JSON.stringify({ error: 'Missing required field: email' }),
+        JSON.stringify({ error: 'Unauthorized - Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Only process TRANSACTION_PAID events
+    if (payload.event !== 'TRANSACTION_PAID') {
+      console.log('Ignoring event type:', payload.event);
+      return new Response(
+        JSON.stringify({ success: true, message: 'Event type ignored' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Extract client data
+    const client = payload.client;
+    const transaction = payload.transaction;
+    
+    if (!client?.email) {
+      console.error('Missing required field: client.email');
+      return new Response(
+        JSON.stringify({ error: 'Missing required field: client.email' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Get document (CPF or CNPJ)
+    const document = client.cpf || client.cnpj;
     if (!document) {
-      console.error('Missing required field: document (CPF/CNPJ)');
+      console.error('Missing required field: client.cpf or client.cnpj');
       return new Response(
-        JSON.stringify({ error: 'Missing required field: document' }),
+        JSON.stringify({ error: 'Missing required field: cpf/cnpj' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Transaction ID for idempotency
+    const transactionId = transaction?.id;
 
     // Initialize Supabase client with service role for admin operations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -164,7 +179,7 @@ Deno.serve(async (req) => {
     const { data: existingUser } = await supabase
       .from('profiles')
       .select('id, user_id')
-      .eq('email', email)
+      .eq('email', client.email)
       .maybeSingle();
 
     if (existingUser) {
@@ -176,7 +191,7 @@ Deno.serve(async (req) => {
           .eq('id', existingUser.id);
       }
 
-      console.log('User already exists with email:', email);
+      console.log('User already exists with email:', client.email);
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -187,17 +202,17 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Generate temporary password from document
+    // Generate temporary password from document (CPF/CNPJ - only digits)
     const tempPassword = generateTempPassword(document);
     
     // Create the user in Supabase Auth
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-      email: email,
+      email: client.email,
       password: tempPassword,
       email_confirm: true, // Auto-confirm email since purchase is already verified
       user_metadata: {
-        full_name: name || email.split('@')[0],
-        phone: phone,
+        full_name: client.name,
+        phone: client.phone,
         document: document
       }
     });
@@ -217,8 +232,8 @@ Deno.serve(async (req) => {
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
-        full_name: name || email.split('@')[0],
-        phone: phone,
+        full_name: client.name,
+        phone: client.phone,
         password_change_required: true,
         external_transaction_id: transactionId
       })
@@ -231,8 +246,9 @@ Deno.serve(async (req) => {
 
     console.log('User created successfully:', {
       user_id: authUser.user.id,
-      email: email,
-      transaction_id: transactionId
+      email: client.email,
+      transaction_id: transactionId,
+      offer_code: payload.offerCode
     });
 
     return new Response(
