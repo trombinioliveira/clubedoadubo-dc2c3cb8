@@ -159,11 +159,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          blocked_at: string | null
+          blocked_reason: string | null
           created_at: string
           email: string
           external_transaction_id: string | null
           full_name: string
           id: string
+          is_blocked: boolean
           password_change_required: boolean
           phone: string | null
           referral_code: string | null
@@ -172,11 +175,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          blocked_at?: string | null
+          blocked_reason?: string | null
           created_at?: string
           email: string
           external_transaction_id?: string | null
           full_name: string
           id?: string
+          is_blocked?: boolean
           password_change_required?: boolean
           phone?: string | null
           referral_code?: string | null
@@ -185,11 +191,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          blocked_at?: string | null
+          blocked_reason?: string | null
           created_at?: string
           email?: string
           external_transaction_id?: string | null
           full_name?: string
           id?: string
+          is_blocked?: boolean
           password_change_required?: boolean
           phone?: string | null
           referral_code?: string | null
