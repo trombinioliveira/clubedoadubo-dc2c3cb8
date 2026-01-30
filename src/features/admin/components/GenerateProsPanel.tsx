@@ -180,39 +180,25 @@ export function GenerateProsPanel() {
     }
 
     setIsDeleting(record.id);
+    setProgress({ current: 0, total: 100, phase: 'Excluindo PROs...' });
 
     try {
-      // Get PROs from this batch
-      const { data: prosToDelete, error: fetchError } = await supabase
-        .from('pros')
-        .select('id')
-        .eq('user_id', record.user_id)
-        .gte('fifo_position', record.first_position)
-        .lte('fifo_position', record.last_position);
+      // Use Edge Function for bulk deletion
+      setProgress({ current: 10, total: 100, phase: 'Processando exclusão no servidor...' });
+      
+      const { data, error } = await supabase.functions.invoke('delete-pros-batch', {
+        body: { 
+          userId: record.user_id,
+          firstPosition: record.first_position,
+          lastPosition: record.last_position
+        }
+      });
 
-      if (fetchError) throw fetchError;
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
-      if (prosToDelete && prosToDelete.length > 0) {
-        const proIds = prosToDelete.map(p => p.id);
-
-        // Delete FIFO entries first
-        const { error: fifoError } = await supabase
-          .from('fifo_queue')
-          .delete()
-          .in('pro_id', proIds);
-
-        if (fifoError) throw fifoError;
-
-        // Delete PROs
-        const { error: prosError } = await supabase
-          .from('pros')
-          .delete()
-          .in('id', proIds);
-
-        if (prosError) throw prosError;
-      }
-
-      toast.success(`${record.count} PROs excluídos com sucesso`);
+      setProgress({ current: 100, total: 100, phase: 'Concluído!' });
+      toast.success(`${record.count.toLocaleString('pt-BR')} PROs excluídos com sucesso`);
       await loadData();
       setLastGeneration(null);
 
@@ -221,6 +207,7 @@ export function GenerateProsPanel() {
       toast.error(`Erro ao excluir: ${error.message}`);
     } finally {
       setIsDeleting(null);
+      setProgress({ current: 0, total: 0, phase: '' });
     }
   };
 
