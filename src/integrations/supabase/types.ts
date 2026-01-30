@@ -494,6 +494,15 @@ export type Database = {
     }
     Functions: {
       generate_pro_code: { Args: never; Returns: string }
+      generate_pros_batch: {
+        Args: { p_amount: number; p_user_id: string }
+        Returns: {
+          first_position: number
+          last_position: number
+          sample_codes: string[]
+          total_generated: number
+        }[]
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_fifo_queue_public: {
         Args: never

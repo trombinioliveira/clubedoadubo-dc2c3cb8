@@ -129,36 +129,38 @@ export function GenerateProsPanel() {
       return;
     }
 
-    // Limit to avoid excessive processing
-    if (prosCount > 500000) {
-      toast.error('Limite máximo: 500.000 PROs por vez. Faça múltiplas gerações.');
+    // Limit to avoid excessive processing - database function can handle up to 100k efficiently
+    if (prosCount > 100000) {
+      toast.error('Limite máximo: 100.000 PROs por vez. Faça múltiplas gerações.');
       return;
     }
 
     setIsGenerating(true);
     setLastGeneration(null);
-    setProgress({ current: 0, total: 100, phase: 'Enviando para processamento...' });
+    setProgress({ current: 0, total: 100, phase: 'Iniciando geração...' });
 
     try {
-      // Call Edge Function to generate PROs
-      setProgress({ current: 10, total: 100, phase: 'Processando no servidor...' });
+      setProgress({ current: 10, total: 100, phase: 'Gerando PROs no banco de dados...' });
       
-      const { data, error } = await supabase.functions.invoke('generate-pros', {
-        body: { amount: prosCount, userId: user.id }
+      // Call database function directly - much more efficient than Edge Function
+      const { data, error } = await supabase.rpc('generate_pros_batch', {
+        p_amount: prosCount,
+        p_user_id: user.id
       });
 
       if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (!data || data.length === 0) throw new Error('Nenhum dado retornado');
 
+      const result = data[0];
       setProgress({ current: 100, total: 100, phase: 'Concluído!' });
 
       setLastGeneration({
-        count: data.count,
-        amount: data.count,
-        codes: data.sampleCodes || []
+        count: result.total_generated,
+        amount: result.total_generated,
+        codes: result.sample_codes || []
       });
 
-      toast.success(`${data.count.toLocaleString('pt-BR')} PROs gerados (R$ ${data.count.toLocaleString('pt-BR')},00)`);
+      toast.success(`${result.total_generated.toLocaleString('pt-BR')} PROs gerados (R$ ${result.total_generated.toLocaleString('pt-BR')},00)`);
       
       await loadData();
       setAmount('');
