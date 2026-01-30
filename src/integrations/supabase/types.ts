@@ -255,54 +255,111 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          type: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          type: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          type?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          birth_date: string | null
           blocked_at: string | null
           blocked_reason: string | null
+          cpf: string | null
           created_at: string
           email: string
+          email_verified_at: string | null
           external_transaction_id: string | null
           full_name: string
+          gender: string | null
           id: string
           is_blocked: boolean
           password_change_required: boolean
           phone: string | null
+          pix_key: string | null
+          profile_completed_at: string | null
+          profile_deadline: string | null
           referral_code: string | null
           referred_by: string | null
           updated_at: string
           user_id: string
+          whatsapp: string | null
+          whatsapp_verified_at: string | null
         }
         Insert: {
+          birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
+          cpf?: string | null
           created_at?: string
           email: string
+          email_verified_at?: string | null
           external_transaction_id?: string | null
           full_name: string
+          gender?: string | null
           id?: string
           is_blocked?: boolean
           password_change_required?: boolean
           phone?: string | null
+          pix_key?: string | null
+          profile_completed_at?: string | null
+          profile_deadline?: string | null
           referral_code?: string | null
           referred_by?: string | null
           updated_at?: string
           user_id: string
+          whatsapp?: string | null
+          whatsapp_verified_at?: string | null
         }
         Update: {
+          birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string
+          email_verified_at?: string | null
           external_transaction_id?: string | null
           full_name?: string
+          gender?: string | null
           id?: string
           is_blocked?: boolean
           password_change_required?: boolean
           phone?: string | null
+          pix_key?: string | null
+          profile_completed_at?: string | null
+          profile_deadline?: string | null
           referral_code?: string | null
           referred_by?: string | null
           updated_at?: string
           user_id?: string
+          whatsapp?: string | null
+          whatsapp_verified_at?: string | null
         }
         Relationships: [
           {
@@ -493,6 +550,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_otp_code: { Args: never; Returns: string }
       generate_pro_code: { Args: never; Returns: string }
       generate_pros_batch: {
         Args: { p_amount: number; p_user_id: string }

@@ -14,6 +14,16 @@ interface Profile {
   referred_by: string | null;
   created_at: string;
   updated_at: string;
+  // New profile fields
+  gender: string | null;
+  cpf: string | null;
+  birth_date: string | null;
+  whatsapp: string | null;
+  pix_key: string | null;
+  email_verified_at: string | null;
+  whatsapp_verified_at: string | null;
+  profile_completed_at: string | null;
+  profile_deadline: string | null;
 }
 
 interface AuthContextType {

@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import DashboardPage from "./pages/DashboardPage";
 import DreamsPage from "./pages/DreamsPage";
+import MyProfilePage from "./pages/MyProfilePage";
 import NotFound from "./pages/NotFound";
 import LandingCompra from "./pages/LandingCompra";
 
@@ -19,6 +20,7 @@ import LandingCompra from "./pages/LandingCompra";
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
 import { ReferralsPage } from "@/features/referrals";
+import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 
 const queryClient = new QueryClient();
 
@@ -36,27 +38,41 @@ const App = () => (
             <Route element={<AppLayout />}>
               <Route path="/" element={<Index />} />
               
+              <Route path="/perfil" element={
+                <ProtectedRoute>
+                  <MyProfilePage />
+                </ProtectedRoute>
+              } />
+              
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <DashboardPage />
+                  <ProfileDeadlineGuard>
+                    <DashboardPage />
+                  </ProfileDeadlineGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/dreams" element={
                 <ProtectedRoute>
-                  <DreamsPage />
+                  <ProfileDeadlineGuard>
+                    <DreamsPage />
+                  </ProfileDeadlineGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/fifo" element={
                 <ProtectedRoute>
-                  <FifoQueuePage />
+                  <ProfileDeadlineGuard>
+                    <FifoQueuePage />
+                  </ProfileDeadlineGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/indicacoes" element={
                 <ProtectedRoute>
-                  <ReferralsPage />
+                  <ProfileDeadlineGuard>
+                    <ReferralsPage />
+                  </ProfileDeadlineGuard>
                 </ProtectedRoute>
               } />
               

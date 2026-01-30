@@ -114,15 +114,23 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   <p className="text-xs text-muted-foreground">{profile?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/perfil')}>
+                  <User className="w-4 h-4 mr-2" />
+                  Meu Perfil
+                  {!profile?.profile_completed_at && (
+                    <span className="ml-auto text-xs text-destructive">!</span>
+                  )}
+                </DropdownMenuItem>
                 {(isAdmin || isStaff) && (
                   <>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
                       <Settings className="w-4 h-4 mr-2" />
                       Painel Admin
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                   </>
                 )}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
@@ -164,6 +172,20 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
             
             {user ? (
               <>
+                <Link 
+                  to="/perfil"
+                  onClick={() => setMenuOpen(false)}
+                  className={cn(
+                    "block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors flex items-center gap-2",
+                    isActive('/perfil') && "text-primary font-medium"
+                  )}
+                >
+                  <User className="w-4 h-4" />
+                  Meu Perfil
+                  {!profile?.profile_completed_at && (
+                    <span className="ml-auto text-xs text-destructive font-medium">Completar</span>
+                  )}
+                </Link>
                 <Link 
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
