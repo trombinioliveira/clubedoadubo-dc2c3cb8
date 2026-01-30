@@ -134,142 +134,36 @@ export function GenerateProsPanel() {
       return;
     }
 
+    // Limit to avoid excessive processing
+    if (prosCount > 500000) {
+      toast.error('Limite máximo: 500.000 PROs por vez. Faça múltiplas gerações.');
+      return;
+    }
+
     setIsGenerating(true);
     setLastGeneration(null);
-    setProgress({ current: 0, total: prosCount, phase: 'Preparando...' });
+    setProgress({ current: 0, total: 100, phase: 'Enviando para processamento...' });
 
     try {
-      // Phase 1: Get starting position
-      setProgress({ current: 0, total: 100, phase: 'Obtendo posição inicial...' });
-      const { data: startPosition, error: posError } = await supabase.rpc('get_next_fifo_position');
-      if (posError) throw posError;
+      // Call Edge Function to generate PROs
+      setProgress({ current: 10, total: 100, phase: 'Processando no servidor...' });
+      
+      const { data, error } = await supabase.functions.invoke('generate-pros', {
+        body: { amount: prosCount, userId: user.id }
+      });
 
-      // Phase 2: Generate codes in memory (fast)
-      setProgress({ current: 2, total: 100, phase: 'Gerando códigos únicos...' });
-      const generatedCodes: string[] = [];
-      const usedCodes = new Set<string>();
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-      for (let i = 0; i < prosCount; i++) {
-        let code: string;
-        do {
-          code = '';
-          for (let j = 0; j < 8; j++) {
-            code += chars[Math.floor(Math.random() * chars.length)];
-          }
-        } while (usedCodes.has(code));
-        usedCodes.add(code);
-        generatedCodes.push(code);
-        
-        // Update progress every 10000 codes
-        if (i % 10000 === 0) {
-          setProgress({ 
-            current: 2 + Math.round((i / prosCount) * 8), 
-            total: 100, 
-            phase: `Gerando códigos... ${i.toLocaleString('pt-BR')}/${prosCount.toLocaleString('pt-BR')}` 
-          });
-        }
-      }
-
-      // Phase 3: Batch insert PROs with parallel chunks
-      const BATCH_SIZE = 1000;
-      const PARALLEL_BATCHES = 5; // Insert 5 batches at once
-      const totalBatches = Math.ceil(prosCount / BATCH_SIZE);
-      const allInsertedPros: { id: string; code: string; fifo_position: number }[] = [];
-
-      setProgress({ current: 10, total: 100, phase: `Inserindo PROs (0/${totalBatches} lotes)...` });
-
-      for (let batchGroup = 0; batchGroup < totalBatches; batchGroup += PARALLEL_BATCHES) {
-        const batchPromises = [];
-        
-        for (let b = 0; b < PARALLEL_BATCHES && batchGroup + b < totalBatches; b++) {
-          const batchIndex = batchGroup + b;
-          const start = batchIndex * BATCH_SIZE;
-          const end = Math.min(start + BATCH_SIZE, prosCount);
-          
-          const prosToInsert = [];
-          for (let i = start; i < end; i++) {
-            prosToInsert.push({
-              code: generatedCodes[i],
-              user_id: user.id,
-              weight_grams: 100,
-              fifo_position: (startPosition as number) + i,
-              status: 'pending' as const
-            });
-          }
-
-          batchPromises.push(
-            supabase
-              .from('pros')
-              .insert(prosToInsert)
-              .select('id, code, fifo_position')
-          );
-        }
-
-        const results = await Promise.all(batchPromises);
-        
-        for (const result of results) {
-          if (result.error) throw result.error;
-          if (result.data) allInsertedPros.push(...result.data);
-        }
-
-        const completedBatches = Math.min(batchGroup + PARALLEL_BATCHES, totalBatches);
-        const progressPct = 10 + Math.round((completedBatches / totalBatches) * 45);
-        setProgress({ 
-          current: progressPct, 
-          total: 100, 
-          phase: `Inserindo PROs (${completedBatches.toLocaleString('pt-BR')}/${totalBatches.toLocaleString('pt-BR')} lotes)...` 
-        });
-      }
-
-      // Phase 4: Batch insert FIFO entries with parallel chunks
-      setProgress({ current: 55, total: 100, phase: `Inserindo na fila FIFO (0/${totalBatches} lotes)...` });
-
-      for (let batchGroup = 0; batchGroup < totalBatches; batchGroup += PARALLEL_BATCHES) {
-        const batchPromises = [];
-        
-        for (let b = 0; b < PARALLEL_BATCHES && batchGroup + b < totalBatches; b++) {
-          const batchIndex = batchGroup + b;
-          const start = batchIndex * BATCH_SIZE;
-          const end = Math.min(start + BATCH_SIZE, allInsertedPros.length);
-          
-          const fifoInserts = allInsertedPros.slice(start, end).map(pro => ({
-            pro_id: pro.id,
-            position: pro.fifo_position,
-            status: 'pending' as const
-          }));
-
-          batchPromises.push(
-            supabase
-              .from('fifo_queue')
-              .insert(fifoInserts)
-          );
-        }
-
-        const results = await Promise.all(batchPromises);
-        
-        for (const result of results) {
-          if (result.error) throw result.error;
-        }
-
-        const completedBatches = Math.min(batchGroup + PARALLEL_BATCHES, totalBatches);
-        const progressPct = 55 + Math.round((completedBatches / totalBatches) * 40);
-        setProgress({ 
-          current: progressPct, 
-          total: 100, 
-          phase: `Inserindo na fila FIFO (${completedBatches.toLocaleString('pt-BR')}/${totalBatches.toLocaleString('pt-BR')} lotes)...` 
-        });
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       setProgress({ current: 100, total: 100, phase: 'Concluído!' });
 
       setLastGeneration({
-        count: prosCount,
-        amount: prosCount,
-        codes: generatedCodes.slice(0, 50) // Keep only first 50 for display
+        count: data.count,
+        amount: data.count,
+        codes: data.sampleCodes || []
       });
 
-      toast.success(`${prosCount.toLocaleString('pt-BR')} PROs gerados (R$ ${prosCount.toLocaleString('pt-BR')},00)`);
+      toast.success(`${data.count.toLocaleString('pt-BR')} PROs gerados (R$ ${data.count.toLocaleString('pt-BR')},00)`);
       
       await loadData();
       setAmount('');
