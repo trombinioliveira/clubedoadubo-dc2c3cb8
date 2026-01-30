@@ -227,142 +227,34 @@ export function GenerateProsPanel() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/20">
+      <Card className="border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="w-5 h-5 text-primary" />
-            Gerar PROs
+          <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+            <AlertCircle className="w-5 h-5" />
+            Geração Temporariamente Desabilitada
           </CardTitle>
           <CardDescription>
-            Insira o valor em R$ para gerar PROs automaticamente. Cada R$ 1,00 = 1 PRO.
+            A geração de PROs está temporariamente desabilitada para manutenção do sistema.
+            Os PROs existentes continuam funcionando normalmente.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-
-          {/* Amount Input */}
-          <div className="space-y-2">
-            <Label htmlFor="amount">Valor em Reais *</Label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="amount"
-                  type="number"
-                  step="1"
-                  min="1"
-                  placeholder="Ex: 100"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <div className="flex items-center px-4 bg-muted rounded-md text-sm font-medium">
-                R$
-              </div>
-            </div>
-          </div>
-
-          {/* Preview */}
-          {amount && parseFloat(amount) > 0 && (
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <h4 className="font-medium text-sm">Prévia da Geração:</h4>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="gap-1">
-                  <DollarSign className="w-3 h-3" />
-                  R$ {prosCount.toLocaleString('pt-BR')},00
-                </Badge>
-                <Badge variant="secondary" className="gap-1">
-                  <Package className="w-3 h-3" />
-                  {prosCount.toLocaleString('pt-BR')} PROs
-                </Badge>
-              </div>
-              {prosCount === 0 && (
-                <p className="text-sm text-destructive flex items-center gap-1 mt-2">
-                  <AlertCircle className="w-4 h-4" />
-                  Valor mínimo: R$ 1,00
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Progress Bar */}
-          {isGenerating && progress.total > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{progress.phase}</span>
-                <span className="font-medium">{progress.current}%</span>
-              </div>
-              <Progress value={progress.current} className="h-3" />
-            </div>
-          )}
-
-          {/* Generate Button */}
-          <Button 
-            onClick={handleGenerate}
-            disabled={isGenerating || prosCount === 0}
-            className="w-full gap-2"
-            size="lg"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Gerando PROs... {progress.current}%
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4" />
-                Gerar {prosCount > 0 ? `${prosCount.toLocaleString('pt-BR')} PROs` : 'PROs'}
-              </>
-            )}
-          </Button>
-
-          {/* Last Generation Result */}
-          {lastGeneration && (
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
-              <div className="flex items-center gap-2 text-primary">
-                <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">
-                  {lastGeneration.count} PROs gerados (R$ {lastGeneration.amount.toLocaleString('pt-BR')},00)
-                </span>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Códigos gerados:</p>
-                <div className="flex flex-wrap gap-1 max-h-32 overflow-y-auto">
-                  {lastGeneration.codes.slice(0, 20).map((code) => (
-                    <Badge key={code} variant="outline" className="text-xs font-mono">
-                      {code}
-                    </Badge>
-                  ))}
-                  {lastGeneration.codes.length > 20 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{lastGeneration.codes.length - 20} mais
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </CardContent>
       </Card>
 
-      {/* Generation History */}
+      {/* Generation History - Read Only */}
       {generationRecords.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <History className="w-5 h-5 text-muted-foreground" />
-              Histórico de Geração
+              PROs no Sistema
             </CardTitle>
-            <CardDescription>
-              Clique em excluir para remover a última geração (LIFO - Last In, First Out)
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {generationRecords.map((record, idx) => (
+            <div className="space-y-3">
+              {generationRecords.map((record) => (
                 <div 
                   key={record.id}
-                  className={`p-4 rounded-lg border ${idx === 0 ? 'bg-muted/50 border-border' : 'bg-background border-border/50'}`}
+                  className="p-4 rounded-lg border bg-muted/50 border-border"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
@@ -372,7 +264,7 @@ export function GenerateProsPanel() {
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="gap-1">
                         <Package className="w-3 h-3" />
-                        {record.count} PROs
+                        {record.count.toLocaleString('pt-BR')} PROs
                       </Badge>
                       <Badge variant="outline" className="gap-1">
                         <DollarSign className="w-3 h-3" />
@@ -380,50 +272,11 @@ export function GenerateProsPanel() {
                       </Badge>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      {format(new Date(record.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                      <span className="text-muted-foreground/50">•</span>
-                      <span>Posições {record.first_position} - {record.last_position}</span>
-                    </div>
-                    
-                    {idx === 0 && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            disabled={isDeleting === record.id}
-                          >
-                            {isDeleting === record.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir geração de PROs?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Isso excluirá permanentemente {record.count} PROs (R$ {record.amount.toLocaleString('pt-BR')},00) 
-                              e suas entradas na fila FIFO. Esta ação não pode ser desfeita.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteBatch(record)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="w-3 h-3" />
+                    {format(new Date(record.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    <span className="text-muted-foreground/50">•</span>
+                    <span>Posições {record.first_position} - {record.last_position}</span>
                   </div>
                 </div>
               ))}
