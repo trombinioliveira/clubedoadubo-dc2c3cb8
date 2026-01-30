@@ -55,14 +55,25 @@ export function GenerateProsPanel() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load PROs grouped by creation timestamp (batch)
-      const { data: prosData, error: prosError } = await supabase
+      // Get total count
+      const { count: totalCount, error: countError } = await supabase
         .from('pros')
-        .select('id, code, user_id, created_at, fifo_position, weight_grams')
-        .order('fifo_position', { ascending: false })
-        .limit(1000);
+        .select('*', { count: 'exact', head: true });
 
-      if (prosError) throw prosError;
+      if (countError) throw countError;
+
+      // Get min/max positions to calculate the range
+      const { data: statsData, error: statsError } = await supabase
+        .from('pros')
+        .select('user_id, created_at, fifo_position')
+        .order('fifo_position', { ascending: false })
+        .limit(1);
+
+      const { data: minPosData } = await supabase
+        .from('pros')
+        .select('fifo_position')
+        .order('fifo_position', { ascending: true })
+        .limit(1);
 
       // Load profiles for user names
       const { data: profilesData, error: profilesError } = await supabase
@@ -71,41 +82,25 @@ export function GenerateProsPanel() {
 
       if (profilesError) throw profilesError;
 
-      if (prosData && profilesData) {
-        // Group PROs by batch (same user and creation minute)
-        const grouped = new Map<string, GenerationRecord>();
+      if (statsData && statsData.length > 0 && minPosData && profilesData) {
+        const latestPro = statsData[0];
+        const profile = profilesData.find(p => p.user_id === latestPro.user_id);
         
-        prosData.forEach(pro => {
-          const dateKey = pro.created_at.slice(0, 16); // YYYY-MM-DDTHH:MM
-          const key = `${pro.user_id}-${dateKey}`;
-          const profile = profilesData.find(p => p.user_id === pro.user_id);
-          
-          if (!grouped.has(key)) {
-            grouped.set(key, {
-              id: key,
-              date: pro.created_at,
-              user_name: profile?.full_name || 'Usuário desconhecido',
-              user_id: pro.user_id,
-              count: 0,
-              amount: 0,
-              first_position: pro.fifo_position,
-              last_position: pro.fifo_position
-            });
-          }
-          
-          const entry = grouped.get(key)!;
-          entry.count++;
-          entry.amount += 1; // R$ 1,00 per PRO
-          entry.first_position = Math.min(entry.first_position, pro.fifo_position);
-          entry.last_position = Math.max(entry.last_position, pro.fifo_position);
-        });
+        // Create a single record for the batch
+        const record: GenerationRecord = {
+          id: `${latestPro.user_id}-${latestPro.created_at.slice(0, 16)}`,
+          date: latestPro.created_at,
+          user_name: profile?.full_name || 'Usuário desconhecido',
+          user_id: latestPro.user_id,
+          count: totalCount || 0,
+          amount: totalCount || 0,
+          first_position: minPosData[0]?.fifo_position || 1,
+          last_position: latestPro.fifo_position
+        };
 
-        // Convert to array and sort by date descending
-        const recordsArray = Array.from(grouped.values())
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-          .slice(0, 20);
-
-        setGenerationRecords(recordsArray);
+        setGenerationRecords([record]);
+      } else {
+        setGenerationRecords([]);
       }
     } catch (error) {
       console.error('Error loading data:', error);
