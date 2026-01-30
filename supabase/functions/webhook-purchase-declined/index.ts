@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,30 +6,28 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-webhook-token",
 };
 
-interface PurchaseDeclinedPayload {
-  // Common fields that may be present in the payload
-  transaction_id?: string;
-  email?: string;
-  cpf?: string;
-  cnpj?: string;
-  external_id?: string;
-  customer_id?: string;
+// Nexano webhook payload structure for declined purchases
+interface NexanoDeclinedPayload {
+  event: string;
+  token: string;
+  offerCode?: string;
+  client: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    cpf: string | null;
+    cnpj: string | null;
+  };
+  transaction: {
+    id: string;
+    identifier?: string;
+    paymentMethod?: string;
+    status: string;
+    amount?: number;
+    createdAt?: string;
+  };
   reason?: string;
-  // Nested customer object (common in payment gateways)
-  customer?: {
-    email?: string;
-    cpf?: string;
-    cnpj?: string;
-    document?: string;
-    id?: string;
-  };
-  // Alternative structure
-  buyer?: {
-    email?: string;
-    cpf?: string;
-    cnpj?: string;
-    document?: string;
-  };
 }
 
 Deno.serve(async (req) => {
@@ -46,57 +44,46 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1. Validate webhook token
-    const webhookToken = req.headers.get("x-webhook-token");
-    const expectedToken = Deno.env.get("WEBHOOK_AUTH_TOKEN");
+    // 1. Parse payload first to get the token from body
+    const payload: NexanoDeclinedPayload = await req.json();
+    console.log("[webhook-purchase-declined] Received event:", payload.event);
+    console.log("[webhook-purchase-declined] Transaction ID:", payload.transaction?.id);
+    console.log("[webhook-purchase-declined] Client email:", payload.client?.email);
 
-    if (!expectedToken) {
-      console.error("[webhook-purchase-declined] WEBHOOK_AUTH_TOKEN not configured");
+    // 2. Validate webhook token from payload body (same as webhook-purchase)
+    const expectedToken = Deno.env.get("WEBHOOK_AUTH_TOKEN");
+    const providedToken = payload.token;
+
+    if (expectedToken && expectedToken !== "" && providedToken !== expectedToken) {
+      console.warn("[webhook-purchase-declined] Invalid webhook token provided");
       return new Response(
-        JSON.stringify({ error: "Webhook not configured" }),
+        JSON.stringify({ error: "Unauthorized - Invalid token" }),
         {
-          status: 500,
+          status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    if (!webhookToken || webhookToken !== expectedToken) {
-      console.warn("[webhook-purchase-declined] Invalid or missing webhook token");
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    console.log("[webhook-purchase-declined] Token validated successfully");
 
-    // 2. Parse payload
-    const payload: PurchaseDeclinedPayload = await req.json();
-    console.log("[webhook-purchase-declined] Received payload:", JSON.stringify(payload, null, 2));
-
-    // 3. Extract identifier fields from payload
-    const transactionId = payload.transaction_id || payload.external_id || null;
-    const email = payload.email || payload.customer?.email || payload.buyer?.email || null;
-    const cpf = sanitizeCpf(
-      payload.cpf || 
-      payload.customer?.cpf || 
-      payload.customer?.document || 
-      payload.buyer?.cpf || 
-      payload.buyer?.document || 
-      null
-    );
-    const reason = payload.reason || "Compra recusada pelo gateway de pagamento";
+    // 3. Extract identifiers from payload
+    const client = payload.client;
+    const transaction = payload.transaction;
+    const transactionId = transaction?.id || null;
+    const email = client?.email || null;
+    const reason = payload.reason || `Compra recusada - Status: ${transaction?.status || 'unknown'}`;
 
     console.log("[webhook-purchase-declined] Extracted identifiers:", { 
       transactionId, 
-      email, 
-      cpf: cpf ? "***" + cpf.slice(-4) : null,
+      email,
+      status: transaction?.status,
       reason 
     });
 
     // Must have at least one identifier
-    if (!email && !cpf && !transactionId) {
+    if (!email && !transactionId) {
       console.warn("[webhook-purchase-declined] No valid identifier found in payload");
-      // Return success to avoid retries - log the event
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -113,9 +100,14 @@ Deno.serve(async (req) => {
     // 4. Initialize Supabase admin client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
-    // 5. Find user by identifiers (priority: email > cpf > transaction_id)
+    // 5. Find user by identifiers (priority: email > transaction_id)
     let profile = null;
     let searchMethod = "";
 
@@ -151,7 +143,6 @@ Deno.serve(async (req) => {
     if (!profile) {
       console.log("[webhook-purchase-declined] User not found for identifiers:", { 
         email, 
-        cpf: cpf ? "***" + cpf.slice(-4) : null,
         transactionId 
       });
       return new Response(
@@ -257,9 +248,3 @@ Deno.serve(async (req) => {
     );
   }
 });
-
-// Helper to sanitize CPF/CNPJ (remove non-numeric characters)
-function sanitizeCpf(value: string | null): string | null {
-  if (!value) return null;
-  return value.replace(/\D/g, "");
-}
