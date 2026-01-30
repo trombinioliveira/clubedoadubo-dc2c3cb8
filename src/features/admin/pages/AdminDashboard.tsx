@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet } from 'lucide-react';
+import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory } from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
@@ -11,6 +10,8 @@ import { WeighingsManagement } from '../components/WeighingsManagement';
 import { GenerateProsPanel } from '../components/GenerateProsPanel';
 import { DistributionManagement } from '../components/DistributionManagement';
 import { FinancialManagement } from '../components/FinancialManagement';
+import { OverviewDashboard } from '../components/OverviewDashboard';
+
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
@@ -33,130 +34,114 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
           <p className="text-muted-foreground mt-1">
-            Gerencie usuários, lotes, pontos de coleta e pesagens
+            Gerencie PROs, produção, distribuição e finanças
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 gap-2">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 gap-1">
+            {/* (0) Visão Geral */}
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Visão Geral</span>
             </TabsTrigger>
+
+            {/* (1) Gerar PROs - Admin only */}
             {isAdmin && (
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span className="hidden sm:inline">Usuários</span>
+              <TabsTrigger value="generate-pros" className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Gerar PROs</span>
               </TabsTrigger>
             )}
-            {isAdmin && (
-              <TabsTrigger value="batches" className="flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                <span className="hidden sm:inline">Lotes</span>
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="collection-points" className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">Pontos de Coleta</span>
-            </TabsTrigger>
+
+            {/* (2) Pesagem */}
             <TabsTrigger value="weighings" className="flex items-center gap-2">
               <Scale className="w-4 h-4" />
-              <span className="hidden sm:inline">Pesagens</span>
+              <span className="hidden sm:inline">Pesagem</span>
             </TabsTrigger>
+
+            {/* (3) Produção - Admin only */}
+            {isAdmin && (
+              <TabsTrigger value="batches" className="flex items-center gap-2">
+                <Factory className="w-4 h-4" />
+                <span className="hidden sm:inline">Produção</span>
+              </TabsTrigger>
+            )}
+
+            {/* (4) Distribuição */}
             <TabsTrigger value="distribution" className="flex items-center gap-2">
               <Truck className="w-4 h-4" />
               <span className="hidden sm:inline">Distribuição</span>
             </TabsTrigger>
+
+            {/* (5) Financeiro - Admin only */}
             {isAdmin && (
               <TabsTrigger value="financial" className="flex items-center gap-2">
                 <Wallet className="w-4 h-4" />
                 <span className="hidden sm:inline">Financeiro</span>
               </TabsTrigger>
             )}
+
+            {/* (6) Pontos de Coleta */}
+            <TabsTrigger value="collection-points" className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              <span className="hidden sm:inline">Pontos de Coleta</span>
+            </TabsTrigger>
+
+            {/* (7) Usuários - Admin only */}
+            {isAdmin && (
+              <TabsTrigger value="users" className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                <span className="hidden sm:inline">Usuários</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
+          {/* (0) Visão Geral */}
           <TabsContent value="overview">
-            <div className="grid gap-6 lg:grid-cols-3">
-              {/* Generate PROs Panel */}
-              <div className="lg:col-span-1">
-                <GenerateProsPanel />
-              </div>
-              
-              {/* Stats Cards */}
-              <div className="lg:col-span-2">
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">--</div>
-                      <p className="text-xs text-muted-foreground">Carregando...</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">PROs Ativos</CardTitle>
-                      <Package className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">--</div>
-                      <p className="text-xs text-muted-foreground">Carregando...</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Pontos de Coleta</CardTitle>
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">--</div>
-                      <p className="text-xs text-muted-foreground">Carregando...</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Pesagens Hoje</CardTitle>
-                      <Scale className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">--</div>
-                      <p className="text-xs text-muted-foreground">Carregando...</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </div>
+            <OverviewDashboard />
           </TabsContent>
 
+          {/* (1) Gerar PROs */}
           {isAdmin && (
-            <TabsContent value="users">
-              <UsersManagement />
+            <TabsContent value="generate-pros">
+              <GenerateProsPanel />
             </TabsContent>
           )}
 
+          {/* (2) Pesagem */}
+          <TabsContent value="weighings">
+            <WeighingsManagement />
+          </TabsContent>
+
+          {/* (3) Produção (Batches) */}
           {isAdmin && (
             <TabsContent value="batches">
               <BatchesManagement />
             </TabsContent>
           )}
 
-          <TabsContent value="collection-points">
-            <CollectionPointsManagement />
-          </TabsContent>
-
-          <TabsContent value="weighings">
-            <WeighingsManagement />
-          </TabsContent>
-
+          {/* (4) Distribuição */}
           <TabsContent value="distribution">
             <DistributionManagement />
           </TabsContent>
 
+          {/* (5) Financeiro */}
           {isAdmin && (
             <TabsContent value="financial">
               <FinancialManagement />
+            </TabsContent>
+          )}
+
+          {/* (6) Pontos de Coleta */}
+          <TabsContent value="collection-points">
+            <CollectionPointsManagement />
+          </TabsContent>
+
+          {/* (7) Usuários */}
+          {isAdmin && (
+            <TabsContent value="users">
+              <UsersManagement />
             </TabsContent>
           )}
         </Tabs>
