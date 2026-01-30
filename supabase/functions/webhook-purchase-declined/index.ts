@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,28 +7,40 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-webhook-token",
 };
 
-// Nexano webhook payload structure for declined purchases
-interface NexanoDeclinedPayload {
-  event: string;
-  token: string;
-  offerCode?: string;
-  client: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    cpf: string | null;
-    cnpj: string | null;
-  };
-  transaction: {
-    id: string;
-    identifier?: string;
-    paymentMethod?: string;
-    status: string;
-    amount?: number;
-    createdAt?: string;
-  };
-  reason?: string;
+// Zod schema for Nexano declined webhook payload validation
+const ClientSchema = z.object({
+  id: z.string().max(255).optional(),
+  name: z.string().max(255).optional().default("Unknown"),
+  email: z.string().email("Invalid email format").max(255),
+  phone: z.string().max(20).optional().nullable(),
+  cpf: z.string().regex(/^\d{11}$/, "CPF must be 11 digits").nullable().optional(),
+  cnpj: z.string().regex(/^\d{14}$/, "CNPJ must be 14 digits").nullable().optional(),
+});
+
+const TransactionSchema = z.object({
+  id: z.string().min(1, "Transaction ID is required").max(255, "Transaction ID too long"),
+  identifier: z.string().max(255).optional(),
+  paymentMethod: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  amount: z.number().optional(),
+  createdAt: z.string().optional(),
+});
+
+const NexanoDeclinedPayloadSchema = z.object({
+  event: z.string().min(1).max(100),
+  token: z.string().min(1, "Token is required").max(500),
+  offerCode: z.string().max(100).optional(),
+  client: ClientSchema,
+  transaction: TransactionSchema,
+  reason: z.string().max(500).optional(),
+});
+
+type NexanoDeclinedPayload = z.infer<typeof NexanoDeclinedPayloadSchema>;
+
+// Sanitize string for logging/storage
+function sanitizeString(str: string | null | undefined, maxLength: number): string | null {
+  if (!str) return null;
+  return str.trim().substring(0, maxLength);
 }
 
 Deno.serve(async (req) => {
@@ -44,13 +57,39 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1. Parse payload first to get the token from body
-    const payload: NexanoDeclinedPayload = await req.json();
-    console.log("[webhook-purchase-declined] Received event:", payload.event);
-    console.log("[webhook-purchase-declined] Transaction ID:", payload.transaction?.id);
-    console.log("[webhook-purchase-declined] Client email:", payload.client?.email);
+    // 1. Parse payload with error handling
+    let rawPayload: unknown;
+    try {
+      rawPayload = await req.json();
+    } catch {
+      console.error("[webhook-purchase-declined] Invalid JSON payload");
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON payload" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // 2. Validate webhook token from payload body (same as webhook-purchase)
+    // 2. Validate payload with zod schema
+    const validationResult = NexanoDeclinedPayloadSchema.safeParse(rawPayload);
+    
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map(e => ({
+        path: e.path.join('.'),
+        message: e.message
+      }));
+      console.error("[webhook-purchase-declined] Payload validation failed:", errors);
+      return new Response(
+        JSON.stringify({ error: "Invalid payload", details: errors }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const payload: NexanoDeclinedPayload = validationResult.data;
+    console.log("[webhook-purchase-declined] Received event:", payload.event);
+    console.log("[webhook-purchase-declined] Transaction ID:", payload.transaction.id);
+    console.log("[webhook-purchase-declined] Client email:", payload.client.email);
+
+    // 3. Validate webhook token from payload body
     const expectedToken = Deno.env.get("WEBHOOK_AUTH_TOKEN");
     const providedToken = payload.token;
 
@@ -67,17 +106,18 @@ Deno.serve(async (req) => {
 
     console.log("[webhook-purchase-declined] Token validated successfully");
 
-    // 3. Extract identifiers from payload
+    // 4. Extract and sanitize identifiers from payload
     const client = payload.client;
     const transaction = payload.transaction;
-    const transactionId = transaction?.id || null;
-    const email = client?.email || null;
-    const reason = payload.reason || `Compra recusada - Status: ${transaction?.status || 'unknown'}`;
+    const transactionId = sanitizeString(transaction.id, 255);
+    const email = client.email.toLowerCase().trim();
+    const reason = sanitizeString(payload.reason, 500) || 
+      `Compra recusada - Status: ${sanitizeString(transaction.status, 50) || 'unknown'}`;
 
     console.log("[webhook-purchase-declined] Extracted identifiers:", { 
       transactionId, 
       email,
-      status: transaction?.status,
+      status: transaction.status,
       reason 
     });
 
@@ -97,7 +137,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 4. Initialize Supabase admin client
+    // 5. Initialize Supabase admin client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -107,7 +147,7 @@ Deno.serve(async (req) => {
       }
     });
 
-    // 5. Find user by identifiers (priority: email > transaction_id)
+    // 6. Find user by identifiers (priority: email > transaction_id)
     let profile = null;
     let searchMethod = "";
 
@@ -116,7 +156,7 @@ Deno.serve(async (req) => {
       const { data, error } = await supabase
         .from("profiles")
         .select("id, user_id, email, is_blocked, external_transaction_id")
-        .eq("email", email.toLowerCase().trim())
+        .eq("email", email)
         .maybeSingle();
 
       if (!error && data) {
@@ -139,7 +179,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 6. If no user found, log and return success
+    // 7. If no user found, log and return success
     if (!profile) {
       console.log("[webhook-purchase-declined] User not found for identifiers:", { 
         email, 
@@ -161,11 +201,10 @@ Deno.serve(async (req) => {
     console.log("[webhook-purchase-declined] Found user via", searchMethod, ":", { 
       profileId: profile.id, 
       userId: profile.user_id,
-      email: profile.email,
       alreadyBlocked: profile.is_blocked 
     });
 
-    // 7. Idempotency check - if already blocked, return success
+    // 8. Idempotency check - if already blocked, return success
     if (profile.is_blocked) {
       console.log("[webhook-purchase-declined] User already blocked, skipping");
       return new Response(
@@ -182,7 +221,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 8. Block the user in profiles table
+    // 9. Block the user in profiles table
     const { error: updateError } = await supabase
       .from("profiles")
       .update({ 
@@ -193,9 +232,9 @@ Deno.serve(async (req) => {
       .eq("id", profile.id);
 
     if (updateError) {
-      console.error("[webhook-purchase-declined] Failed to block user:", updateError);
+      console.error("[webhook-purchase-declined] Failed to block user:", updateError.message);
       return new Response(
-        JSON.stringify({ error: "Failed to block user", details: updateError.message }),
+        JSON.stringify({ error: "Failed to block user" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -203,7 +242,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 9. Invalidate user sessions by signing them out via Supabase Auth Admin API
+    // 10. Invalidate user sessions by signing them out via Supabase Auth Admin API
     try {
       const { error: signOutError } = await supabase.auth.admin.signOut(
         profile.user_id,
@@ -211,13 +250,14 @@ Deno.serve(async (req) => {
       );
 
       if (signOutError) {
-        console.warn("[webhook-purchase-declined] Failed to invalidate sessions:", signOutError);
+        console.warn("[webhook-purchase-declined] Failed to invalidate sessions:", signOutError.message);
         // Don't fail the request - user is blocked, sessions will be invalidated on next auth check
       } else {
         console.log("[webhook-purchase-declined] Successfully invalidated all sessions for user");
       }
     } catch (sessionError) {
-      console.warn("[webhook-purchase-declined] Session invalidation error:", sessionError);
+      console.warn("[webhook-purchase-declined] Session invalidation error:", 
+        sessionError instanceof Error ? sessionError.message : "Unknown error");
       // Continue - blocking is more important
     }
 
@@ -237,10 +277,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("[webhook-purchase-declined] Unexpected error:", error);
+    console.error("[webhook-purchase-declined] Unexpected error:", 
+      error instanceof Error ? error.message : "Unknown error");
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: errorMessage }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
