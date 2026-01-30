@@ -75,7 +75,8 @@ export function WeighingsManagement() {
   const [formData, setFormData] = useState({
     collection_point_id: '',
     weight_kg: 0,
-    notes: ''
+    notes: '',
+    weighed_at: new Date().toISOString().slice(0, 16)
   });
   const [adminPendingCount, setAdminPendingCount] = useState<number>(0);
 
@@ -190,12 +191,14 @@ export function WeighingsManagement() {
       console.log(`Updating ${proIds.length} PROs to processing:`, proCodes);
 
       // Update pending PROs to processing status FIRST (before creating weighing)
+      const weighedAtDate = new Date(formData.weighed_at).toISOString();
+      
       const { data: updatedPros, error: updateProsError } = await supabase
         .from('pros')
         .update({ 
           status: 'processing',
           collection_point_id: formData.collection_point_id,
-          processed_at: new Date().toISOString()
+          processed_at: weighedAtDate
         })
         .in('id', proIds)
         .select('id');
@@ -229,6 +232,7 @@ export function WeighingsManagement() {
           user_id: user.id,
           weight_grams: weightGrams,
           weighed_by: user.id,
+          weighed_at: weighedAtDate,
           notes: formData.notes || null
         });
 
@@ -239,7 +243,7 @@ export function WeighingsManagement() {
 
       toast.success(`Pesagem registrada! ${updatedPros.length} PRO(s) movidos para processamento!`);
       setIsAddOpen(false);
-      setFormData({ collection_point_id: '', weight_kg: 0, notes: '' });
+      setFormData({ collection_point_id: '', weight_kg: 0, notes: '', weighed_at: new Date().toISOString().slice(0, 16) });
       fetchData();
       // Refresh pending count
       await fetchAdminPendingCount();
@@ -311,7 +315,7 @@ export function WeighingsManagement() {
         <Dialog open={isAddOpen} onOpenChange={(open) => {
           setIsAddOpen(open);
           if (!open) {
-            setFormData({ collection_point_id: '', weight_kg: 0, notes: '' });
+            setFormData({ collection_point_id: '', weight_kg: 0, notes: '', weighed_at: new Date().toISOString().slice(0, 16) });
           }
         }}>
           <DialogTrigger asChild>
@@ -351,6 +355,18 @@ export function WeighingsManagement() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Data e Hora da Pesagem *</Label>
+                <Input
+                  type="datetime-local"
+                  value={formData.weighed_at}
+                  onChange={(e) => setFormData({ ...formData, weighed_at: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Pode ser retroativa se necessário
+                </p>
               </div>
 
               <div className="space-y-2">
