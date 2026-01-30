@@ -89,6 +89,65 @@ export type Database = {
         }
         Relationships: []
       }
+      distributions: {
+        Row: {
+          check_at: string | null
+          created_at: string
+          created_by: string | null
+          distributed_at: string
+          granulated_kg_per_package: number | null
+          granulated_packages: number | null
+          id: string
+          liquid_bottles: number | null
+          liquid_liters_per_bottle: number | null
+          observations: string | null
+          other_items: string | null
+          pros_moved: number
+          sales_point_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          check_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          distributed_at?: string
+          granulated_kg_per_package?: number | null
+          granulated_packages?: number | null
+          id?: string
+          liquid_bottles?: number | null
+          liquid_liters_per_bottle?: number | null
+          observations?: string | null
+          other_items?: string | null
+          pros_moved?: number
+          sales_point_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          check_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          distributed_at?: string
+          granulated_kg_per_package?: number | null
+          granulated_packages?: number | null
+          id?: string
+          liquid_bottles?: number | null
+          liquid_liters_per_bottle?: number | null
+          observations?: string | null
+          other_items?: string | null
+          pros_moved?: number
+          sales_point_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distributions_sales_point_id_fkey"
+            columns: ["sales_point_id"]
+            isOneToOne: false
+            referencedRelation: "sales_points"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dreams: {
         Row: {
           created_at: string
@@ -156,6 +215,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      financial_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          distributed_at: string | null
+          id: string
+          is_distributed: boolean
+          pros_paid: number | null
+          received_at: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          distributed_at?: string | null
+          id?: string
+          is_distributed?: boolean
+          pros_paid?: number | null
+          received_at?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          distributed_at?: string | null
+          id?: string
+          is_distributed?: boolean
+          pros_paid?: number | null
+          received_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -285,6 +383,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_points: {
+        Row: {
+          address: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          name: string | null
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

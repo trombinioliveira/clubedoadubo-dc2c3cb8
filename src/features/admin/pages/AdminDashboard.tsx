@@ -3,13 +3,14 @@ import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Package, MapPin, Scale, BarChart3, Plus } from 'lucide-react';
+import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet } from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
 import { WeighingsManagement } from '../components/WeighingsManagement';
 import { GenerateProsPanel } from '../components/GenerateProsPanel';
-
+import { DistributionManagement } from '../components/DistributionManagement';
+import { FinancialManagement } from '../components/FinancialManagement';
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
@@ -37,7 +38,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 gap-2">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Visão Geral</span>
@@ -62,6 +63,16 @@ export default function AdminDashboard() {
               <Scale className="w-4 h-4" />
               <span className="hidden sm:inline">Pesagens</span>
             </TabsTrigger>
+            <TabsTrigger value="distribution" className="flex items-center gap-2">
+              <Truck className="w-4 h-4" />
+              <span className="hidden sm:inline">Distribuição</span>
+            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="financial" className="flex items-center gap-2">
+                <Wallet className="w-4 h-4" />
+                <span className="hidden sm:inline">Financeiro</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview">
@@ -138,6 +149,16 @@ export default function AdminDashboard() {
           <TabsContent value="weighings">
             <WeighingsManagement />
           </TabsContent>
+
+          <TabsContent value="distribution">
+            <DistributionManagement />
+          </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="financial">
+              <FinancialManagement />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
