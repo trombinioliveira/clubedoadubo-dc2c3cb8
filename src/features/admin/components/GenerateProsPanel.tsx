@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Loader2, Plus, Package, DollarSign, AlertCircle, CheckCircle2, History, Calendar, User, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
@@ -40,6 +41,7 @@ export function GenerateProsPanel() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [generationRecords, setGenerationRecords] = useState<GenerationRecord[]>([]);
+  const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [lastGeneration, setLastGeneration] = useState<{
     count: number;
     amount: number;
@@ -134,32 +136,20 @@ export function GenerateProsPanel() {
 
     setIsGenerating(true);
     setLastGeneration(null);
+    setProgress({ current: 0, total: prosCount, phase: 'Preparando...' });
 
     try {
-      // Get starting position
+      // Phase 1: Get starting position
+      setProgress({ current: 0, total: 100, phase: 'Obtendo posição inicial...' });
       const { data: startPosition, error: posError } = await supabase.rpc('get_next_fifo_position');
       if (posError) throw posError;
 
-      // Generate all codes at once
-      const prosToInsert: {
-        code: string;
-        user_id: string;
-        weight_grams: number;
-        fifo_position: number;
-        status: 'pending';
-      }[] = [];
-      
-      const fifoToInsert: {
-        pro_id?: string;
-        position: number;
-        status: 'pending';
-      }[] = [];
-
+      // Phase 2: Generate codes in memory (fast)
+      setProgress({ current: 5, total: 100, phase: 'Gerando códigos...' });
       const generatedCodes: string[] = [];
       const usedCodes = new Set<string>();
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-      // Generate unique codes
       for (let i = 0; i < prosCount; i++) {
         let code: string;
         do {
@@ -168,30 +158,56 @@ export function GenerateProsPanel() {
             code += chars[Math.floor(Math.random() * chars.length)];
           }
         } while (usedCodes.has(code));
-        
         usedCodes.add(code);
         generatedCodes.push(code);
+      }
 
-        prosToInsert.push({
-          code,
-          user_id: user.id,
-          weight_grams: 100,
-          fifo_position: (startPosition as number) + i,
-          status: 'pending'
+      // Phase 3: Batch insert PROs (in chunks for large amounts)
+      const BATCH_SIZE = 500;
+      const totalBatches = Math.ceil(prosCount / BATCH_SIZE);
+      const allInsertedPros: { id: string; code: string; fifo_position: number }[] = [];
+
+      setProgress({ current: 10, total: 100, phase: `Inserindo PROs (0/${totalBatches} lotes)...` });
+
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        const start = batchIndex * BATCH_SIZE;
+        const end = Math.min(start + BATCH_SIZE, prosCount);
+        
+        const prosToInsert = [];
+        for (let i = start; i < end; i++) {
+          prosToInsert.push({
+            code: generatedCodes[i],
+            user_id: user.id,
+            weight_grams: 100,
+            fifo_position: (startPosition as number) + i,
+            status: 'pending' as const
+          });
+        }
+
+        const { data: insertedPros, error: prosError } = await supabase
+          .from('pros')
+          .insert(prosToInsert)
+          .select('id, code, fifo_position');
+
+        if (prosError) throw prosError;
+        if (insertedPros) allInsertedPros.push(...insertedPros);
+
+        const progressPct = 10 + Math.round(((batchIndex + 1) / totalBatches) * 45);
+        setProgress({ 
+          current: progressPct, 
+          total: 100, 
+          phase: `Inserindo PROs (${batchIndex + 1}/${totalBatches} lotes)...` 
         });
       }
 
-      // Insert PROs in batch
-      const { data: insertedPros, error: prosError } = await supabase
-        .from('pros')
-        .insert(prosToInsert)
-        .select('id, code, fifo_position');
+      // Phase 4: Batch insert FIFO entries
+      setProgress({ current: 55, total: 100, phase: `Inserindo na fila FIFO (0/${totalBatches} lotes)...` });
 
-      if (prosError) throw prosError;
-
-      // Prepare FIFO entries
-      if (insertedPros) {
-        const fifoInserts = insertedPros.map(pro => ({
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        const start = batchIndex * BATCH_SIZE;
+        const end = Math.min(start + BATCH_SIZE, allInsertedPros.length);
+        
+        const fifoInserts = allInsertedPros.slice(start, end).map(pro => ({
           pro_id: pro.id,
           position: pro.fifo_position,
           status: 'pending' as const
@@ -202,7 +218,16 @@ export function GenerateProsPanel() {
           .insert(fifoInserts);
 
         if (fifoError) throw fifoError;
+
+        const progressPct = 55 + Math.round(((batchIndex + 1) / totalBatches) * 40);
+        setProgress({ 
+          current: progressPct, 
+          total: 100, 
+          phase: `Inserindo na fila FIFO (${batchIndex + 1}/${totalBatches} lotes)...` 
+        });
       }
+
+      setProgress({ current: 100, total: 100, phase: 'Concluído!' });
 
       setLastGeneration({
         count: prosCount,
@@ -220,6 +245,7 @@ export function GenerateProsPanel() {
       toast.error(`Erro ao gerar PROs: ${error.message}`);
     } finally {
       setIsGenerating(false);
+      setProgress({ current: 0, total: 0, phase: '' });
     }
   };
 
@@ -347,6 +373,17 @@ export function GenerateProsPanel() {
             </div>
           )}
 
+          {/* Progress Bar */}
+          {isGenerating && progress.total > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{progress.phase}</span>
+                <span className="font-medium">{progress.current}%</span>
+              </div>
+              <Progress value={progress.current} className="h-3" />
+            </div>
+          )}
+
           {/* Generate Button */}
           <Button 
             onClick={handleGenerate}
@@ -357,7 +394,7 @@ export function GenerateProsPanel() {
             {isGenerating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Gerando PROs...
+                Gerando PROs... {progress.current}%
               </>
             ) : (
               <>
