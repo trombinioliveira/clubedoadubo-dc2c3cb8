@@ -346,6 +346,23 @@ export type Database = {
     Functions: {
       generate_pro_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
+      get_fifo_queue_public: {
+        Args: never
+        Returns: {
+          pro_code: string
+          pro_created_at: string
+          pro_id: string
+          pro_status: Database["public"]["Enums"]["pro_status"]
+          pro_user_id: string
+          pro_weight_grams: number
+          queue_created_at: string
+          queue_id: string
+          queue_paid_at: string
+          queue_position: number
+          queue_status: Database["public"]["Enums"]["pro_status"]
+          user_name: string
+        }[]
+      }
       get_next_fifo_position: { Args: never; Returns: number }
       has_role: {
         Args: {
@@ -356,6 +373,13 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      lookup_referral_code: {
+        Args: { code: string }
+        Returns: {
+          profile_id: string
+          referral_code: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "client"
