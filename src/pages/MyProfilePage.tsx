@@ -286,15 +286,16 @@ export default function MyProfilePage() {
       return;
     }
     
-    if (!emailVerified) {
-      toast({ title: 'Email precisa ser verificado', variant: 'destructive' });
-      return;
-    }
+    // Email and WhatsApp verification temporarily disabled
+    // if (!emailVerified) {
+    //   toast({ title: 'Email precisa ser verificado', variant: 'destructive' });
+    //   return;
+    // }
     
-    if (!whatsappVerified) {
-      toast({ title: 'WhatsApp precisa ser verificado', variant: 'destructive' });
-      return;
-    }
+    // if (!whatsappVerified) {
+    //   toast({ title: 'WhatsApp precisa ser verificado', variant: 'destructive' });
+    //   return;
+    // }
     
     setIsSaving(true);
     
@@ -306,6 +307,8 @@ export default function MyProfilePage() {
           gender: formData.gender,
           cpf: cleanedCPF,
           birth_date: formData.birth_date,
+          email: formData.email.trim(),
+          whatsapp: formData.whatsapp.replace(/\D/g, ''),
           pix_key: formData.pix_key.trim() || null,
           profile_completed_at: new Date().toISOString()
         })
@@ -423,63 +426,27 @@ export default function MyProfilePage() {
           {/* Email with verification */}
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
-            <div className="flex gap-2">
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                disabled={isProfileCompleted || emailVerified}
-                placeholder="seu@email.com"
-                className="flex-1"
-              />
-              {emailVerified ? (
-                <Button variant="ghost" disabled className="text-green-600">
-                  <CheckCircle2 className="w-4 h-4 mr-1" />
-                  Verificado
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  onClick={() => sendOTP('email')}
-                  disabled={otpSending || isProfileCompleted}
-                >
-                  {otpSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4 mr-1" />}
-                  Verificar
-                </Button>
-              )}
-            </div>
+          <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              disabled={isProfileCompleted}
+              placeholder="seu@email.com"
+            />
           </div>
           
           {/* WhatsApp with verification */}
           <div className="space-y-2">
             <Label htmlFor="whatsapp">WhatsApp *</Label>
-            <div className="flex gap-2">
-              <Input
-                id="whatsapp"
-                value={formData.whatsapp}
-                onChange={(e) => handleInputChange('whatsapp', e.target.value)}
-                disabled={isProfileCompleted || whatsappVerified}
-                placeholder="(11) 99999-9999"
-                maxLength={15}
-                className="flex-1"
-              />
-              {whatsappVerified ? (
-                <Button variant="ghost" disabled className="text-green-600">
-                  <CheckCircle2 className="w-4 h-4 mr-1" />
-                  Verificado
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  onClick={() => sendOTP('whatsapp')}
-                  disabled={otpSending || isProfileCompleted}
-                >
-                  {otpSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4 mr-1" />}
-                  Verificar
-                </Button>
-              )}
-            </div>
+            <Input
+              id="whatsapp"
+              value={formData.whatsapp}
+              onChange={(e) => handleInputChange('whatsapp', e.target.value)}
+              disabled={isProfileCompleted}
+              placeholder="(11) 99999-9999"
+              maxLength={15}
+            />
           </div>
           
           {/* PIX Key */}
