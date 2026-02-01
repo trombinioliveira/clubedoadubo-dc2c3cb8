@@ -107,7 +107,7 @@ export function DashboardPage() {
   const estimatedDays = Math.max(1, Math.round((fifoData?.position || 100) / 10));
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 sm:pb-24">
       {/* Header com saudação e botões */}
       <DashboardHeader
         userName={userName}
@@ -131,7 +131,7 @@ export function DashboardPage() {
       />
 
       {/* Conteúdo principal */}
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Ações Rápidas */}
         <QuickActionsCard
           totalPros={totalPros}
@@ -140,10 +140,10 @@ export function DashboardPage() {
           onOpenPix={() => setPixModalOpen(true)}
         />
 
-        {/* Grid principal */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        {/* Grid principal - empilhado em mobile, lado a lado em desktop */}
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           {/* Coluna esquerda */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Resumo do Ciclo */}
             <CycleResumeCard
               totalPros={activePros}
@@ -160,7 +160,7 @@ export function DashboardPage() {
           </div>
 
           {/* Coluna direita */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Impacto Ambiental */}
             <EnvironmentalImpactCard totalPros={totalPros} />
 
@@ -180,9 +180,9 @@ export function DashboardPage() {
         />
 
         {/* Callout educacional */}
-        <div className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl border border-border">
-          <h3 className="font-bold text-foreground mb-2">💡 Fila justa, ondas de impacto</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="p-4 sm:p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl sm:rounded-2xl border border-border">
+          <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">💡 Fila justa, ondas de impacto</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             A fila FIFO é única e global — todos participam na mesma ordem justa. 
             Suas indicações criam <span className="font-semibold text-primary">ondas de impacto</span>, 
             mas nunca alteram a ordem da fila. Quando o adubo é vendido, quem está à frente recebe primeiro.
