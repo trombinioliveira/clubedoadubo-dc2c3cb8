@@ -89,6 +89,42 @@ export type Database = {
         }
         Relationships: []
       }
+      commission_levels: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          level_number: number
+          max_referrals: number | null
+          min_referrals: number
+          rate_percent: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          level_number: number
+          max_referrals?: number | null
+          min_referrals?: number
+          rate_percent?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          level_number?: number
+          max_referrals?: number | null
+          min_referrals?: number
+          rate_percent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       distributions: {
         Row: {
           check_at: string | null
@@ -290,14 +326,17 @@ export type Database = {
           birth_date: string | null
           blocked_at: string | null
           blocked_reason: string | null
+          commission_preference: string | null
           cpf: string | null
           created_at: string
           email: string
           email_verified_at: string | null
           external_transaction_id: string | null
+          fertilizer_credits: number | null
           full_name: string
           gender: string | null
           id: string
+          internal_balance: number | null
           is_blocked: boolean
           password_change_required: boolean
           phone: string | null
@@ -315,14 +354,17 @@ export type Database = {
           birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
+          commission_preference?: string | null
           cpf?: string | null
           created_at?: string
           email: string
           email_verified_at?: string | null
           external_transaction_id?: string | null
+          fertilizer_credits?: number | null
           full_name: string
           gender?: string | null
           id?: string
+          internal_balance?: number | null
           is_blocked?: boolean
           password_change_required?: boolean
           phone?: string | null
@@ -340,14 +382,17 @@ export type Database = {
           birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
+          commission_preference?: string | null
           cpf?: string | null
           created_at?: string
           email?: string
           email_verified_at?: string | null
           external_transaction_id?: string | null
+          fertilizer_credits?: number | null
           full_name?: string
           gender?: string | null
           id?: string
+          internal_balance?: number | null
           is_blocked?: boolean
           password_change_required?: boolean
           phone?: string | null
@@ -381,6 +426,7 @@ export type Database = {
           fifo_position: number
           id: string
           paid_at: string | null
+          pro_type: string | null
           processed_at: string | null
           sold_at: string | null
           status: Database["public"]["Enums"]["pro_status"]
@@ -396,6 +442,7 @@ export type Database = {
           fifo_position: number
           id?: string
           paid_at?: string | null
+          pro_type?: string | null
           processed_at?: string | null
           sold_at?: string | null
           status?: Database["public"]["Enums"]["pro_status"]
@@ -411,6 +458,7 @@ export type Database = {
           fifo_position?: number
           id?: string
           paid_at?: string | null
+          pro_type?: string | null
           processed_at?: string | null
           sold_at?: string | null
           status?: Database["public"]["Enums"]["pro_status"]
@@ -440,6 +488,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referral_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_stats: {
+        Row: {
+          commission_earned: number
+          created_at: string
+          current_level: number
+          direct_pros: number
+          fifo_goal_current: number
+          fifo_goals_completed: number
+          global_pros_received: number
+          id: string
+          recurring_pros: number
+          status_badge: string | null
+          total_sales_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          commission_earned?: number
+          created_at?: string
+          current_level?: number
+          direct_pros?: number
+          fifo_goal_current?: number
+          fifo_goals_completed?: number
+          global_pros_received?: number
+          id?: string
+          recurring_pros?: number
+          status_badge?: string | null
+          total_sales_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          commission_earned?: number
+          created_at?: string
+          current_level?: number
+          direct_pros?: number
+          fifo_goal_current?: number
+          fifo_goals_completed?: number
+          global_pros_received?: number
+          id?: string
+          recurring_pros?: number
+          status_badge?: string | null
+          total_sales_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       sales_points: {
         Row: {
@@ -480,6 +600,45 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          current_cycle: number
+          id: string
+          next_billing_at: string | null
+          plan_type: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          current_cycle?: number
+          id?: string
+          next_billing_at?: string | null
+          plan_type?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          current_cycle?: number
+          id?: string
+          next_billing_at?: string | null
+          plan_type?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -550,6 +709,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      count_active_referrals: { Args: { p_user_id: string }; Returns: number }
       generate_otp_code: { Args: never; Returns: string }
       generate_pro_code: { Args: never; Returns: string }
       generate_pros_batch: {
@@ -562,6 +722,14 @@ export type Database = {
         }[]
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_commission_level: {
+        Args: { p_active_referrals: number }
+        Returns: {
+          label: string
+          level_number: number
+          rate_percent: number
+        }[]
+      }
       get_fifo_queue_public: {
         Args: never
         Returns: {
@@ -580,6 +748,17 @@ export type Database = {
         }[]
       }
       get_next_fifo_position: { Args: never; Returns: number }
+      get_referral_overview: {
+        Args: never
+        Returns: {
+          active_subscriptions: number
+          total_direct_pros: number
+          total_global_pros: number
+          total_recurring_pros: number
+          total_users_with_links: number
+          users_with_referrals: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
