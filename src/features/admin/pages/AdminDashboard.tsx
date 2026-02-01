@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory } from 'lucide-react';
+import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2 } from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
@@ -11,6 +11,7 @@ import { GenerateProsPanel } from '../components/GenerateProsPanel';
 import { DistributionManagement } from '../components/DistributionManagement';
 import { FinancialManagement } from '../components/FinancialManagement';
 import { OverviewDashboard } from '../components/OverviewDashboard';
+import { ReferralsManagement } from '../components/ReferralsManagement';
 
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
@@ -39,7 +40,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 gap-1">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-9 gap-1">
             {/* (0) Visão Geral */}
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -95,6 +96,14 @@ export default function AdminDashboard() {
                 <span className="hidden sm:inline">Usuários</span>
               </TabsTrigger>
             )}
+
+            {/* (8) Indicações - Admin only */}
+            {isAdmin && (
+              <TabsTrigger value="referrals" className="flex items-center gap-2">
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Indicações</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* (0) Visão Geral */}
@@ -142,6 +151,13 @@ export default function AdminDashboard() {
           {isAdmin && (
             <TabsContent value="users">
               <UsersManagement />
+            </TabsContent>
+          )}
+
+          {/* (8) Indicações */}
+          {isAdmin && (
+            <TabsContent value="referrals">
+              <ReferralsManagement />
             </TabsContent>
           )}
         </Tabs>

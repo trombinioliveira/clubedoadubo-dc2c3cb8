@@ -6,3 +6,8 @@ export { GenerateProsPanel } from './GenerateProsPanel';
 export { DistributionManagement } from './DistributionManagement';
 export { FinancialManagement } from './FinancialManagement';
 export { OverviewDashboard } from './OverviewDashboard';
+export { ReferralsManagement } from './ReferralsManagement';
+export { ReferralsOverview } from './ReferralsOverview';
+export { ReferralsTable } from './ReferralsTable';
+export { CommissionLevelsEditor } from './CommissionLevelsEditor';
+export { ReferralLogs } from './ReferralLogs';

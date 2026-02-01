@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Leaf, Menu, X, Sparkles, ListOrdered, Settings, LogOut, User } from 'lucide-react';
+import { Leaf, Menu, X, Sparkles, ListOrdered, Settings, LogOut, User, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -121,6 +121,10 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                     <span className="ml-auto text-xs text-destructive">!</span>
                   )}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/indicacoes')}>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Indicações
+                </DropdownMenuItem>
                 {(isAdmin || isStaff) && (
                   <>
                     <DropdownMenuSeparator />
@@ -185,6 +189,17 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   {!profile?.profile_completed_at && (
                     <span className="ml-auto text-xs text-destructive font-medium">Completar</span>
                   )}
+                </Link>
+                <Link 
+                  to="/indicacoes"
+                  onClick={() => setMenuOpen(false)}
+                  className={cn(
+                    "block w-full text-left p-3 rounded-lg hover:bg-muted transition-colors flex items-center gap-2",
+                    isActive('/indicacoes') && "text-primary font-medium"
+                  )}
+                >
+                  <Share2 className="w-4 h-4" />
+                  Indicações
                 </Link>
                 <Link 
                   to="/dashboard"
