@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Leaf, Menu, X, Sparkles, ListOrdered, Settings, LogOut, User, Share2 } from 'lucide-react';
+import { Menu, X, Sparkles, ListOrdered, Settings, LogOut, User, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import logoImage from '@/assets/logo.webp';
 
 interface HeaderProps {
   menuOpen: boolean;
@@ -47,9 +48,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
           to="/"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <div className="w-10 h-10 rounded-xl earth-gradient flex items-center justify-center shadow-soft">
-            <Leaf className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img src={logoImage} alt="Clube do Adubo" className="w-10 h-10 object-contain" />
           <span className="font-bold text-lg text-foreground hidden sm:inline">Clube do Adubo</span>
         </Link>
 
