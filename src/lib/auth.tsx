@@ -24,6 +24,9 @@ interface Profile {
   whatsapp_verified_at: string | null;
   profile_completed_at: string | null;
   profile_deadline: string | null;
+  commission_preference: string | null;
+  internal_balance: number | null;
+  fertilizer_credits: number | null;
 }
 
 interface AuthContextType {

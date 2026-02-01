@@ -26,6 +26,10 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { mockUser, mockImpactWave } from '@/data/mockData';
+import { ImpactCardsSection } from '@/components/ImpactCardsSection';
+import { CommissionPreferenceSelector } from '@/components/CommissionPreferenceSelector';
+import { CommissionSimulator } from '@/components/CommissionSimulator';
+import { useAuth } from '@/lib/auth';
 
 // Mock referral data - in production this would come from the database
 const mockReferrals = [
@@ -117,10 +121,12 @@ const commissionTiers = [
 ];
 
 export const ReferralsPage = () => {
+  const { user, profile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [mainTab, setMainTab] = useState('impacto');
   
-  const referralCode = mockUser.referralCode;
+  const referralCode = profile?.referral_code || mockUser.referralCode;
   const referralLink = `https://clubedoadubo.com/r/${referralCode}`;
 
   const copyLink = () => {
@@ -136,6 +142,13 @@ export const ReferralsPage = () => {
   const totalProsFromNetwork = mockReferrals.reduce((sum, r) => sum + r.prosCount, 0);
   const totalWeightFromNetwork = mockReferrals.reduce((sum, r) => sum + r.totalWeight, 0);
   const totalPaidFromNetwork = mockReferrals.reduce((sum, r) => sum + r.paidPros, 0);
+
+  // Mock impact data
+  const directPros = 12;
+  const recurringPros = 8;
+  const globalPros = 3;
+  const fifoPosition = 247;
+  const currentGoal = 4;
 
   // Determine current tier
   const currentTier = commissionTiers.find(
@@ -179,17 +192,17 @@ export const ReferralsPage = () => {
 
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Referral Link Card */}
-        <Card className="border-2 border-secondary/30 bg-gradient-to-r from-secondary/5 to-transparent">
+        <Card className="border-2 border-secondary/30 bg-gradient-to-r from-secondary/5 to-transparent overflow-hidden">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center animate-pulse-slow">
                   <Gift className="w-6 h-6 text-secondary" />
                 </div>
                 <div>
                   <h3 className="font-bold text-foreground">Seu link de indicação</h3>
                   <p className="text-sm text-muted-foreground">
-                    Compartilhe e ganhe comissões na economia circular
+                    Compartilhe e amplie sua onda de impacto
                   </p>
                 </div>
               </div>
@@ -200,7 +213,7 @@ export const ReferralsPage = () => {
                   readOnly
                   className="font-mono text-sm bg-muted"
                 />
-                <Button onClick={copyLink} variant="secondary">
+                <Button onClick={copyLink} variant="secondary" className="shadow-soft">
                   <Copy className="w-4 h-4 mr-2" />
                   Copiar
                 </Button>
@@ -209,7 +222,58 @@ export const ReferralsPage = () => {
           </CardContent>
         </Card>
 
-        {/* Stats Grid */}
+        {/* Main Tabs Navigation */}
+        <Tabs value={mainTab} onValueChange={setMainTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-4 h-auto bg-muted/50 p-1 rounded-xl">
+            <TabsTrigger value="impacto" className="text-xs sm:text-sm py-2 px-3 rounded-lg">
+              <Leaf className="w-4 h-4 mr-1 hidden sm:inline" />
+              Meu Impacto
+            </TabsTrigger>
+            <TabsTrigger value="comissao" className="text-xs sm:text-sm py-2 px-3 rounded-lg">
+              <DollarSign className="w-4 h-4 mr-1 hidden sm:inline" />
+              Comissão
+            </TabsTrigger>
+            <TabsTrigger value="simulador" className="text-xs sm:text-sm py-2 px-3 rounded-lg">
+              <TrendingUp className="w-4 h-4 mr-1 hidden sm:inline" />
+              Simulador
+            </TabsTrigger>
+            <TabsTrigger value="rede" className="text-xs sm:text-sm py-2 px-3 rounded-lg">
+              <Users className="w-4 h-4 mr-1 hidden sm:inline" />
+              Minha Rede
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Meu Impacto Tab */}
+          <TabsContent value="impacto" className="mt-6">
+            <ImpactCardsSection 
+              directPros={directPros}
+              recurringPros={recurringPros}
+              globalPros={globalPros}
+              fifoPosition={fifoPosition}
+              currentGoal={currentGoal}
+              statusBadge={currentTier.label}
+            />
+          </TabsContent>
+
+          {/* Comissão Tab */}
+          <TabsContent value="comissao" className="mt-6">
+            <CommissionPreferenceSelector 
+              userId={user?.id || ''}
+              currentPreference={profile?.commission_preference || 'pros'}
+            />
+          </TabsContent>
+
+          {/* Simulador Tab */}
+          <TabsContent value="simulador" className="mt-6">
+            <CommissionSimulator 
+              currentLevel={currentTier.tier}
+              currentRate={currentTier.rate}
+              activeReferrals={activeReferrals}
+            />
+          </TabsContent>
+
+          {/* Minha Rede Tab */}
+          <TabsContent value="rede" className="mt-6 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
@@ -493,6 +557,8 @@ export const ReferralsPage = () => {
             </Card>
           </div>
         </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
