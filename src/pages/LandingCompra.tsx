@@ -55,7 +55,7 @@ const LandingCompra = () => {
               <span className="font-bold text-foreground">Clube do Adubo</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 Clube do Adubo. Economia Circular Urbana.
+              © {new Date().getFullYear()} Clube do Adubo. Economia Circular Urbana.
             </p>
           </div>
         </div>

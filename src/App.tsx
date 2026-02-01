@@ -15,6 +15,9 @@ import DreamsPage from "./pages/DreamsPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import NotFound from "./pages/NotFound";
 import LandingCompra from "./pages/LandingCompra";
+import FaqPage from "./pages/FaqPage";
+import TransparenciaPage from "./pages/TransparenciaPage";
+import ContatoPage from "./pages/ContatoPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -34,6 +37,9 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/planos" element={<LandingCompra />} />
+            <Route path="/faq" element={<FaqPage />} />
+            <Route path="/transparencia" element={<TransparenciaPage />} />
+            <Route path="/contato" element={<ContatoPage />} />
             
             <Route element={<AppLayout />}>
               <Route path="/" element={<Index />} />

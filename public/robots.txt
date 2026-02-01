@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://clubedoadubo.lovable.app/sitemap.xml
