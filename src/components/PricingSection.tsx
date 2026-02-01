@@ -31,8 +31,11 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Escolha como participar do ciclo
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-2">
             De compras avulsas a assinaturas completas, encontre a melhor forma de transformar resíduo em valor
+          </p>
+          <p className="text-sm text-muted-foreground/80 max-w-xl mx-auto">
+            💡 <strong>Importante:</strong> O valor que você pode receber vem da venda real do adubo, não da entrada de novos participantes.
           </p>
         </div>
 
@@ -170,7 +173,10 @@ const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
         <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
           <span className="text-2xl">🌾</span> Assinatura de PROs
         </h3>
-        <p className="text-muted-foreground mb-4">Impacto contínuo + participação automática no ciclo</p>
+        <p className="text-muted-foreground mb-2">Impacto contínuo + participação automática no ciclo</p>
+        <p className="text-xs text-muted-foreground/70 mb-4">
+          PROs ativados automaticamente todo mês. Você acompanha na Fila FIFO.
+        </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {proPlans.map((plan) => (
             <Card key={plan.name} className="hover:shadow-elevated transition-shadow">
@@ -292,6 +298,9 @@ const CicloPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
           Assinatura "Fechar o Ciclo"
         </h3>
         <p className="text-muted-foreground">Adubo + PROs no mesmo plano</p>
+        <p className="text-xs text-muted-foreground/80 mt-2">
+          Você recebe adubo físico em casa + ativa PROs que entram na Fila FIFO
+        </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
