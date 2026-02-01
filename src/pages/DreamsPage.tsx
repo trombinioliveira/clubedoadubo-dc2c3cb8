@@ -2,14 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Sparkles, Plus, Target, TrendingUp, Package } from 'lucide-react';
+import { toast } from 'sonner';
+import { Sparkles, Plus } from 'lucide-react';
+import { HelpTooltip } from '@/components/shared/HelpTooltip';
+
+// Components
+import { AggregatedImpactCard } from '@/features/dreams/components/AggregatedImpactCard';
+import { DreamCardWithLevels } from '@/features/dreams/components/DreamCardWithLevels';
+import { NextLevelCard } from '@/features/dreams/components/NextLevelCard';
+import { DreamCollectionsSection } from '@/features/dreams/components/DreamCollectionsSection';
+import { FloatingPixButton } from '@/features/dreams/components/FloatingPixButton';
+import { AddProsPixModal } from '@/features/dreams/components/AddProsPixModal';
 import { CreateDreamModal } from '@/components/CreateDreamModal';
 import { AllocateProModal } from '@/features/dreams/components/AllocateProModal';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+
+// Constants
+import { calculateLevelInfo, DREAM_COLLECTIONS } from '@/features/dreams/constants/levels';
 
 interface Dream {
   id: string;
@@ -18,20 +26,30 @@ interface Dream {
   current_amount: number;
   is_completed: boolean;
   created_at: string;
+  auto_reactivate?: boolean;
 }
 
 interface Pro {
   id: string;
-  status: 'processing' | 'ready' | 'sold' | 'paid';
+  status: 'pending' | 'processing' | 'ready' | 'sold' | 'paid';
   dream_id: string | null;
+}
+
+interface Profile {
+  pix_key: string | null;
+  full_name: string;
 }
 
 const DreamsPage = () => {
   const { user } = useAuth();
   const [dreams, setDreams] = useState<Dream[]>([]);
   const [pros, setPros] = useState<Pro[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Modals
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isPixModalOpen, setIsPixModalOpen] = useState(false);
   const [selectedDream, setSelectedDream] = useState<Dream | null>(null);
   const [isAllocateOpen, setIsAllocateOpen] = useState(false);
 
@@ -46,7 +64,7 @@ const DreamsPage = () => {
     
     setIsLoading(true);
     
-    const [dreamsRes, prosRes] = await Promise.all([
+    const [dreamsRes, prosRes, profileRes] = await Promise.all([
       supabase
         .from('dreams')
         .select('*')
@@ -55,15 +73,19 @@ const DreamsPage = () => {
       supabase
         .from('pros')
         .select('id, status, dream_id')
+        .eq('user_id', user.id),
+      supabase
+        .from('profiles')
+        .select('pix_key, full_name')
         .eq('user_id', user.id)
+        .single()
     ]);
 
     if (!dreamsRes.error) {
-      // Calculate current amount for each dream based on paid PROs
       const dreamsWithProgress = (dreamsRes.data as Dream[]).map(dream => {
         const allocatedPros = prosRes.data?.filter(p => p.dream_id === dream.id) || [];
         const paidPros = allocatedPros.filter(p => p.status === 'paid');
-        const currentAmount = paidPros.length * 2; // R$ 2,00 per paid PRO
+        const currentAmount = paidPros.length * 2;
         return {
           ...dream,
           current_amount: currentAmount,
@@ -75,6 +97,10 @@ const DreamsPage = () => {
 
     if (!prosRes.error) {
       setPros(prosRes.data as Pro[] || []);
+    }
+
+    if (!profileRes.error) {
+      setProfile(profileRes.data as Profile);
     }
 
     setIsLoading(false);
@@ -96,26 +122,45 @@ const DreamsPage = () => {
     }
   };
 
+  const handleToggleReactivation = async (dreamId: string, enabled: boolean) => {
+    // Em produção, salvaria no banco
+    toast.success(enabled ? 'Reativação automática ativada!' : 'Reativação automática desativada');
+  };
+
   const openAllocateModal = (dream: Dream) => {
     setSelectedDream(dream);
     setIsAllocateOpen(true);
   };
 
+  const handleSelectCollection = (collection: typeof DREAM_COLLECTIONS[number]) => {
+    setIsCreateOpen(true);
+  };
+
+  // Cálculos
   const activeDreams = dreams.filter(d => !d.is_completed);
   const completedDreams = dreams.filter(d => d.is_completed);
-  const totalEarned = pros.filter(p => p.status === 'paid').length * 2;
-  const totalAllocated = pros.filter(p => p.dream_id).length;
+  
+  const totalProsInDreams = pros.filter(p => p.dream_id).length;
+  const totalUserPros = pros.length;
+  
+  const levelInfo = calculateLevelInfo(totalProsInDreams);
+
+  // PROs alocados por sonho
+  const getProsForDream = (dreamId: string) => 
+    pros.filter(p => p.dream_id === dreamId).length;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pb-24">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-primary" />
             Meus Sonhos
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Defina metas financeiras e acompanhe seu progresso
+          <p className="text-muted-foreground mt-1 flex items-center gap-2">
+            Transforme seu impacto em conquistas reais
+            <HelpTooltip content="Os níveis crescem conforme PROs válidos entram no seu ciclo. O nível 21 é o limite máximo por CPF." />
           </p>
         </div>
         <Button onClick={() => setIsCreateOpen(true)} className="earth-gradient">
@@ -124,157 +169,114 @@ const DreamsPage = () => {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Total Recebido
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">R$ {totalEarned.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">de PROs pagos</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              Sonhos Ativos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeDreams.length}</div>
-            <p className="text-xs text-muted-foreground">em andamento</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              PROs Alocados
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalAllocated}</div>
-            <p className="text-xs text-muted-foreground">vinculados a sonhos</p>
-          </CardContent>
-        </Card>
-      </div>
-
       {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
         </div>
-      ) : dreams.length === 0 ? (
-        <Card className="text-center py-12">
-          <CardContent>
-            <Sparkles className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum sonho cadastrado</h3>
-            <p className="text-muted-foreground mb-4">
-              Crie seu primeiro sonho e comece a acompanhar seu progresso!
-            </p>
-            <Button onClick={() => setIsCreateOpen(true)} className="earth-gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Primeiro Sonho
-            </Button>
-          </CardContent>
-        </Card>
       ) : (
         <div className="space-y-8">
-          {/* Active Dreams */}
+          {/* Card Agregado de Impacto */}
+          <AggregatedImpactCard
+            totalProsInDreams={totalProsInDreams}
+            totalDreams={dreams.length}
+            completedDreams={completedDreams.length}
+          />
+
+          {/* Card Próximo Nível */}
+          <NextLevelCard
+            totalPros={totalProsInDreams}
+            hasDreams={dreams.length > 0}
+            onAddPros={() => setIsPixModalOpen(true)}
+            onCreateDream={() => setIsCreateOpen(true)}
+          />
+
+          {/* Sonhos Ativos */}
           {activeDreams.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
-                Sonhos em Andamento
+                <span className="text-2xl">🌱</span>
+                Sonhos em Crescimento
               </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {activeDreams.map((dream) => {
-                  const progress = (dream.current_amount / dream.target_amount) * 100;
-                  const prosNeeded = Math.ceil((dream.target_amount - dream.current_amount) / 2);
-                  const allocatedCount = pros.filter(p => p.dream_id === dream.id).length;
-                  
-                  return (
-                    <Card key={dream.id} className="overflow-hidden">
-                      <CardHeader className="pb-2">
-                        <div className="flex items-start justify-between">
-                          <CardTitle className="text-lg">{dream.title}</CardTitle>
-                          <Badge variant="outline" className="text-xs">
-                            {allocatedCount} PROs
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Criado em {format(new Date(dream.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                        </p>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>R$ {dream.current_amount.toFixed(2)}</span>
-                            <span className="text-muted-foreground">R$ {dream.target_amount.toFixed(2)}</span>
-                          </div>
-                          <Progress value={progress} className="h-2" />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Faltam {prosNeeded} PROs pagos para atingir a meta
-                          </p>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          className="w-full"
-                          onClick={() => openAllocateModal(dream)}
-                        >
-                          <Package className="w-4 h-4 mr-2" />
-                          Alocar PROs
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Completed Dreams */}
-          {completedDreams.length > 0 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-500" />
-                Sonhos Realizados
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {completedDreams.map((dream) => (
-                  <Card key={dream.id} className="overflow-hidden border-emerald-200 bg-emerald-50/50">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg">{dream.title}</CardTitle>
-                        <Badge className="bg-emerald-500 text-white">Realizado!</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-2xl font-bold text-emerald-600">
-                        R$ {dream.target_amount.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Meta atingida! 🎉
-                      </p>
-                    </CardContent>
-                  </Card>
+              <div className="grid gap-4 md:grid-cols-2">
+                {activeDreams.map((dream) => (
+                  <DreamCardWithLevels
+                    key={dream.id}
+                    dream={dream}
+                    allocatedPros={getProsForDream(dream.id)}
+                    onAllocatePros={() => openAllocateModal(dream)}
+                    onToggleReactivation={(enabled) => handleToggleReactivation(dream.id, enabled)}
+                  />
                 ))}
               </div>
             </div>
           )}
+
+          {/* Sonhos Concluídos */}
+          {completedDreams.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <span className="text-2xl">🎉</span>
+                Sonhos Realizados
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                {completedDreams.map((dream) => (
+                  <DreamCardWithLevels
+                    key={dream.id}
+                    dream={dream}
+                    allocatedPros={getProsForDream(dream.id)}
+                    onAllocatePros={() => {}}
+                    onToggleReactivation={() => {}}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {dreams.length === 0 && (
+            <div className="text-center py-12 px-4 bg-muted/30 rounded-2xl">
+              <div className="text-6xl mb-4">💭</div>
+              <h3 className="text-xl font-semibold mb-2">Nenhum sonho cadastrado</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Crie seu primeiro sonho e comece a transformar seu impacto em conquistas reais.
+              </p>
+              <Button onClick={() => setIsCreateOpen(true)} className="earth-gradient">
+                <Plus className="w-4 h-4 mr-2" />
+                Criar Primeiro Sonho
+              </Button>
+            </div>
+          )}
+
+          {/* Coleções de Sonhos */}
+          <DreamCollectionsSection
+            currentLevel={levelInfo.currentLevel}
+            onSelectCollection={handleSelectCollection}
+          />
+
+          {/* Frase-guia */}
+          <div className="text-center py-6">
+            <p className="text-lg font-medium text-muted-foreground italic">
+              "Um passo por vez, todos os dias, até o impacto máximo."
+            </p>
+          </div>
         </div>
       )}
 
+      {/* Botão Flutuante PIX */}
+      <FloatingPixButton onClick={() => setIsPixModalOpen(true)} />
+
+      {/* Modais */}
       <CreateDreamModal 
         open={isCreateOpen} 
         onOpenChange={setIsCreateOpen}
         onConfirm={createDream}
+      />
+
+      <AddProsPixModal
+        open={isPixModalOpen}
+        onOpenChange={setIsPixModalOpen}
+        pixKey={profile?.pix_key || user?.id || 'demo-key'}
+        userName={profile?.full_name || 'Usuário'}
       />
 
       {selectedDream && (
