@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from './icons/CycleIcons';
 import { 
   ArrowRight, 
-  Leaf, 
   Recycle, 
   Users, 
   ListOrdered, 
@@ -24,6 +23,7 @@ import {
   Heart
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logoImage from '@/assets/logo.webp';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -119,7 +119,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-4">
-                <Leaf className="w-4 h-4" />
+                <Sprout className="w-4 h-4" />
                 A Solução
               </div>
               <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
@@ -446,9 +446,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             {/* Top row */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl earth-gradient flex items-center justify-center shadow-soft">
-                  <Leaf className="w-5 h-5 text-primary-foreground" />
-                </div>
+                <img src={logoImage} alt="Clube do Adubo" className="w-12 h-12 object-contain" />
                 <div>
                   <span className="font-bold text-foreground block">Clube do Adubo</span>
                   <span className="text-xs text-muted-foreground">Economia Circular Urbana</span>
