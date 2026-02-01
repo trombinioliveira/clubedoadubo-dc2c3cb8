@@ -68,87 +68,88 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
 };
 
 const AvulsaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
-  <div className="space-y-8">
-    {/* Adubos */}
-    <div>
-      <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-        <span className="text-2xl">🪴</span> Adubos
-      </h3>
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card className="hover:shadow-elevated transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h4 className="font-bold text-foreground">Adubo Granulado</h4>
-                <p className="text-sm text-muted-foreground">0,5 kg</p>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-bold text-primary">R$ 15</span>
-              </div>
-            </div>
-            <Button onClick={onGetStarted} className="w-full">
-              Comprar
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-elevated transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h4 className="font-bold text-foreground">Adubo Líquido Concentrado</h4>
-                <p className="text-sm text-muted-foreground">500 ml</p>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-bold text-primary">R$ 10</span>
-              </div>
-            </div>
-            <Button onClick={onGetStarted} className="w-full">
-              Comprar
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-
-    {/* PRO */}
-    <div>
-      <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-        <span className="text-2xl">♻️</span> PRO – Processamento de Resíduo Orgânico
-      </h3>
-      <Card className="hover:shadow-elevated transition-shadow">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-            <div>
-              <h4 className="font-bold text-foreground">1 PRO (100g de resíduo)</h4>
-              <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-primary" />
-                  Compra livre (qualquer quantidade)
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-primary" />
-                  Ativação individual e rastreável
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-primary" />
-                  Participa da fila FIFO global
-                </li>
-              </ul>
-            </div>
-            <div className="text-right">
-              <span className="text-3xl font-bold text-primary">R$ 1</span>
-              <span className="text-muted-foreground">/PRO</span>
-            </div>
+  <div className="grid md:grid-cols-2 gap-6">
+    {/* Card Adubos */}
+    <Card className="hover:shadow-elevated transition-shadow h-full">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🪴</span>
+          <CardTitle className="text-lg">Adubos</CardTitle>
+        </div>
+        <CardDescription>Produtos prontos para uso</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Adubo Granulado */}
+        <div className="flex justify-between items-center p-4 rounded-lg bg-muted/50 border border-border">
+          <div>
+            <h4 className="font-semibold text-foreground">Adubo Granulado</h4>
+            <p className="text-sm text-muted-foreground">0,5 kg</p>
           </div>
-          <Button onClick={onGetStarted} variant="hero" className="w-full">
-            Ativar PROs
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xl font-bold text-primary">R$ 15</span>
+            <Button onClick={onGetStarted} size="sm">
+              Comprar
+            </Button>
+          </div>
+        </div>
+        {/* Adubo Líquido */}
+        <div className="flex justify-between items-center p-4 rounded-lg bg-muted/50 border border-border">
+          <div>
+            <h4 className="font-semibold text-foreground">Adubo Líquido Concentrado</h4>
+            <p className="text-sm text-muted-foreground">500 ml</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xl font-bold text-primary">R$ 10</span>
+            <Button onClick={onGetStarted} size="sm">
+              Comprar
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Card PRO */}
+    <Card className="hover:shadow-elevated transition-shadow h-full border-primary/30">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">♻️</span>
+          <CardTitle className="text-lg">PRO</CardTitle>
+        </div>
+        <CardDescription>Processamento de Resíduo Orgânico</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col justify-between h-[calc(100%-5rem)]">
+        <div>
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="font-semibold text-foreground">1 PRO = 100g de resíduo</h4>
+              <div>
+                <span className="text-2xl font-bold text-primary">R$ 1</span>
+                <span className="text-muted-foreground text-sm">/PRO</span>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">Compra livre em qualquer quantidade</p>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-2">
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-primary shrink-0" />
+              Ativação individual e rastreável
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-primary shrink-0" />
+              Participa da fila FIFO global
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-primary shrink-0" />
+              Valor gerado na venda do adubo
+            </li>
+          </ul>
+        </div>
+        <Button onClick={onGetStarted} variant="hero" className="w-full mt-4">
+          Ativar PROs
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
+      </CardContent>
+    </Card>
   </div>
 );
 
