@@ -6,7 +6,7 @@ const steps = [
   { icon: LeafIcon, label: 'Resíduo', sublabel: 'Orgânico' },
   { icon: CompostIcon, label: 'PRO', sublabel: 'Processamento' },
   { icon: FertilizerIcon, label: 'Adubo', sublabel: 'Natural' },
-  { icon: MoneyIcon, label: 'Venda', sublabel: 'Valor gerado' },
+  { icon: MoneyIcon, label: 'Venda do adubo', sublabel: 'Valor gerado' },
 ];
 
 export const CycleVisual = () => {

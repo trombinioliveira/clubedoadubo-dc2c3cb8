@@ -54,12 +54,12 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight px-2">
               Transforme resíduo orgânico em{' '}
-              <span className="text-primary">adubo, impacto real e valor</span>
+              <span className="text-primary">adubo, impacto real e valor contínuo</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
-              O Clube do Adubo conecta pessoas a um ciclo urbano onde o resíduo vira adubo, 
-              o adubo gera valor e tudo é rastreável.
+              O Clube do Adubo conecta pessoas a um ciclo urbano simples e transparente:
+              resíduo vira adubo, adubo gera valor — e tudo pode ser acompanhado.
             </p>
             
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-4 sm:px-0">
@@ -82,20 +82,20 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                O problema do lixo orgânico nas cidades
+                O problema do resíduo orgânico urbano
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
                 Todos os dias, toneladas de resíduos orgânicos vão para aterros.
-                Eles geram gases, desperdiçam nutrientes e custam caro para a cidade e para o planeta.
+                Isso gera gases, desperdiça nutrientes e custa caro — para a cidade e para o planeta.
               </p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[
                 { icon: Trash2, title: 'Aterros lotados', color: 'text-destructive' },
-                { icon: Wind, title: 'Emissão de gases', color: 'text-muted-foreground' },
+                { icon: Wind, title: 'Emissão de gases poluentes', color: 'text-muted-foreground' },
                 { icon: Sprout, title: 'Nutrientes desperdiçados', color: 'text-primary' },
-                { icon: DollarSign, title: 'Custo ambiental e econômico', color: 'text-secondary' },
+                { icon: DollarSign, title: 'Custo ambiental e financeiro', color: 'text-secondary' },
               ].map((item, index) => (
                 <Card key={index} className="bg-background/50 border-destructive/20">
                   <CardContent className="p-3 sm:p-5 text-center">
@@ -107,7 +107,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             </div>
 
             <p className="text-center mt-6 sm:mt-8 text-sm sm:text-base lg:text-lg font-semibold text-foreground px-2">
-              Isso não é um problema do futuro. <span className="text-destructive">É de agora.</span>
+              Isso não é um problema do futuro. <span className="text-destructive">É de agora. E é urbano.</span>
             </p>
           </div>
         </div>
@@ -161,7 +161,8 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
               O Ciclo do Clube do Adubo
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto px-2">
-              Acompanhe cada etapa: do resíduo ao valor, tudo de forma transparente
+              Acompanhe cada etapa do ciclo:<br className="hidden sm:inline" />
+              do resíduo ao valor, com total transparência.
             </p>
           </div>
           
@@ -190,25 +191,25 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
               {
                 step: '1',
                 title: 'Ative PROs',
-                description: 'Cada PRO representa 100g de resíduo orgânico processado.',
+                description: 'Cada PRO representa 100 g de resíduo orgânico real, que será processado.',
                 icon: LeafIcon,
               },
               {
                 step: '2',
                 title: 'O resíduo vira adubo',
-                description: 'Compostagem controlada e urbana.',
+                description: 'Processamento biológico por compostagem urbana controlada.',
                 icon: CompostIcon,
               },
               {
                 step: '3',
-                title: 'O adubo é vendido',
+                title: 'Venda do adubo',
                 description: 'Produto real, com demanda real.',
                 icon: FertilizerIcon,
               },
               {
                 step: '4',
                 title: 'O valor é distribuído',
-                description: 'De forma justa, seguindo regras claras.',
+                description: 'De forma justa, seguindo regras claras e públicas.',
                 icon: MoneyIcon,
               },
             ].map((item, index) => (
@@ -230,11 +231,18 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
 
           <div className="mt-6 sm:mt-8 md:mt-10 max-w-2xl mx-auto px-2">
             <Card className="border-primary/30 bg-primary/5">
-              <CardContent className="p-3 sm:p-4 flex items-start sm:items-center gap-2 sm:gap-3">
-                <CircleDot className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5 sm:mt-0" />
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">Nota importante:</span> Nada acontece sem resíduo real. Nada é acelerado artificialmente.
-                </p>
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <CircleDot className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-foreground text-sm sm:text-base mb-1">Nota importante:</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      Nada acontece sem resíduo orgânico real.<br />
+                      O ciclo só existe quando há processamento de resíduo de verdade.<br />
+                      Nada é acelerado artificialmente.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -262,7 +270,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                       <ListOrdered className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground text-base sm:text-lg">Fila FIFO</h3>
+                      <h3 className="font-bold text-foreground text-base sm:text-lg">Fila FIFO (Pagamento)</h3>
                       <p className="text-xl sm:text-2xl font-extrabold text-primary">= Dinheiro</p>
                     </div>
                   </div>
@@ -294,7 +302,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                       <Waves className="w-6 h-6 sm:w-7 sm:h-7 text-accent-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground text-base sm:text-lg">Ondas de Impacto</h3>
+                      <h3 className="font-bold text-foreground text-base sm:text-lg">Ondas de Impacto (Engajamento)</h3>
                       <p className="text-xl sm:text-2xl font-extrabold text-accent">= Impacto</p>
                     </div>
                   </div>
@@ -343,7 +351,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 { icon: Sprout, title: 'Impacto ambiental real', description: 'Seu resíduo vira adubo de verdade' },
                 { icon: Recycle, title: 'Economia circular urbana', description: 'Ciclo local e contínuo' },
                 { icon: Eye, title: 'Transparência total', description: 'Acompanhe cada etapa' },
-                { icon: Target, title: 'Possibilidade de realizar sonhos', description: 'Metas conectadas ao ciclo' },
+                { icon: Target, title: 'Sonhos conectados ao ciclo', description: 'Metas que evoluem junto com o impacto' },
                 { icon: Users, title: 'Participação coletiva', description: 'Comunidade engajada' },
                 { icon: Heart, title: 'Ciclo contínuo', description: 'O valor retorna e se repete' },
               ].map((item, index) => (
@@ -376,8 +384,8 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {[
-                'O problema do lixo orgânico',
-                'Economia circular explicada',
+                'O problema do resíduo orgânico urbano',
+                'Processamento orgânico e fechamento de ciclo',
                 'Como o Clube do Adubo funciona',
                 'Sustentabilidade e vida financeira',
                 'Impacto ambiental nas cidades',
