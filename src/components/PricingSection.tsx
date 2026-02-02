@@ -8,7 +8,7 @@ interface PricingSectionProps {
   onGetStarted: () => void;
 }
 
-type PlanCategory = 'avulsa' | 'assinatura' | 'ciclo' | 'kits';
+type PlanCategory = 'avulsa' | 'assinatura' | 'ciclo' | 'kits' | 'presentes' | 'todos';
 
 export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
   const [activeCategory, setActiveCategory] = useState<PlanCategory>('avulsa');
@@ -18,6 +18,8 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
     { id: 'assinatura', label: 'Assinaturas', icon: Recycle },
     { id: 'ciclo', label: 'Fechar o Ciclo', icon: Leaf },
     { id: 'kits', label: 'Kits', icon: Gift },
+    { id: 'presentes', label: 'Presentes', icon: Gift },
+    { id: 'todos', label: 'Todos', icon: Star },
   ];
 
   return (
@@ -61,6 +63,8 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
           {activeCategory === 'assinatura' && <AssinaturaPlans onGetStarted={onGetStarted} />}
           {activeCategory === 'ciclo' && <CicloPlans onGetStarted={onGetStarted} />}
           {activeCategory === 'kits' && <KitsPlans onGetStarted={onGetStarted} />}
+          {activeCategory === 'presentes' && <PresentesPlans onGetStarted={onGetStarted} />}
+          {activeCategory === 'todos' && <TodosPlans onGetStarted={onGetStarted} />}
         </div>
       </div>
     </section>
@@ -430,3 +434,128 @@ const KitsPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
     </Card>
   </div>
 );
+
+const PresentesPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
+  const giftProducts = [
+    { name: 'Adubo Granulado', description: '0,5 kg', price: 15, emoji: '🪴' },
+    { name: 'Adubo Líquido Concentrado', description: '500 ml', price: 10, emoji: '💧' },
+    { name: 'PROs (10 unidades)', description: '10 PROs de presente', price: 10, emoji: '♻️' },
+    { name: 'Kit Iniciante', description: '2× Granulado + 1× Líquido + 10 PROs', price: 50, emoji: '🌿' },
+    { name: 'Kit Jardim Completo', description: '5× Granulado + 3× Líquido + 30 PROs', price: 130, emoji: '🌳' },
+  ];
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <Badge variant="default" className="mb-2">
+          🎁 Presentes sustentáveis
+        </Badge>
+        <h3 className="text-xl font-bold text-foreground">
+          Presenteie com propósito
+        </h3>
+        <p className="text-muted-foreground">Envie adubo, PROs ou kits para alguém especial</p>
+        <p className="text-xs text-muted-foreground/80 mt-2">
+          Todos os presentes podem ser enviados com uma mensagem personalizada
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {giftProducts.map((product) => (
+          <Card key={product.name} className="hover:shadow-elevated transition-shadow">
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{product.emoji}</span>
+                <CardTitle className="text-lg">{product.name}</CardTitle>
+              </div>
+              <CardDescription>{product.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <span className="text-2xl font-bold text-primary">R$ {product.price}</span>
+              </div>
+              <Button onClick={onGetStarted} className="w-full">
+                Enviar de presente
+                <Gift className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const TodosPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
+  const allProducts = [
+    // Adubos Avulsos
+    { category: 'Adubos', name: 'Adubo Granulado', description: '0,5 kg', price: 15, emoji: '🪴', type: 'avulso' },
+    { category: 'Adubos', name: 'Adubo Líquido Concentrado', description: '500 ml', price: 10, emoji: '💧', type: 'avulso' },
+    // PROs
+    { category: 'PROs', name: 'PRO Avulso', description: '1 PRO = 100g de resíduo', price: 1, emoji: '♻️', type: 'avulso' },
+    // Assinaturas de PROs
+    { category: 'Assinatura PROs', name: 'Plano Semente', description: '10 PROs/mês', price: 10, emoji: '🌱', type: 'assinatura' },
+    { category: 'Assinatura PROs', name: 'Plano Muda', description: '25 PROs/mês', price: 25, emoji: '🌿', type: 'assinatura' },
+    { category: 'Assinatura PROs', name: 'Plano Árvore', description: '50 PROs/mês', price: 50, emoji: '🌳', type: 'assinatura' },
+    // Assinaturas de Adubos
+    { category: 'Assinatura Adubos', name: 'Adubo Granulado Mensal', description: '0,5 kg/mês', price: 15, emoji: '🪴', type: 'assinatura' },
+    { category: 'Assinatura Adubos', name: 'Adubo Líquido Mensal', description: '500 ml/mês', price: 10, emoji: '💧', type: 'assinatura' },
+    { category: 'Assinatura Adubos', name: 'Combo Granulado + Líquido', description: 'Ambos mensais', price: 22, emoji: '⭐', type: 'assinatura' },
+    // Fechar o Ciclo
+    { category: 'Fechar o Ciclo', name: 'Ciclo Semente', description: '10 PROs + 1 adubo/mês', price: 25, emoji: '🌱', type: 'ciclo' },
+    { category: 'Fechar o Ciclo', name: 'Ciclo Muda', description: '25 PROs + 2 adubos/mês', price: 50, emoji: '🌿', type: 'ciclo', popular: true },
+    { category: 'Fechar o Ciclo', name: 'Ciclo Árvore', description: '50 PROs + 3 adubos/mês', price: 90, emoji: '🌳', type: 'ciclo' },
+    // Kits
+    { category: 'Kits', name: 'Kit Iniciante', description: '2× Granulado + 1× Líquido + 10 PROs', price: 50, emoji: '🌿', type: 'kit' },
+    { category: 'Kits', name: 'Kit Jardim Completo', description: '5× Granulado + 3× Líquido + 30 PROs', price: 130, emoji: '🌳', type: 'kit' },
+  ];
+
+  const categories = [...new Set(allProducts.map(p => p.category))];
+
+  return (
+    <div className="space-y-8">
+      {categories.map((category) => (
+        <div key={category}>
+          <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            {category}
+          </h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {allProducts
+              .filter((p) => p.category === category)
+              .map((product) => (
+                <Card
+                  key={product.name}
+                  className={`hover:shadow-elevated transition-shadow ${
+                    product.popular ? 'border-primary/50' : ''
+                  }`}
+                >
+                  {product.popular && (
+                    <Badge className="absolute -top-2 right-4">Popular</Badge>
+                  )}
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{product.emoji}</span>
+                      <CardTitle className="text-base">{product.name}</CardTitle>
+                    </div>
+                    <CardDescription className="text-xs">{product.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xl font-bold text-primary">R$ {product.price}</span>
+                        {product.type === 'assinatura' || product.type === 'ciclo' ? (
+                          <span className="text-sm text-muted-foreground">/mês</span>
+                        ) : null}
+                      </div>
+                      <Button onClick={onGetStarted} size="sm">
+                        {product.type === 'assinatura' || product.type === 'ciclo' ? 'Assinar' : 'Comprar'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
