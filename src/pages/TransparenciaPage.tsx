@@ -60,10 +60,10 @@ const TransparenciaPage = () => {
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { icon: LeafIcon, title: 'Coleta', description: '100g de resíduo orgânico = 1 PRO' },
+                { icon: LeafIcon, title: 'Coleta', description: '100 g de resíduo orgânico = 1 PRO' },
                 { icon: CompostIcon, title: 'Processamento', description: 'Compostagem natural' },
                 { icon: FertilizerIcon, title: 'Produção', description: 'Adubo pronto' },
-                { icon: MoneyIcon, title: 'Venda', description: 'R$ 2,00 para o PRO da vez' },
+                { icon: MoneyIcon, title: 'Venda do adubo', description: 'R$ 2,00 para o PRO da vez' },
               ].map((step, index) => (
                 <Card key={index} className="text-center">
                   <CardContent className="p-4">
@@ -153,7 +153,7 @@ const TransparenciaPage = () => {
                   <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 flex items-center justify-center">
                     <ListOrdered className="w-6 h-6 text-primary" />
                   </div>
-                  <CardTitle>Fila FIFO</CardTitle>
+                  <CardTitle>Fila FIFO (Pagamento)</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-3xl font-bold text-primary mb-2">= Dinheiro</p>
@@ -168,7 +168,7 @@ const TransparenciaPage = () => {
                   <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-accent/10 flex items-center justify-center">
                     <Users className="w-6 h-6 text-accent" />
                   </div>
-                  <CardTitle>Ondas de Impacto</CardTitle>
+                  <CardTitle>Ondas de Impacto (Engajamento)</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-3xl font-bold text-accent mb-2">= Impacto</p>
@@ -181,6 +181,18 @@ const TransparenciaPage = () => {
 
             <p className="text-center mt-6 text-muted-foreground font-medium">
               As ondas medem seu impacto, mas nunca mudam a ordem de pagamento.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Frase-Âncora */}
+      <section className="py-10 md:py-14 bg-muted/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-lg md:text-xl font-bold text-foreground leading-relaxed">
+              Aqui o resíduo não é tratado.<br />
+              <span className="text-primary">Ele é processado, transformado e reinserido no ciclo.</span>
             </p>
           </div>
         </div>
