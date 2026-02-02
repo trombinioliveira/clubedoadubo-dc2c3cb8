@@ -20,7 +20,10 @@ import {
   MessageCircle,
   CheckCircle2,
   Globe,
-  Heart
+  Heart,
+  ShoppingBag,
+  HelpCircle,
+  Mail
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logoImage from '@/assets/logo.webp';
@@ -413,7 +416,81 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* 9️⃣ CTA FINAL - Mobile optimized */}
+      {/* 9️⃣ CONFIANÇA E AÇÃO - Mobile optimized */}
+      <section className="py-12 sm:py-16 md:py-20 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
+                Escolha como participar — com clareza total
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground px-2">
+                Tudo funciona dentro do ciclo. Sem atalhos. Sem promessas vazias.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <Link to="/planos" className="group">
+                <Card className="h-full border-2 border-primary/30 hover:border-primary hover:shadow-elevated transition-all duration-300 bg-card">
+                  <CardContent className="p-4 sm:p-6 text-center">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl earth-gradient flex items-center justify-center group-hover:shadow-glow transition-all">
+                      <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
+                    </div>
+                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Planos</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Ative PROs, adubos e assinaturas para participar do ciclo
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/transparencia" className="group">
+                <Card className="h-full border-2 border-blue-500/30 hover:border-blue-500 hover:shadow-elevated transition-all duration-300 bg-card">
+                  <CardContent className="p-4 sm:p-6 text-center">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-blue-500 flex items-center justify-center group-hover:shadow-lg transition-all">
+                      <Eye className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                    </div>
+                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Transparência</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Acompanhe dados reais do resíduo, do ciclo e da fila FIFO
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/faq" className="group">
+                <Card className="h-full border-2 border-accent/30 hover:border-accent hover:shadow-elevated transition-all duration-300 bg-card">
+                  <CardContent className="p-4 sm:p-6 text-center">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl gold-gradient flex items-center justify-center group-hover:shadow-lg transition-all">
+                      <HelpCircle className="w-6 h-6 sm:w-7 sm:h-7 text-accent-foreground" />
+                    </div>
+                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">FAQ</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Entenda PROs, regras do sistema e como tudo funciona
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/contato" className="group">
+                <Card className="h-full border-2 border-purple-500/30 hover:border-purple-500 hover:shadow-elevated transition-all duration-300 bg-card">
+                  <CardContent className="p-4 sm:p-6 text-center">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-purple-500 flex items-center justify-center group-hover:shadow-lg transition-all">
+                      <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                    </div>
+                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Contato</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Fale com o Clube do Adubo. Pessoas reais.
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🔟 CTA FINAL - Mobile optimized */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
@@ -447,12 +524,12 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* 🔟 FOOTER - Mobile optimized */}
-      <footer className="py-8 sm:py-10 border-t border-border bg-muted/20">
+      {/* 1️⃣1️⃣ FOOTER - Mobile optimized with microcopy */}
+      <footer className="py-8 sm:py-12 border-t border-border bg-muted/20">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col gap-6 sm:gap-8">
-            {/* Top row */}
-            <div className="flex flex-col items-center gap-4 sm:gap-6 md:flex-row md:justify-between">
+          <div className="flex flex-col gap-8 sm:gap-10">
+            {/* Top row - Logo and main links with microcopy */}
+            <div className="flex flex-col gap-8 md:flex-row md:justify-between md:items-start">
               <div className="flex items-center gap-3">
                 <img src={logoImage} alt="Clube do Adubo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
                 <div>
@@ -461,19 +538,39 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 </div>
               </div>
               
-              {/* Links */}
-              <nav className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
-                <Link to="/planos" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                  Planos
+              {/* Links with microcopy */}
+              <nav className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                <Link to="/planos" className="group text-center sm:text-left">
+                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-0.5">
+                    Planos
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Veja como participar do ciclo
+                  </span>
                 </Link>
-                <Link to="/transparencia" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                  Transparência
+                <Link to="/transparencia" className="group text-center sm:text-left">
+                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-0.5">
+                    Transparência
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Acompanhe o resíduo, o ciclo e os dados
+                  </span>
                 </Link>
-                <Link to="/faq" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                  FAQ
+                <Link to="/faq" className="group text-center sm:text-left">
+                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-0.5">
+                    FAQ
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Tire dúvidas sobre PRO, fila e impacto
+                  </span>
                 </Link>
-                <Link to="/contato" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                  Contato
+                <Link to="/contato" className="group text-center sm:text-left">
+                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-0.5">
+                    Contato
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Fale com a gente, pessoas reais
+                  </span>
                 </Link>
               </nav>
             </div>
@@ -482,6 +579,9 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             <div className="text-center pt-4 border-t border-border/50">
               <p className="text-xs sm:text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Clube do Adubo — Economia Circular Urbana
+              </p>
+              <p className="text-xs text-muted-foreground/70 mt-1">
+                Transparência não é um detalhe. Ela sustenta o ciclo.
               </p>
             </div>
           </div>
