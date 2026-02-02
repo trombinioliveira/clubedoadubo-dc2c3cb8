@@ -1,19 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   DashboardHeader,
-  QuickActionsCard,
-  CycleResumeCard,
   DreamsResumeCard,
-  EnvironmentalImpactCard,
-  LevelReferralsCard,
   DailyHistoryCard,
-  QrCodeModal
+  QrCodeModal,
+  FloatingAddProsCTA,
+  ImpactMissionsSection,
+  CollectiveImpactCard,
+  CloseCycleSection,
+  LevelProgressCard,
+  FifoEducationCard
 } from '../components';
 import { AddProsPixModal } from '@/features/dreams/components/AddProsPixModal';
-import { calculateLevelInfo } from '@/features/dreams/constants/levels';
 
 export function DashboardPage() {
   const { user, profile } = useAuth();
@@ -60,7 +61,6 @@ export function DashboardPage() {
     queryFn: async () => {
       if (!user?.id) return null;
       
-      // Busca o primeiro PRO não pago do usuário na fila
       const { data, error } = await supabase
         .from('fifo_queue')
         .select('position, pros!inner(user_id)')
@@ -72,7 +72,6 @@ export function DashboardPage() {
       
       if (error && error.code !== 'PGRST116') throw error;
       
-      // Busca total na fila
       const { count } = await supabase
         .from('fifo_queue')
         .select('*', { count: 'exact', head: true });
@@ -85,37 +84,30 @@ export function DashboardPage() {
     enabled: !!user?.id,
   });
 
-  // Cálculos derivados
+  // Derived values
   const totalPros = pros.length;
-  const activePros = pros.filter(p => p.status !== 'paid').length;
-  const hasActiveDream = dreams.some(d => d.current_amount < d.target_amount);
-  const levelInfo = calculateLevelInfo(totalPros);
-  
-  // Nome do usuário para saudação
   const userName = profile?.full_name?.split(' ')[0] || 'Participante';
   const referralCode = profile?.referral_code || 'CODIGO';
   const pixKey = profile?.pix_key || profile?.cpf || 'chave-pix';
+  const estimatedDays = Math.max(1, Math.round((fifoData?.position || 100) / 10));
 
-  // Handler para adicionar PROs a um sonho específico
   const handleAddProsToream = (dreamId: string) => {
-    // Por enquanto, abre o modal de PIX genérico
-    // Em uma implementação futura, poderia pré-selecionar o sonho
     setPixModalOpen(true);
   };
 
-  // Estima dias para próximo pagamento (placeholder)
-  const estimatedDays = Math.max(1, Math.round((fifoData?.position || 100) / 10));
-
   return (
-    <div className="min-h-screen bg-background pb-20 sm:pb-24">
-      {/* Header com saudação e botões */}
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
       <DashboardHeader
         userName={userName}
         onOpenPix={() => setPixModalOpen(true)}
         onOpenQrCode={() => setQrCodeModalOpen(true)}
       />
 
-      {/* Modais */}
+      {/* Floating CTA - Main action axis */}
+      <FloatingAddProsCTA onClick={() => setPixModalOpen(true)} />
+
+      {/* Modals */}
       <AddProsPixModal
         open={pixModalOpen}
         onOpenChange={setPixModalOpen}
@@ -130,64 +122,51 @@ export function DashboardPage() {
         userName={userName}
       />
 
-      {/* Conteúdo principal */}
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* Ações Rápidas */}
-        <QuickActionsCard
-          totalPros={totalPros}
-          hasActiveDream={hasActiveDream}
-          prosToNextLevel={levelInfo.prosToNextLevel}
+      {/* Main content */}
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 sm:space-y-8">
+        
+        {/* 1. Impact Missions - Rotating Cards */}
+        <ImpactMissionsSection 
           onOpenPix={() => setPixModalOpen(true)}
+          referralCode={referralCode}
         />
 
-        {/* Grid principal - empilhado em mobile, lado a lado em desktop */}
+        {/* 2. Main Grid - Impact + Progress */}
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-          {/* Coluna esquerda */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Resumo do Ciclo */}
-            <CycleResumeCard
-              totalPros={activePros}
-              fifoPosition={fifoData?.position || null}
-              totalInQueue={fifoData?.total || 0}
-              estimatedDays={estimatedDays}
-            />
+          {/* Collective Environmental Impact */}
+          <CollectiveImpactCard 
+            userPros={totalPros}
+            onAddPro={() => setPixModalOpen(true)}
+          />
 
-            {/* Meus Sonhos */}
-            <DreamsResumeCard
-              dreams={dreams}
-              onAddPros={handleAddProsToream}
-            />
-          </div>
-
-          {/* Coluna direita */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Impacto Ambiental */}
-            <EnvironmentalImpactCard totalPros={totalPros} />
-
-            {/* Nível & Indicações */}
-            <LevelReferralsCard
-              totalPros={totalPros}
-              referralCode={referralCode}
-              onOpenQrCode={() => setQrCodeModalOpen(true)}
-            />
-          </div>
+          {/* Level Progress */}
+          <LevelProgressCard 
+            totalPros={totalPros}
+            onOpenPix={() => setPixModalOpen(true)}
+          />
         </div>
 
-        {/* Histórico Diário */}
+        {/* 3. Dreams Resume */}
+        <DreamsResumeCard
+          dreams={dreams}
+          onAddPros={handleAddProsToream}
+        />
+
+        {/* 4. Close the Cycle Section */}
+        <CloseCycleSection />
+
+        {/* 5. Daily History */}
         <DailyHistoryCard
           history={[]}
           onRegisterAction={() => setPixModalOpen(true)}
         />
 
-        {/* Callout educacional */}
-        <div className="p-4 sm:p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl sm:rounded-2xl border border-border">
-          <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">💡 Fila justa, ondas de impacto</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            A fila FIFO é única e global — todos participam na mesma ordem justa. 
-            Suas indicações criam <span className="font-semibold text-primary">ondas de impacto</span>, 
-            mas nunca alteram a ordem da fila. Quando o adubo é vendido, quem está à frente recebe primeiro.
-          </p>
-        </div>
+        {/* 6. FIFO Education Card */}
+        <FifoEducationCard
+          fifoPosition={fifoData?.position || null}
+          totalInQueue={fifoData?.total || 0}
+          estimatedDays={estimatedDays}
+        />
       </div>
     </div>
   );

@@ -9,15 +9,22 @@ import {
   Car,
   Plus,
   Sparkles,
-  Gift
+  Gift,
+  UtensilsCrossed,
+  Footprints,
+  Leaf,
+  Recycle,
+  Link2
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface HistoryItem {
   id: string;
   value: number;
   label: string;
-  icon: 'coffee' | 'shopping' | 'transport' | 'gift' | 'other';
+  emoji: string;
   time: string;
+  date: string;
 }
 
 interface DailyHistoryCardProps {
@@ -25,20 +32,14 @@ interface DailyHistoryCardProps {
   onRegisterAction: () => void;
 }
 
-const ICON_MAP = {
-  coffee: Coffee,
-  shopping: ShoppingCart,
-  transport: Car,
-  gift: Gift,
-  other: Sparkles,
-};
-
 export function DailyHistoryCard({ history, onRegisterAction }: DailyHistoryCardProps) {
-  // Mock data para quando não houver histórico real
-  const displayHistory = history.length > 0 ? history : [
-    { id: '1', value: 2, label: 'café', icon: 'coffee' as const, time: 'Hoje, 08:30' },
-    { id: '2', value: 1, label: 'mercado', icon: 'shopping' as const, time: 'Ontem, 19:45' },
-    { id: '3', value: 3, label: 'transporte', icon: 'transport' as const, time: 'Ontem, 07:15' },
+  // Mock data para demonstração
+  const displayHistory: HistoryItem[] = history.length > 0 ? history : [
+    { id: '1', value: 1, label: 'Café consciente', emoji: '☕', time: '08:30', date: 'Hoje' },
+    { id: '2', value: 2, label: 'Compra local', emoji: '🛒', time: '14:15', date: 'Hoje' },
+    { id: '3', value: 1, label: 'Mobilidade urbana', emoji: '🚶', time: '07:45', date: 'Ontem' },
+    { id: '4', value: 3, label: 'Resíduo ativado', emoji: '🌱', time: '19:00', date: 'Ontem' },
+    { id: '5', value: 2, label: 'Refeição urbana', emoji: '🍽', time: '12:30', date: 'Há 2 dias' },
   ];
 
   return (
@@ -47,54 +48,66 @@ export function DailyHistoryCard({ history, onRegisterAction }: DailyHistoryCard
         <CardTitle className="flex items-center justify-between text-lg">
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-primary" />
-            Histórico Diário
+            Diário de Impacto
           </div>
           <HelpTooltip 
-            content="Esse histórico ajuda você a visualizar seus hábitos."
+            content="Acompanhe suas ações diárias transformadas em PROs. Pequenos hábitos constroem grandes impactos."
           />
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Suas ações recentes no ciclo
+        </p>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {displayHistory.slice(0, 5).map((item) => {
-          const Icon = ICON_MAP[item.icon] || Sparkles;
-          return (
-            <div 
-              key={item.id}
-              className="flex items-center justify-between p-2 bg-muted/30 rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-foreground">
-                    +{item.value} PRO{item.value > 1 ? 's' : ''}
-                  </span>
-                  <span className="text-xs text-muted-foreground ml-2">
-                    — {item.label}
-                  </span>
-                </div>
+      <CardContent className="space-y-2">
+        {displayHistory.slice(0, 5).map((item, index) => (
+          <motion.div 
+            key={item.id}
+            className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.05 }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-xl">{item.emoji}</span>
+              <div>
+                <span className="text-sm font-semibold text-primary">
+                  +{item.value} PRO{item.value > 1 ? 's' : ''}
+                </span>
+                <span className="text-sm text-muted-foreground ml-2">
+                  — {item.label}
+                </span>
               </div>
-              <span className="text-xs text-muted-foreground">
-                {item.time}
-              </span>
             </div>
-          );
-        })}
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">
+                {item.date}, {item.time}
+              </p>
+            </div>
+          </motion.div>
+        ))}
 
-        {/* Frase motivacional */}
-        <p className="text-xs text-center text-muted-foreground italic pt-2">
+        {displayHistory.length === 0 && (
+          <div className="text-center py-8 bg-muted/20 rounded-xl">
+            <History className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">
+              Seu histórico aparecerá aqui
+            </p>
+          </div>
+        )}
+
+        {/* Motivational quote */}
+        <p className="text-xs text-center text-muted-foreground italic pt-3 border-t border-border">
           "Pequenas ações constroem grandes níveis."
         </p>
 
-        {/* Botão registrar */}
+        {/* Register action button */}
         <Button 
           variant="outline" 
-          className="w-full gap-2"
+          className="w-full gap-2 mt-2"
           onClick={onRegisterAction}
         >
           <Plus className="w-4 h-4" />
-          Registrar gasto do dia com PROs
+          Registrar ação do dia
         </Button>
       </CardContent>
     </Card>
