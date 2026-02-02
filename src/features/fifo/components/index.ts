@@ -1,0 +1,1 @@
+export { FifoCircularRing } from './FifoCircularRing';

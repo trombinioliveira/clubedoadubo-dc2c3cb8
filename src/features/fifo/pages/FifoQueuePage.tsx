@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HelpTooltip } from '@/components/shared';
+import { FifoCircularRing } from '@/features/fifo/components';
 import { 
   ListOrdered, 
   Search,
@@ -21,7 +22,9 @@ import {
   Target,
   Waves,
   Eye,
-  TrendingUp
+  TrendingUp,
+  LayoutGrid,
+  Circle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -65,6 +68,7 @@ export default function FifoQueuePage() {
   const [showOnlyMine, setShowOnlyMine] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<FifoQueuePublic | null>(null);
   const [showMyPosition, setShowMyPosition] = useState(false);
+  const [viewMode, setViewMode] = useState<'columns' | 'circular'>('circular'); // Toggle state
   const [stats, setStats] = useState({
     totalInQueue: 0,
     pending: 0,
@@ -419,30 +423,68 @@ export default function FifoQueuePage() {
           </p>
         </div>
 
-        {/* ======================== BUSCA E FILTROS ======================== */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por código ou nome..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        {/* ======================== TOGGLE DE VISUALIZAÇÃO ======================== */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+            <Button
+              variant={viewMode === 'circular' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('circular')}
+              className="gap-2"
+            >
+              <Circle className="w-4 h-4" />
+              <span className="hidden sm:inline">Visão Circular</span>
+              <span className="sm:hidden">Circular</span>
+            </Button>
+            <Button
+              variant={viewMode === 'columns' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('columns')}
+              className="gap-2"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Visão em Colunas</span>
+              <span className="sm:hidden">Colunas</span>
+            </Button>
           </div>
-          <Button
-            variant={showOnlyMine ? "default" : "outline"}
-            onClick={() => setShowOnlyMine(!showOnlyMine)}
-            className="gap-2"
-            disabled={!user}
-          >
-            <Filter className="w-4 h-4" />
-            Meus PROs
-          </Button>
+          
+          {viewMode === 'columns' && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por código ou nome..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button
+                variant={showOnlyMine ? "default" : "outline"}
+                onClick={() => setShowOnlyMine(!showOnlyMine)}
+                className="gap-2"
+                disabled={!user}
+              >
+                <Filter className="w-4 h-4" />
+                Meus PROs
+              </Button>
+            </div>
+          )}
         </div>
 
+        {/* ======================== VISUALIZAÇÃO CIRCULAR (NOVA) ======================== */}
+        {viewMode === 'circular' && (
+          <div className="mb-10">
+            <FifoCircularRing 
+              queue={queue} 
+              userId={user?.id} 
+              stats={stats}
+            />
+          </div>
+        )}
+
         {/* ======================== VISUALIZAÇÃO EM COLUNAS ======================== */}
-        {isLoading ? (
+        {viewMode === 'columns' && (isLoading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
           </div>
@@ -539,7 +581,8 @@ export default function FifoQueuePage() {
               );
             })}
           </div>
-        )}
+        ))}
+
 
         {/* ======================== RODAPÉ ======================== */}
         <div className="mt-10 text-center p-6 bg-gradient-to-r from-emerald-100 via-green-100 to-teal-100 rounded-2xl">
