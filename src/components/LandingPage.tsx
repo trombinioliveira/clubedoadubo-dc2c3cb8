@@ -425,7 +425,8 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 Escolha como participar — com clareza total
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground px-2">
-                Tudo funciona dentro do ciclo. Sem atalhos. Sem promessas vazias.
+                Tudo funciona dentro do ciclo.<br />
+                Sem atalhos. Sem promessas vazias.
               </p>
             </div>
 
@@ -438,7 +439,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                     </div>
                     <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Planos</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Ative PROs, adubos e assinaturas para participar do ciclo
+                      Ative PROs, adubos e assinaturas para entrar no ciclo
                     </p>
                   </CardContent>
                 </Card>
@@ -466,7 +467,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                     </div>
                     <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">FAQ</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Entenda PROs, regras do sistema e como tudo funciona
+                      Entenda PROs, regras do sistema e o funcionamento do ciclo
                     </p>
                   </CardContent>
                 </Card>
