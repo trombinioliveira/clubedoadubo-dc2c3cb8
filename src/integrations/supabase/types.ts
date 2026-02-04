@@ -323,6 +323,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string | null
+          auth_provider: string | null
           birth_date: string | null
           blocked_at: string | null
           blocked_reason: string | null
@@ -338,6 +340,7 @@ export type Database = {
           id: string
           internal_balance: number | null
           is_blocked: boolean
+          last_login_at: string | null
           password_change_required: boolean
           phone: string | null
           pix_key: string | null
@@ -348,9 +351,12 @@ export type Database = {
           updated_at: string
           user_id: string
           whatsapp: string | null
+          whatsapp_connected: boolean | null
           whatsapp_verified_at: string | null
         }
         Insert: {
+          account_status?: string | null
+          auth_provider?: string | null
           birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
@@ -366,6 +372,7 @@ export type Database = {
           id?: string
           internal_balance?: number | null
           is_blocked?: boolean
+          last_login_at?: string | null
           password_change_required?: boolean
           phone?: string | null
           pix_key?: string | null
@@ -376,9 +383,12 @@ export type Database = {
           updated_at?: string
           user_id: string
           whatsapp?: string | null
+          whatsapp_connected?: boolean | null
           whatsapp_verified_at?: string | null
         }
         Update: {
+          account_status?: string | null
+          auth_provider?: string | null
           birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
@@ -394,6 +404,7 @@ export type Database = {
           id?: string
           internal_balance?: number | null
           is_blocked?: boolean
+          last_login_at?: string | null
           password_change_required?: boolean
           phone?: string | null
           pix_key?: string | null
@@ -404,6 +415,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           whatsapp?: string | null
+          whatsapp_connected?: boolean | null
           whatsapp_verified_at?: string | null
         }
         Relationships: [
