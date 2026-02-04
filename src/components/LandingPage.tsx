@@ -62,6 +62,10 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         
         <div className="container mx-auto px-4 relative">
           <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full text-primary text-xs sm:text-sm font-medium mb-6 sm:mb-8">
+              <Recycle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              Economia Circular Urbana
+            </div>
             
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight px-2">
               Participe de um ciclo que transforma resíduo em{' '}
