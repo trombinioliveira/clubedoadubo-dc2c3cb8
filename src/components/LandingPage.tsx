@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CycleVisual } from './CycleVisual';
 import { Card, CardContent } from '@/components/ui/card';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from './icons/CycleIcons';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
   ArrowRight, 
   Recycle, 
@@ -23,7 +24,15 @@ import {
   Heart,
   ShoppingBag,
   HelpCircle,
-  Mail
+  Mail,
+  Megaphone,
+  RotateCcw,
+  Compass,
+  FlaskConical,
+  Gift,
+  TrendingUp,
+  Building2,
+  ChartLine
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logoImage from '@/assets/logo.webp';
@@ -486,46 +495,173 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* 🔟 APRENDER - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-24">
+      {/* 🔟 JORNADA DO HERÓI - Educação Interativa */}
+      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
+            {/* Header */}
             <div className="text-center mb-8 sm:mb-12">
               <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-accent/10 rounded-full text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
                 <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Educação
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                📘 Aprenda mais sobre o ciclo
+                📘 Quer ir mais fundo?<br />
+                <span className="text-primary">A Jornada do Herói do ciclo urbano</span>
               </h2>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
+                Você não precisa ser especialista pra mudar a cidade.<br />
+                Aqui, o herói é você — alguém comum que decide transformar o que seria lixo em impacto real.
+              </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {[
-                'O problema do resíduo orgânico urbano',
-                'Processamento orgânico e fechamento de ciclo',
-                'Como o Clube do Adubo funciona',
-                'Sustentabilidade e vida financeira',
-                'Impacto ambiental nas cidades',
-              ].map((title, index) => (
-                <Card key={index} className="hover:shadow-elevated transition-all duration-300 cursor-pointer group">
-                  <CardContent className="p-3 sm:p-4 md:p-5 flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors flex-shrink-0">
-                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                    </div>
-                    <p className="font-medium text-foreground text-sm sm:text-base">{title}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            {/* Hero Journey Steps - Timeline Style */}
+            <div className="relative">
+              {/* Vertical line connector - hidden on mobile */}
+              <div className="hidden md:block absolute left-8 top-8 bottom-8 w-0.5 bg-gradient-to-b from-primary/50 via-accent/50 to-primary/50" />
+              
+              <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
+                {[
+                  {
+                    step: 1,
+                    icon: Megaphone,
+                    title: 'O Chamado',
+                    subtitle: 'O problema do resíduo orgânico urbano',
+                    summary: 'Todos os dias, enterramos valor sem perceber.',
+                    content: 'Todo dia, restos de comida saem de casa, de feiras e de restaurantes. Quando vão para aterros, viram poluição, desperdício e custo. O chamado é simples: parar de enterrar valor.',
+                    color: 'text-destructive',
+                    bgColor: 'bg-destructive/10',
+                  },
+                  {
+                    step: 2,
+                    icon: RotateCcw,
+                    title: 'A Virada',
+                    subtitle: 'Quando o lixo vira recurso',
+                    summary: 'O que parecia fim é começo.',
+                    content: 'O que parecia "fim de linha" é, na verdade, começo. Resíduo orgânico é nutriente — e nutriente pode voltar pro solo. A solução é urbana: um ciclo local que funciona de verdade.',
+                    color: 'text-primary',
+                    bgColor: 'bg-primary/10',
+                  },
+                  {
+                    step: 3,
+                    icon: Compass,
+                    title: 'O Mentor',
+                    subtitle: 'Como o Clube do Adubo guia o processo',
+                    summary: 'Método no lugar de promessa.',
+                    content: 'Você entra com uma decisão simples: participar do ciclo. O Clube entra com o método: registro, rastreabilidade e processo controlado. Sem atalhos. Sem promessas vazias. Com regras claras.',
+                    color: 'text-blue-500',
+                    bgColor: 'bg-blue-500/10',
+                  },
+                  {
+                    step: 4,
+                    icon: FlaskConical,
+                    title: 'As Provas',
+                    subtitle: 'Processamento orgânico e fechamento de ciclo',
+                    summary: 'Nada de mágica. Só processo.',
+                    content: 'O resíduo passa por compostagem urbana controlada e vira adubo natural. Nada é "mágica", é processo. O ciclo só existe quando há resíduo real e transformação real.',
+                    color: 'text-accent',
+                    bgColor: 'bg-accent/10',
+                  },
+                  {
+                    step: 5,
+                    icon: Gift,
+                    title: 'A Recompensa',
+                    subtitle: 'Impacto ambiental e valor na prática',
+                    summary: 'O valor nasce do ciclo.',
+                    content: 'Quando o adubo é vendido, nasce o valor — e ele é distribuído conforme as regras. Você acompanha o caminho todo: resíduo → adubo → venda → valor. Quanto mais o ciclo acontece, mais impacto a cidade sente.',
+                    color: 'text-primary',
+                    bgColor: 'bg-primary/10',
+                  },
+                  {
+                    step: 6,
+                    icon: TrendingUp,
+                    title: 'O Retorno',
+                    subtitle: 'Sustentabilidade e vida financeira (sem fantasia)',
+                    summary: 'Constância no lugar de ilusão.',
+                    content: 'Aqui não existe atalho. Existe constância. Impacto e valor caminham juntos, com transparência. É assim que metas e sonhos se conectam ao ciclo: frequência, clareza e acompanhamento.',
+                    color: 'text-secondary',
+                    bgColor: 'bg-secondary/10',
+                  },
+                  {
+                    step: 7,
+                    icon: Building2,
+                    title: 'A Nova Fase',
+                    subtitle: 'Impacto ambiental nas cidades',
+                    summary: 'A cidade muda junto.',
+                    content: 'Menos resíduo em aterros. Mais solo regenerado. Mais consciência coletiva. A cidade vira parte da solução — e você também.',
+                    color: 'text-primary',
+                    bgColor: 'bg-primary/10',
+                  },
+                ].map((item, index) => (
+                  <AccordionItem 
+                    key={item.step} 
+                    value={`step-${item.step}`}
+                    className="border-0"
+                  >
+                    <Card className="overflow-hidden border-2 hover:shadow-elevated transition-all duration-300 hover:border-primary/30">
+                      <AccordionTrigger className="hover:no-underline p-0 [&[data-state=open]>div]:bg-muted/50">
+                        <CardContent className="p-3 sm:p-4 md:p-5 w-full transition-colors">
+                          <div className="flex items-start gap-3 sm:gap-4 text-left">
+                            {/* Step number and icon */}
+                            <div className="relative flex-shrink-0">
+                              <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl ${item.bgColor} flex items-center justify-center transition-all`}>
+                                <item.icon className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${item.color}`} />
+                              </div>
+                              <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-bold">
+                                {item.step}
+                              </div>
+                            </div>
+                            
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
+                                <span className={`text-xs font-medium ${item.color}`}>STEP {item.step}</span>
+                                <span className="text-muted-foreground text-xs">•</span>
+                                <span className="font-bold text-foreground text-sm sm:text-base">{item.title}</span>
+                              </div>
+                              <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">{item.subtitle}</p>
+                              <p className="text-sm sm:text-base font-medium text-foreground italic">"{item.summary}"</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-3 sm:px-4 md:px-5 pb-4 sm:pb-5">
+                        <div className="ml-0 md:ml-20 pt-2 sm:pt-3 border-t border-border/50">
+                          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                            {item.content}
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </div>
 
-            <div className="text-center mt-6 sm:mt-8">
-              <Link to="/faq">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  <BookOpen className="w-4 h-4" />
-                  Acessar conteúdos educativos
-                </Button>
-              </Link>
+            {/* Soft CTA */}
+            <div className="mt-10 sm:mt-12 md:mt-16">
+              <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <p className="text-base sm:text-lg font-medium text-foreground mb-2">
+                    Você já faz parte dessa jornada.
+                  </p>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-6">
+                    Quer seguir participando do ciclo?
+                  </p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
+                    <Button onClick={onGetStarted} variant="hero" size="lg" className="w-full sm:w-auto">
+                      <Sprout className="w-5 h-5" />
+                      Participar do ciclo
+                    </Button>
+                    <Link to="/transparencia" className="w-full sm:w-auto">
+                      <Button variant="outline" size="lg" className="w-full">
+                        <ChartLine className="w-5 h-5" />
+                        Acompanhar transparência
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
