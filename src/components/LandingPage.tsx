@@ -377,52 +377,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* 8️⃣ APRENDER - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-accent/10 rounded-full text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                Educação
-              </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                📘 Aprenda mais sobre o ciclo
-              </h2>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {[
-                'O problema do resíduo orgânico urbano',
-                'Processamento orgânico e fechamento de ciclo',
-                'Como o Clube do Adubo funciona',
-                'Sustentabilidade e vida financeira',
-                'Impacto ambiental nas cidades',
-              ].map((title, index) => (
-                <Card key={index} className="hover:shadow-elevated transition-all duration-300 cursor-pointer group">
-                  <CardContent className="p-3 sm:p-4 md:p-5 flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors flex-shrink-0">
-                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                    </div>
-                    <p className="font-medium text-foreground text-sm sm:text-base">{title}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <div className="text-center mt-6 sm:mt-8">
-              <Link to="/faq">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  <BookOpen className="w-4 h-4" />
-                  Acessar conteúdos educativos
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9️⃣ CONFIANÇA E AÇÃO - Mobile optimized */}
+      {/* 8️⃣ CONFIANÇA E AÇÃO - Mobile optimized */}
       <section className="py-12 sm:py-16 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -497,7 +452,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* 🔟 CTA FINAL - Mobile optimized */}
+      {/* 9️⃣ CTA FINAL - Mobile optimized */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
@@ -524,6 +479,51 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 <Button variant="ghost" size="lg" className="w-full">
                   <MessageCircle className="w-5 h-5" />
                   Falar com o Clube
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🔟 APRENDER - Mobile optimized */}
+      <section className="py-12 sm:py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-12">
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-accent/10 rounded-full text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Educação
+              </div>
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
+                📘 Aprenda mais sobre o ciclo
+              </h2>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {[
+                'O problema do resíduo orgânico urbano',
+                'Processamento orgânico e fechamento de ciclo',
+                'Como o Clube do Adubo funciona',
+                'Sustentabilidade e vida financeira',
+                'Impacto ambiental nas cidades',
+              ].map((title, index) => (
+                <Card key={index} className="hover:shadow-elevated transition-all duration-300 cursor-pointer group">
+                  <CardContent className="p-3 sm:p-4 md:p-5 flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors flex-shrink-0">
+                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+                    </div>
+                    <p className="font-medium text-foreground text-sm sm:text-base">{title}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-6 sm:mt-8">
+              <Link to="/faq">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  <BookOpen className="w-4 h-4" />
+                  Acessar conteúdos educativos
                 </Button>
               </Link>
             </div>
