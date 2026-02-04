@@ -14,7 +14,7 @@ interface Profile {
   referred_by: string | null;
   created_at: string;
   updated_at: string;
-  // New profile fields
+  // Profile fields
   gender: string | null;
   cpf: string | null;
   birth_date: string | null;
@@ -27,6 +27,11 @@ interface Profile {
   commission_preference: string | null;
   internal_balance: number | null;
   fertilizer_credits: number | null;
+  // Auth tracking fields
+  auth_provider: string | null;
+  last_login_at: string | null;
+  whatsapp_connected: boolean | null;
+  account_status: string | null;
 }
 
 interface AuthContextType {
