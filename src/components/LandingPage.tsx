@@ -56,13 +56,13 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             </div>
             
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight px-2">
-              Transforme resíduo orgânico em{' '}
-              <span className="text-primary">adubo, impacto real e valor contínuo</span>
+              Participe de um ciclo que transforma resíduo em{' '}
+              <span className="text-primary">adubo, ajuda o meio ambiente e gera valor</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
-              O Clube do Adubo conecta pessoas a um ciclo urbano simples e transparente:
-              resíduo vira adubo, adubo gera valor — e tudo pode ser acompanhado.
+              O Clube do Adubo conecta pessoas a um ciclo urbano simples e transparente.
+              Resíduo vira adubo, o impacto é real — e quando o ciclo se fecha, o valor é distribuído com regras claras.
             </p>
             
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-4 sm:px-0">
@@ -85,20 +85,21 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                O problema do resíduo orgânico urbano
+                🚯 O problema do resíduo orgânico urbano
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                Todos os dias, toneladas de resíduos orgânicos vão para aterros.
-                Isso gera gases, desperdiça nutrientes e custa caro — para a cidade e para o planeta.
+                Todos os dias, toneladas de restos de comida são descartadas nas cidades.
+                Em vez de voltar para o solo, esse material vai para aterros, onde vira poluição, desperdício e custo.
+                Isso afeta o meio ambiente, a cidade e o bolso de todo mundo.
               </p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[
-                { icon: Trash2, title: 'Aterros lotados', color: 'text-destructive' },
-                { icon: Wind, title: 'Emissão de gases poluentes', color: 'text-muted-foreground' },
-                { icon: Sprout, title: 'Nutrientes desperdiçados', color: 'text-primary' },
-                { icon: DollarSign, title: 'Custo ambiental e financeiro', color: 'text-secondary' },
+                { icon: Trash2, title: 'Aterros lotados', description: 'Grande parte do lixo urbano é orgânico e poderia ser reaproveitada', color: 'text-destructive' },
+                { icon: Wind, title: 'Emissão de gases poluentes', description: 'Resíduo orgânico mal descartado gera gases que agravam a crise climática', color: 'text-muted-foreground' },
+                { icon: Sprout, title: 'Nutrientes desperdiçados', description: 'O que poderia virar adubo e regenerar o solo é tratado como lixo', color: 'text-primary' },
+                { icon: DollarSign, title: 'Custo ambiental e financeiro', description: 'A cidade paga para enterrar valor — e a conta volta em impostos e impacto', color: 'text-secondary' },
               ].map((item, index) => (
                 <Card key={index} className="bg-background/50 border-destructive/20">
                   <CardContent className="p-3 sm:p-5 text-center">
@@ -110,7 +111,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             </div>
 
             <p className="text-center mt-6 sm:mt-8 text-sm sm:text-base lg:text-lg font-semibold text-foreground px-2">
-              Isso não é um problema do futuro. <span className="text-destructive">É de agora. E é urbano.</span>
+              ⏰ Isso não é um problema do futuro. <span className="text-destructive">É um problema de agora, urbano e diário.</span> E só muda quando o ciclo é repensado.
             </p>
           </div>
         </div>
@@ -123,23 +124,22 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             <div className="text-center mb-8 sm:mb-12">
               <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
                 <Sprout className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                A Solução
+                🌱 A Solução
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                Economia Circular Urbana
+                Economia circular real
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                O Clube do Adubo transforma resíduos orgânicos urbanos em adubo natural de alta qualidade, 
-                fechando o ciclo de forma local, transparente e contínua.
+                O resíduo vira adubo de verdade, dentro da cidade, fechando o ciclo sem atalhos.
               </p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[
-                { icon: Recycle, title: 'Economia circular real', description: 'Ciclo fechado e contínuo' },
-                { icon: Globe, title: 'Impacto mensurável', description: 'Dados reais e rastreáveis' },
-                { icon: Eye, title: 'Rastreabilidade total', description: 'Do resíduo ao adubo' },
-                { icon: Users, title: 'Participação coletiva', description: 'Comunidade engajada' },
+                { icon: Recycle, title: 'Ciclo fechado e contínuo', description: 'O resíduo entra, é transformado, o adubo é vendido e quem participou recebe o valor gerado' },
+                { icon: Globe, title: 'Impacto mensurável', description: 'Nada é estimativa — dados reais e rastreáveis' },
+                { icon: Eye, title: 'Rastreabilidade total', description: 'Do resíduo ao adubo e ao retorno que cai na sua conta' },
+                { icon: Users, title: 'Participação coletiva', description: 'Pessoas, feiras e parceiros no mesmo sistema' },
               ].map((item, index) => (
                 <Card key={index} className="hover:shadow-elevated transition-all duration-300 group">
                   <CardContent className="p-4 sm:p-6 text-center">
@@ -161,18 +161,18 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-              O Ciclo do Clube do Adubo
+              🔄 O ciclo do Clube do Adubo
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto px-2">
-              Acompanhe cada etapa do ciclo:<br className="hidden sm:inline" />
-              do resíduo ao valor, com total transparência.
+              Acompanhe cada etapa do ciclo — do resíduo ao valor, com transparência total.<br className="hidden sm:inline" />
+              Nada acontece escondido. O ciclo é claro, contínuo e pode ser acompanhado passo a passo.
             </p>
           </div>
           
           <CycleVisual />
           
           <p className="text-center text-primary mt-6 sm:mt-8 text-sm sm:text-base lg:text-lg font-semibold px-2">
-            O valor só existe quando o ciclo acontece.
+            🔁 O ciclo se repete. Um sistema contínuo, urbano e sustentável — onde impacto ambiental e retorno caminham juntos.
           </p>
         </div>
       </section>
@@ -182,10 +182,10 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-              Simples, transparente e rastreável
+              ✅ Simples, transparente e rastreável
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground px-2">
-              Entenda cada etapa do processo
+              Entenda cada etapa do ciclo
             </p>
           </div>
 
@@ -258,10 +258,10 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                Uma fila de pagamento. Muitas ondas de impacto.
+                🧭 Uma fila de pagamento. Muitas ondas de impacto.
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground px-2">
-                Dois conceitos, duas funções. Clareza total.
+                Duas coisas acontecem ao mesmo tempo, mas não se misturam.
               </p>
             </div>
 
@@ -273,10 +273,13 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                       <ListOrdered className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground text-base sm:text-lg">Fila FIFO (Pagamento)</h3>
-                      <p className="text-xl sm:text-2xl font-extrabold text-primary">= Dinheiro</p>
+                      <h3 className="font-bold text-foreground text-base sm:text-lg">💰 Fila FIFO (Pagamento)</h3>
+                      <p className="text-sm text-muted-foreground">(é aqui que você recebe)</p>
                     </div>
                   </div>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-3">
+                    Ordem justa, fila única e global, totalmente transparente. Nada muda a ordem da fila.
+                  </p>
                   <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
@@ -284,15 +287,15 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Global</span>
+                      <span>Fila única e global</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Transparente</span>
+                      <span>Totalmente transparente</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Nunca muda</span>
+                      <span>Nada muda a ordem</span>
                     </li>
                   </ul>
                 </CardContent>
@@ -305,8 +308,8 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                       <Waves className="w-6 h-6 sm:w-7 sm:h-7 text-accent-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground text-base sm:text-lg">Ondas de Impacto (Engajamento)</h3>
-                      <p className="text-xl sm:text-2xl font-extrabold text-accent">= Impacto</p>
+                      <h3 className="font-bold text-foreground text-base sm:text-lg">🌊 Ondas de Impacto (Engajamento)</h3>
+                      <p className="text-sm text-muted-foreground">Geram mais impacto ambiental. Nunca alteram a fila de pagamento.</p>
                     </div>
                   </div>
                   <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
@@ -331,7 +334,10 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
               </Card>
             </div>
 
-            <p className="text-center mt-6 sm:mt-8 text-lg sm:text-xl font-bold text-foreground px-2">
+            <p className="text-center mt-4 sm:mt-6 text-sm sm:text-base text-muted-foreground px-2">
+              Suas ondas de impacto fazem o ciclo acontecer mais vezes. Isso não muda a ordem da fila, mas faz a fila andar mais rápido.
+            </p>
+            <p className="text-center mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-foreground px-2">
               Fila é dinheiro. <span className="text-accent">Ondas são impacto.</span>
             </p>
           </div>
@@ -343,7 +349,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4 px-2">
-              Por que fazer parte do Clube do Adubo?
+              🌱 Por que fazer parte do Clube do Adubo?
             </h2>
             <p className="text-center text-primary-foreground/80 mb-8 sm:mb-12 max-w-xl mx-auto text-sm sm:text-base px-2">
               Aqui você não apenas consome. Você participa do ciclo.
@@ -351,10 +357,10 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {[
-                { icon: Sprout, title: 'Impacto ambiental real', description: 'Seu resíduo vira adubo de verdade' },
+                { icon: Globe, title: 'Impacto ambiental real', description: 'Seu resíduo vira adubo de verdade' },
                 { icon: Recycle, title: 'Economia circular urbana', description: 'Ciclo local e contínuo' },
                 { icon: Eye, title: 'Transparência total', description: 'Acompanhe cada etapa' },
-                { icon: Target, title: 'Sonhos conectados ao ciclo', description: 'Metas que evoluem junto com o impacto' },
+                { icon: Target, title: 'Sonhos conectados ao ciclo', description: 'Quando o ciclo acontece mais vezes, o caminho até seus sonhos fica mais curto' },
                 { icon: Users, title: 'Participação coletiva', description: 'Comunidade engajada' },
                 { icon: Heart, title: 'Ciclo contínuo', description: 'O valor retorna e se repete' },
               ].map((item, index) => (
@@ -381,7 +387,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 Educação
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                Aprender sobre economia circular
+                📘 Aprenda mais sobre o ciclo
               </h2>
             </div>
 
@@ -422,7 +428,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-10">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                Escolha como participar — com clareza total
+                ✅ Escolha como participar — com clareza total
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground px-2">
                 Tudo funciona dentro do ciclo.<br />
@@ -502,7 +508,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
               Sustentabilidade não precisa ser complicada.
             </p>
             <p className="text-sm sm:text-base lg:text-lg text-foreground font-semibold mb-8 sm:mb-10 px-2">
-              Ela só precisa funcionar.
+              Ela só precisa funcionar — e funcionar de verdade.
             </p>
             
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-4 sm:px-0">
