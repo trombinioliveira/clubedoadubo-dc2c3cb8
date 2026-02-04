@@ -2,33 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Leaf, Shield, ArrowRight, Recycle, ListOrdered, Users, Ban, CheckCircle } from 'lucide-react';
+import { Shield, ArrowRight, Recycle, ListOrdered, Users, Ban, CheckCircle } from 'lucide-react';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from '@/components/icons/CycleIcons';
 
 const TransparenciaPage = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg earth-gradient flex items-center justify-center">
-                  <Leaf className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <span className="font-bold text-foreground">Clube do Adubo</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <>
       {/* Hero */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto px-4 text-center">
@@ -224,29 +203,7 @@ const TransparenciaPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg earth-gradient flex items-center justify-center">
-                <Leaf className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-foreground">Clube do Adubo</span>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link to="/planos" className="hover:text-foreground transition-colors">Planos</Link>
-              <Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
-              <Link to="/contato" className="hover:text-foreground transition-colors">Contato</Link>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Clube do Adubo. Economia Circular Urbana.
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 };
 

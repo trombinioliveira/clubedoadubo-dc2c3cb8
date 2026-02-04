@@ -35,8 +35,6 @@ import {
   ChartLine
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logoImage from '@/assets/logo.webp';
-import { PublicHeader } from './PublicHeader';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -49,9 +47,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <PublicHeader />
+    <>
       {/* 1️⃣ HERO SECTION - Mobile optimized */}
       <section className="relative overflow-hidden py-12 sm:py-16 md:py-24 lg:py-32">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
@@ -669,97 +665,6 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           </div>
         </div>
       </section>
-
-      {/* 1️⃣1️⃣ FOOTER - 5 colunas com microcopy */}
-      <footer className="py-10 sm:py-14 border-t border-border bg-muted/20">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col gap-10 sm:gap-12">
-            {/* Main grid - 5 columns on desktop, stacked on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6">
-              {/* Coluna 1 — Identidade */}
-              <div className="sm:col-span-2 lg:col-span-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <img 
-                    src={logoImage} 
-                    alt="Clube do Adubo" 
-                    className="w-10 h-10 sm:w-12 sm:h-12 object-contain" 
-                  />
-                  <div>
-                    <span className="font-bold text-foreground block text-sm sm:text-base">
-                      Clube do Adubo
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Economia Circular Urbana
-                    </span>
-                  </div>
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xs">
-                  Um sistema urbano para transformar resíduo orgânico em impacto real.
-                </p>
-              </div>
-              
-              {/* Coluna 2 — Participação */}
-              <div>
-                <Link to="/planos" className="group block">
-                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-1">
-                    Planos
-                  </span>
-                  <span className="text-xs text-muted-foreground leading-relaxed block">
-                    Veja como participar do ciclo
-                  </span>
-                </Link>
-              </div>
-
-              {/* Coluna 3 — Confiança */}
-              <div>
-                <Link to="/transparencia" className="group block">
-                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-1">
-                    Transparência
-                  </span>
-                  <span className="text-xs text-muted-foreground leading-relaxed block">
-                    Acompanhe o resíduo, o ciclo e os dados
-                  </span>
-                </Link>
-              </div>
-
-              {/* Coluna 4 — Educação */}
-              <div>
-                <Link to="/faq" className="group block">
-                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-1">
-                    FAQ
-                  </span>
-                  <span className="text-xs text-muted-foreground leading-relaxed block">
-                    Tire dúvidas sobre PRO, fila e impacto
-                  </span>
-                </Link>
-              </div>
-
-              {/* Coluna 5 — Humano */}
-              <div>
-                <Link to="/contato" className="group block">
-                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base block mb-1">
-                    Contato
-                  </span>
-                  <span className="text-xs text-muted-foreground leading-relaxed block">
-                    Fale com a gente. Pessoas reais.
-                  </span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Bottom row - Copyright + Manifesto */}
-            <div className="text-center pt-6 border-t border-border/50">
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                © 2026 Clube do Adubo — Economia Circular Urbana
-              </p>
-              <p className="text-sm sm:text-base text-muted-foreground/80 mt-3 font-medium italic">
-                Transparência não é um detalhe. Ela sustenta o ciclo.<br />
-                <span className="text-xs font-normal">Sem resíduo real, não existe valor.</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 };
