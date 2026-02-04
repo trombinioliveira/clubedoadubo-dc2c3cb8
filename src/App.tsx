@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
-import { AppLayout } from "@/components/layout";
+import { AppLayout, PublicLayout } from "@/components/layout";
 import { ProtectedRoute } from "@/components/shared";
 
 // Pages
@@ -35,13 +35,19 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            {/* Auth page - standalone */}
             <Route path="/auth" element={<Auth />} />
-            <Route path="/planos" element={<LandingCompra />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/transparencia" element={<TransparenciaPage />} />
-            <Route path="/contato" element={<ContatoPage />} />
             
+            {/* Public pages with PublicLayout (header + footer) */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/planos" element={<LandingCompra />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/transparencia" element={<TransparenciaPage />} />
+              <Route path="/contato" element={<ContatoPage />} />
+            </Route>
+            
+            {/* Protected pages with AppLayout (logged-in header) */}
             <Route element={<AppLayout />}>
               
               <Route path="/perfil" element={
