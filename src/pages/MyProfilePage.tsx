@@ -469,7 +469,7 @@ export default function MyProfilePage() {
           {!isProfileCompleted && (
             <Button 
               onClick={handleSave} 
-              disabled={isSaving || !emailVerified || !whatsappVerified}
+              disabled={isSaving}
               className="w-full"
             >
               {isSaving ? (
