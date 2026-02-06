@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CycleVisual } from './CycleVisual';
+import { CircularEconomySection } from './landing/CircularEconomySection';
 import { Card, CardContent } from '@/components/ui/card';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from './icons/CycleIcons';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -163,6 +164,9 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
           </div>
         </div>
       </section>
+
+      {/* 3.5️⃣ ECONOMIA CIRCULAR - Regras do Sistema */}
+      <CircularEconomySection />
 
       {/* 4️⃣ O CICLO COMPLETO - Mobile optimized */}
       <section id="ciclo-visual" className="py-12 sm:py-16 md:py-24 bg-card scroll-mt-20">

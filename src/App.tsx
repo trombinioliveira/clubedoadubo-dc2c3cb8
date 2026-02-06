@@ -18,6 +18,7 @@ import LandingCompra from "./pages/LandingCompra";
 import FaqPage from "./pages/FaqPage";
 import TransparenciaPage from "./pages/TransparenciaPage";
 import ContatoPage from "./pages/ContatoPage";
+import EconomiaCircularPage from "./pages/EconomiaCircularPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/transparencia" element={<TransparenciaPage />} />
               <Route path="/contato" element={<ContatoPage />} />
+              <Route path="/economia-circular" element={<EconomiaCircularPage />} />
             </Route>
             
             {/* Protected pages with AppLayout (logged-in header) */}
