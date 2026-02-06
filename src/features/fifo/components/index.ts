@@ -1,7 +1,9 @@
 export { FifoHeroSection } from './FifoHeroSection';
+export { FifoFluxogramaSection } from './FifoFluxogramaSection';
 export { FifoExplanationBlock } from './FifoExplanationBlock';
 export { CycleStagesBlock } from './CycleStagesBlock';
 export { RealDoCicloBlock } from './RealDoCicloBlock';
+export { FifoDivider } from './FifoDivider';
 export { ProSummaryModal } from './ProSummaryModal';
 export { MyPositionModal } from './MyPositionModal';
 export { FifoQueueColumns } from './FifoQueueColumns';

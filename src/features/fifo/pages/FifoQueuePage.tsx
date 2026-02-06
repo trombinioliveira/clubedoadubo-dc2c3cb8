@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Search, Filter, Eye } from 'lucide-react';
 import {
   FifoHeroSection,
+  FifoFluxogramaSection,
   FifoExplanationBlock,
   CycleStagesBlock,
   RealDoCicloBlock,
+  FifoDivider,
   ProSummaryModal,
   MyPositionModal,
   FifoQueueColumns,
@@ -126,25 +128,26 @@ export default function FifoQueuePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-emerald-50/30 to-amber-50/20">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
+        
+        {/* ========================================= */}
+        {/* ZONA 1 — EDUCAÇÃO & CONTEXTO             */}
+        {/* ========================================= */}
         
         {/* BLOCO 1 — Hero / Explicação Simples */}
         <FifoHeroSection />
         
-        {/* BLOCO 1.5 — Por que a Fila é Justa */}
+        {/* BLOCO 2 — Fluxograma Oficial do Ciclo */}
+        <FifoFluxogramaSection />
+        
+        {/* BLOCO 3 — Por que a Fila é Justa */}
         <FifoExplanationBlock />
 
-        {/* BLOCO 2 — Etapas do Ciclo (Clicáveis) */}
-        <CycleStagesBlock 
-          stats={stats} 
-          userStats={user ? userStats : undefined} 
-        />
-
-        {/* BLOCO 3 — Como o Dinheiro Entra (Real do Ciclo) */}
+        {/* BLOCO 4 — Como o Dinheiro Entra (Real do Ciclo) */}
         <RealDoCicloBlock />
 
         {/* CTA — Ver Minha Posição */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <Button 
             size="lg" 
             onClick={() => setShowMyPosition(true)}
@@ -154,10 +157,22 @@ export default function FifoQueuePage() {
             <Eye className="w-5 h-5" />
             Ver minha posição na Fila FIFO
           </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            A fila se move com impacto real, não com promessas.
-          </p>
         </div>
+
+        {/* ========================================= */}
+        {/* DIVISOR - MARCO ABSOLUTO                 */}
+        {/* ========================================= */}
+        <FifoDivider />
+
+        {/* ========================================= */}
+        {/* ZONA 2 — FILA FIFO ATIVA (INTOCÁVEL)    */}
+        {/* ========================================= */}
+
+        {/* BLOCO 5 — Etapas do Ciclo (Clicáveis) */}
+        <CycleStagesBlock 
+          stats={stats} 
+          userStats={user ? userStats : undefined} 
+        />
 
         {/* Busca e Filtros */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
