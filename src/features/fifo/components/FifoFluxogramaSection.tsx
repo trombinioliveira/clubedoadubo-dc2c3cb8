@@ -20,7 +20,7 @@ export function FifoFluxogramaSection() {
           Cada venda paga quem está na vez.
         </p>
         <p className="text-center text-sm sm:text-base font-medium text-primary mt-1">
-          Cada venda ajuda a próxima pessoa a chegar mais rápido.
+          Cada venda ajuda a fila a avançar mais rápido.
         </p>
       </div>
     </div>
