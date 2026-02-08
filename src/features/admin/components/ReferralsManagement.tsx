@@ -4,7 +4,8 @@ import { ReferralsOverview } from './ReferralsOverview';
 import { ReferralsTable } from './ReferralsTable';
 import { CommissionLevelsEditor } from './CommissionLevelsEditor';
 import { ReferralLogs } from './ReferralLogs';
-import { Users, Settings, History } from 'lucide-react';
+import { ProUserAudit } from './ProUserAudit';
+import { Users, Settings, History, Link2 } from 'lucide-react';
 
 export function ReferralsManagement() {
   return (
@@ -17,9 +18,13 @@ export function ReferralsManagement() {
             <Users className="w-4 h-4" />
             Indicações
           </TabsTrigger>
+          <TabsTrigger value="audit" className="flex items-center gap-2">
+            <Link2 className="w-4 h-4" />
+            Vínculos PRO
+          </TabsTrigger>
           <TabsTrigger value="levels" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
-            Níveis de Comissão
+            Níveis
           </TabsTrigger>
           <TabsTrigger value="logs" className="flex items-center gap-2">
             <History className="w-4 h-4" />
@@ -29,6 +34,10 @@ export function ReferralsManagement() {
 
         <TabsContent value="users">
           <ReferralsTable />
+        </TabsContent>
+
+        <TabsContent value="audit">
+          <ProUserAudit />
         </TabsContent>
 
         <TabsContent value="levels">

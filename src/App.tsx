@@ -23,7 +23,7 @@ import EconomiaCircularPage from "./pages/EconomiaCircularPage";
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
-import { ReferralsPage } from "@/features/referrals";
+import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 
 const queryClient = new QueryClient();
@@ -38,6 +38,9 @@ const App = () => (
           <Routes>
             {/* Auth page - standalone */}
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Public profile page - standalone (no layout) */}
+            <Route path="/u/:codigo" element={<PublicProfilePage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
             <Route element={<PublicLayout />}>
