@@ -89,11 +89,21 @@ Deno.serve(async (req) => {
     console.log("[webhook-purchase-declined] Transaction ID:", payload.transaction.id);
     console.log("[webhook-purchase-declined] Client email:", payload.client.email);
 
-    // 3. Validate webhook token from payload body
+    // 3. Validate webhook token from payload body - MANDATORY
     const expectedToken = Deno.env.get("WEBHOOK_AUTH_TOKEN");
-    const providedToken = payload.token;
+    if (!expectedToken || expectedToken === "") {
+      console.error("[webhook-purchase-declined] WEBHOOK_AUTH_TOKEN is not configured");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
-    if (expectedToken && expectedToken !== "" && providedToken !== expectedToken) {
+    const providedToken = payload.token;
+    if (providedToken !== expectedToken) {
       console.warn("[webhook-purchase-declined] Invalid webhook token provided");
       return new Response(
         JSON.stringify({ error: "Unauthorized - Invalid token" }),
