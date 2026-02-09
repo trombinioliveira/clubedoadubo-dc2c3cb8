@@ -426,6 +426,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       pros: {
@@ -718,7 +725,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          member_since: string | null
+          profile_id: string | null
+          public_name: string | null
+          referral_code: string | null
+          user_id: string | null
+        }
+        Insert: {
+          member_since?: string | null
+          profile_id?: string | null
+          public_name?: never
+          referral_code?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          member_since?: string | null
+          profile_id?: string | null
+          public_name?: never
+          referral_code?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       count_active_referrals: { Args: { p_user_id: string }; Returns: number }
@@ -760,6 +790,10 @@ export type Database = {
         }[]
       }
       get_next_fifo_position: { Args: never; Returns: number }
+      get_public_profile_data: {
+        Args: { p_referral_code: string }
+        Returns: Json
+      }
       get_referral_overview: {
         Args: never
         Returns: {
