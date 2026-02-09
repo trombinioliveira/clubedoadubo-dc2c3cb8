@@ -141,11 +141,18 @@ Deno.serve(async (req) => {
     console.log('Transaction ID:', payload.transaction.id);
     console.log('Client email:', payload.client.email);
 
-    // Validate webhook token from payload body
+    // Validate webhook token from payload body - MANDATORY
     const webhookToken = Deno.env.get('WEBHOOK_AUTH_TOKEN');
-    const providedToken = payload.token;
+    if (!webhookToken || webhookToken === '') {
+      console.error('WEBHOOK_AUTH_TOKEN is not configured');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
-    if (webhookToken && webhookToken !== '' && providedToken !== webhookToken) {
+    const providedToken = payload.token;
+    if (providedToken !== webhookToken) {
       console.error('Invalid webhook token provided');
       return new Response(
         JSON.stringify({ error: 'Unauthorized - Invalid token' }),

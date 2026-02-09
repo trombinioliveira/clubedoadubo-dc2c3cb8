@@ -19,12 +19,14 @@ import FaqPage from "./pages/FaqPage";
 import TransparenciaPage from "./pages/TransparenciaPage";
 import ContatoPage from "./pages/ContatoPage";
 import EconomiaCircularPage from "./pages/EconomiaCircularPage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
 import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
+import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
 const queryClient = new QueryClient();
 
@@ -36,8 +38,13 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Auth page - standalone */}
+            {/* Auth pages - standalone */}
             <Route path="/auth" element={<Auth />} />
+            <Route path="/alterar-senha" element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
+              </ProtectedRoute>
+            } />
             
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
@@ -57,39 +64,49 @@ const App = () => (
               
               <Route path="/perfil" element={
                 <ProtectedRoute>
-                  <MyProfilePage />
+                  <PasswordChangeGuard>
+                    <MyProfilePage />
+                  </PasswordChangeGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <ProfileDeadlineGuard>
-                    <DashboardPage />
-                  </ProfileDeadlineGuard>
+                  <PasswordChangeGuard>
+                    <ProfileDeadlineGuard>
+                      <DashboardPage />
+                    </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/dreams" element={
                 <ProtectedRoute>
-                  <ProfileDeadlineGuard>
-                    <DreamsPage />
-                  </ProfileDeadlineGuard>
+                  <PasswordChangeGuard>
+                    <ProfileDeadlineGuard>
+                      <DreamsPage />
+                    </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/fifo" element={
                 <ProtectedRoute>
-                  <ProfileDeadlineGuard>
-                    <FifoQueuePage />
-                  </ProfileDeadlineGuard>
+                  <PasswordChangeGuard>
+                    <ProfileDeadlineGuard>
+                      <FifoQueuePage />
+                    </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
                 </ProtectedRoute>
               } />
               
               <Route path="/indicacoes" element={
                 <ProtectedRoute>
-                  <ProfileDeadlineGuard>
-                    <ReferralsPage />
-                  </ProfileDeadlineGuard>
+                  <PasswordChangeGuard>
+                    <ProfileDeadlineGuard>
+                      <ReferralsPage />
+                    </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
                 </ProtectedRoute>
               } />
               
