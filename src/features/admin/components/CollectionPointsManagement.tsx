@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { Plus, MapPin, Edit, ChevronDown, ChevronRight, Scale, Calendar, Clock, Package, Trash2 } from 'lucide-react';
+import { Plus, MapPin, Edit, ChevronDown, ChevronRight, Scale, Calendar, Clock, Package, Trash2, Globe, ExternalLink, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -40,6 +40,12 @@ interface CollectionPoint {
   state: string;
   is_active: boolean;
   created_at: string;
+  slug: string | null;
+  has_public_page: boolean;
+  description: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  opening_hours: string | null;
   weighings?: Weighing[];
 }
 
@@ -306,6 +312,59 @@ export function CollectionPointsManagement() {
     });
   };
 
+  const generateSlug = (name: string) => {
+    let slug = name.toLowerCase().trim();
+    slug = slug.replace(/[áàãâä]/g, 'a').replace(/[éèêë]/g, 'e').replace(/[íìîï]/g, 'i')
+      .replace(/[óòõôö]/g, 'o').replace(/[úùûü]/g, 'u').replace(/[ç]/g, 'c').replace(/[ñ]/g, 'n');
+    slug = slug.replace(/[^a-z0-9\s-]/g, '');
+    slug = slug.replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    return slug;
+  };
+
+  const togglePublicPage = async (point: CollectionPoint) => {
+    if (point.has_public_page) {
+      // Disable public page
+      const { error } = await supabase
+        .from('collection_points')
+        .update({ has_public_page: false })
+        .eq('id', point.id);
+      if (error) {
+        toast.error('Erro ao desativar página');
+        return;
+      }
+      toast.success('Página pública desativada');
+      fetchPoints();
+      return;
+    }
+
+    // Enable public page - generate slug if needed
+    const slug = point.slug || generateSlug(point.name);
+    const { error } = await supabase
+      .from('collection_points')
+      .update({ has_public_page: true, slug })
+      .eq('id', point.id);
+
+    if (error) {
+      if (error.message.includes('duplicate')) {
+        toast.error('Já existe um ponto com este slug. Edite o nome.');
+      } else {
+        toast.error('Erro ao criar página');
+      }
+      return;
+    }
+
+    const pageUrl = `${window.location.origin}/ponto/${slug}`;
+    navigator.clipboard.writeText(pageUrl);
+    toast.success('Página pública criada! Link copiado.');
+    fetchPoints();
+  };
+
+  const copyPageLink = (slug: string) => {
+    const url = `https://clubedoadubo.com.br/ponto/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Link copiado!');
+  };
+
   const getTotalPros = (point: CollectionPoint) => {
     return point.weighings?.reduce((acc, w) => acc + (w.pros?.length || 0), 0) || 0;
   };
@@ -423,6 +482,49 @@ export function CollectionPointsManagement() {
                         checked={point.is_active}
                         onCheckedChange={() => toggleActive(point)}
                       />
+                      {/* Public page toggle */}
+                      {point.has_public_page ? (
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-primary"
+                            onClick={() => copyPageLink(point.slug!)}
+                            title="Copiar link da página"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <a
+                            href={`/ponto/${point.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="ghost" size="sm" className="text-primary" title="Ver página">
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </a>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive"
+                            onClick={() => togglePublicPage(point)}
+                            title="Desativar página pública"
+                          >
+                            <Globe className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => togglePublicPage(point)}
+                          title="Criar página pública automática"
+                          className="text-xs"
+                        >
+                          <Globe className="w-4 h-4 mr-1" />
+                          Criar Página
+                        </Button>
+                      )}
                       <Dialog open={editingPoint?.id === point.id} onOpenChange={(open) => {
                         if (!open) {
                           setEditingPoint(null);
