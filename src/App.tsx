@@ -20,6 +20,7 @@ import TransparenciaPage from "./pages/TransparenciaPage";
 import ContatoPage from "./pages/ContatoPage";
 import EconomiaCircularPage from "./pages/EconomiaCircularPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import CollectionPointPage from "./pages/CollectionPointPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -48,6 +49,7 @@ const App = () => (
             
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
+            <Route path="/ponto/:slug" element={<CollectionPointPage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
             <Route element={<PublicLayout />}>

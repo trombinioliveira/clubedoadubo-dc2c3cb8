@@ -59,33 +59,51 @@ export type Database = {
           city: string
           created_at: string
           created_by: string | null
+          description: string | null
+          has_public_page: boolean
           id: string
           is_active: boolean
           name: string
+          opening_hours: string | null
+          phone: string | null
+          slug: string | null
           state: string
           updated_at: string
+          whatsapp: string | null
         }
         Insert: {
           address: string
           city: string
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          has_public_page?: boolean
           id?: string
           is_active?: boolean
           name: string
+          opening_hours?: string | null
+          phone?: string | null
+          slug?: string | null
           state?: string
           updated_at?: string
+          whatsapp?: string | null
         }
         Update: {
           address?: string
           city?: string
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          has_public_page?: boolean
           id?: string
           is_active?: boolean
           name?: string
+          opening_hours?: string | null
+          phone?: string | null
+          slug?: string | null
           state?: string
           updated_at?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -764,6 +782,8 @@ export type Database = {
         }[]
       }
       generate_referral_code: { Args: never; Returns: string }
+      generate_slug: { Args: { input_text: string }; Returns: string }
+      get_collection_point_public: { Args: { p_slug: string }; Returns: Json }
       get_commission_level: {
         Args: { p_active_referrals: number }
         Returns: {
