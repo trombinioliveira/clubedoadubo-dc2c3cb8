@@ -63,7 +63,7 @@ const App = () => (
             <Route element={<AppLayout />}>
               
               <Route path="/perfil" element={
-                <ProtectedRoute>
+                <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
                     <MyProfilePage />
                   </PasswordChangeGuard>
@@ -71,7 +71,7 @@ const App = () => (
               } />
               
               <Route path="/dashboard" element={
-                <ProtectedRoute>
+                <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
                     <ProfileDeadlineGuard>
                       <DashboardPage />
@@ -81,7 +81,7 @@ const App = () => (
               } />
               
               <Route path="/dreams" element={
-                <ProtectedRoute>
+                <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
                     <ProfileDeadlineGuard>
                       <DreamsPage />
@@ -91,7 +91,7 @@ const App = () => (
               } />
               
               <Route path="/fifo" element={
-                <ProtectedRoute>
+                <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
                     <ProfileDeadlineGuard>
                       <FifoQueuePage />
@@ -101,7 +101,7 @@ const App = () => (
               } />
               
               <Route path="/indicacoes" element={
-                <ProtectedRoute>
+                <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
                     <ProfileDeadlineGuard>
                       <ReferralsPage />

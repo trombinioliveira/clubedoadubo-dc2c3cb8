@@ -64,7 +64,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
             Início
           </Link>
           
-          {user && (
+          {user && !isAdmin && (
             <>
               <Link 
                 to="/dreams"
@@ -96,6 +96,15 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
             </>
           )}
 
+          {user && isAdmin && (
+            <Link to="/admin">
+              <Button variant={isActive('/admin') ? 'default' : 'outline'} size="sm">
+                <Settings className="w-4 h-4 mr-1" />
+                Painel Admin
+              </Button>
+            </Link>
+          )}
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -113,20 +122,23 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/perfil')}>
-                  <User className="w-4 h-4 mr-2" />
-                  Meu Perfil
-                  {!profile?.profile_completed_at && (
-                    <span className="ml-auto text-xs text-destructive">!</span>
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/indicacoes')}>
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Indicações
-                </DropdownMenuItem>
-                {(isAdmin || isStaff) && (
+                {!isAdmin && (
                   <>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/perfil')}>
+                      <User className="w-4 h-4 mr-2" />
+                      Meu Perfil
+                      {!profile?.profile_completed_at && (
+                        <span className="ml-auto text-xs text-destructive">!</span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/indicacoes')}>
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Indicações
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {isAdmin && (
+                  <>
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
                       <Settings className="w-4 h-4 mr-2" />
                       Painel Admin
@@ -176,64 +188,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
             
             {user ? (
               <>
-                <Link 
-                  to="/perfil"
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                    isActive('/perfil') && "text-primary font-medium bg-primary/5"
-                  )}
-                >
-                  <User className="w-5 h-5" />
-                  Meu Perfil
-                  {!profile?.profile_completed_at && (
-                    <span className="ml-auto text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">Completar</span>
-                  )}
-                </Link>
-                <Link 
-                  to="/indicacoes"
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                    isActive('/indicacoes') && "text-primary font-medium bg-primary/5"
-                  )}
-                >
-                  <Share2 className="w-5 h-5" />
-                  Indicações
-                </Link>
-                <Link 
-                  to="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors text-base",
-                    isActive('/dashboard') && "text-primary font-medium bg-primary/5"
-                  )}
-                >
-                  Meus PROs
-                </Link>
-                <Link 
-                  to="/dreams"
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                    isActive('/dreams') && "text-primary font-medium bg-primary/5"
-                  )}
-                >
-                  <Sparkles className="w-5 h-5" />
-                  Meus Sonhos
-                </Link>
-                <Link 
-                  to="/fifo"
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                    isActive('/fifo') && "text-primary font-medium bg-primary/5"
-                  )}
-                >
-                  <ListOrdered className="w-5 h-5" />
-                  Fila FIFO
-                </Link>
-                {(isAdmin || isStaff) && (
+                {isAdmin ? (
                   <Link 
                     to="/admin"
                     onClick={() => setMenuOpen(false)}
@@ -245,6 +200,66 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                     <Settings className="w-5 h-5" />
                     Painel Admin
                   </Link>
+                ) : (
+                  <>
+                    <Link 
+                      to="/perfil"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/perfil') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <User className="w-5 h-5" />
+                      Meu Perfil
+                      {!profile?.profile_completed_at && (
+                        <span className="ml-auto text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">Completar</span>
+                      )}
+                    </Link>
+                    <Link 
+                      to="/indicacoes"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/indicacoes') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <Share2 className="w-5 h-5" />
+                      Indicações
+                    </Link>
+                    <Link 
+                      to="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors text-base",
+                        isActive('/dashboard') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      Meus PROs
+                    </Link>
+                    <Link 
+                      to="/dreams"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/dreams') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <Sparkles className="w-5 h-5" />
+                      Meus Sonhos
+                    </Link>
+                    <Link 
+                      to="/fifo"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/fifo') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <ListOrdered className="w-5 h-5" />
+                      Fila FIFO
+                    </Link>
+                  </>
                 )}
                 <div className="pt-4 border-t border-border mt-4">
                   <button 
