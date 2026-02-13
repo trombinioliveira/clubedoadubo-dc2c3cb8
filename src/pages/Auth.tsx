@@ -24,7 +24,7 @@ const whatsappSchema = z.string().optional().refine(
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { user, isLoading, signIn, signUp } = useAuth();
+  const { user, isLoading, isAdmin, signIn, signUp } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,9 +37,9 @@ export default function Auth() {
 
   useEffect(() => {
     if (user && !isLoading) {
-      navigate('/dashboard');
+      navigate(isAdmin ? '/admin' : '/dashboard');
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, isAdmin, navigate]);
 
   // Social login - preparado para ativação futura (Google/Apple)
   // Para ativar: descomentar botões no JSX e habilitar providers no Supabase Dashboard
@@ -86,7 +86,8 @@ export default function Auth() {
     } else {
       // Update last_login_at
       toast.success('Login realizado com sucesso!');
-      navigate('/dashboard');
+      // Roles may not be loaded yet, so we navigate to dashboard
+      // and the useEffect will redirect admin when roles load
     }
     
     setIsSubmitting(false);
