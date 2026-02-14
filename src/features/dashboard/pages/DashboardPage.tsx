@@ -69,6 +69,20 @@ export function DashboardPage() {
     },
   });
 
+  // Check if collective impact module is enabled
+  const { data: collectiveImpactEnabled = true } = useQuery({
+    queryKey: ['site-settings', 'collective_impact_enabled'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'collective_impact_enabled')
+        .single();
+      if (error) return true;
+      return (data?.value as any)?.enabled ?? true;
+    },
+  });
+
   // Busca posição na fila FIFO
   const { data: fifoData } = useQuery({
     queryKey: ['user-fifo-position', user?.id],
@@ -146,12 +160,14 @@ export function DashboardPage() {
         />
 
         {/* 2. Main Grid - Impact + Progress */}
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className={`grid gap-4 sm:gap-6 ${collectiveImpactEnabled ? 'lg:grid-cols-2' : ''}`}>
           {/* Collective Environmental Impact */}
-          <CollectiveImpactCard 
-            userPros={totalPros}
-            onAddPro={() => setPixModalOpen(true)}
-          />
+          {collectiveImpactEnabled && (
+            <CollectiveImpactCard 
+              userPros={totalPros}
+              onAddPro={() => setPixModalOpen(true)}
+            />
+          )}
 
           {/* Level Progress */}
           <LevelProgressCard 
