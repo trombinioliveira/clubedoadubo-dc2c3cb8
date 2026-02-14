@@ -309,6 +309,45 @@ export type Database = {
         }
         Relationships: []
       }
+      impact_missions: {
+        Row: {
+          created_at: string
+          description: string
+          emoji: string
+          id: string
+          is_active: boolean
+          reward_pros: number
+          sort_order: number
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          emoji?: string
+          id?: string
+          is_active?: boolean
+          reward_pros?: number
+          sort_order?: number
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          emoji?: string
+          id?: string
+          is_active?: boolean
+          reward_pros?: number
+          sort_order?: number
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           code: string
@@ -637,6 +676,27 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
         }
         Relationships: []
       }
