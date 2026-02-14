@@ -55,6 +55,20 @@ export function DashboardPage() {
     enabled: !!user?.id,
   });
 
+  // Check if missions module is enabled (also controls Daily History)
+  const { data: missionsEnabled = true } = useQuery({
+    queryKey: ['site-settings', 'missions_enabled'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'missions_enabled')
+        .single();
+      if (error) return true;
+      return (data?.value as any)?.enabled ?? true;
+    },
+  });
+
   // Busca posição na fila FIFO
   const { data: fifoData } = useQuery({
     queryKey: ['user-fifo-position', user?.id],
@@ -155,11 +169,13 @@ export function DashboardPage() {
         {/* 4. Close the Cycle Section */}
         <CloseCycleSection />
 
-        {/* 5. Daily History */}
-        <DailyHistoryCard
-          history={[]}
-          onRegisterAction={() => setPixModalOpen(true)}
-        />
+        {/* 5. Daily History - linked to missions toggle */}
+        {missionsEnabled && (
+          <DailyHistoryCard
+            history={[]}
+            onRegisterAction={() => setPixModalOpen(true)}
+          />
+        )}
 
         {/* 6. FIFO Education Card */}
         <FifoEducationCard
