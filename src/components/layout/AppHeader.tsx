@@ -99,6 +99,12 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">4</span>
                 Fila FIFO
               </Link>
+
+              <Link to="/dashboard">
+                <Button variant={isActive('/dashboard') ? 'default' : 'outline'} size="sm">
+                  Meus PROs
+                </Button>
+              </Link>
             </>
           )}
 
@@ -237,6 +243,17 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                     >
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">4</span>
                       Fila FIFO
+                    </Link>
+                    <Link 
+                      to="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base font-medium",
+                        isActive('/dashboard') && "text-primary bg-primary/5"
+                      )}
+                    >
+                      <Sparkles className="w-5 h-5" />
+                      Meus PROs
                     </Link>
                     <Link 
                       to="/perfil"
