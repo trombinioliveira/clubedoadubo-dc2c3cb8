@@ -12,3 +12,4 @@ export { ReferralsTable } from './ReferralsTable';
 export { CommissionLevelsEditor } from './CommissionLevelsEditor';
 export { ReferralLogs } from './ReferralLogs';
 export { ProUserAudit } from './ProUserAudit';
+export { SiteManagement } from './SiteManagement';
