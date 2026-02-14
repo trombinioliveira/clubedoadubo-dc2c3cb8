@@ -67,6 +67,35 @@ export function SiteManagement() {
     },
   });
 
+  // Fetch collective impact enabled setting
+  const { data: collectiveImpactEnabled, isLoading: collectiveLoading } = useQuery({
+    queryKey: ['site-settings', 'collective_impact_enabled'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'collective_impact_enabled')
+        .single();
+      if (error) throw error;
+      return (data?.value as any)?.enabled ?? true;
+    },
+  });
+
+  // Toggle collective impact module
+  const toggleCollectiveImpact = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const { error } = await supabase
+        .from('site_settings')
+        .update({ value: { enabled }, updated_by: (await supabase.auth.getUser()).data.user?.id })
+        .eq('key', 'collective_impact_enabled');
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['site-settings'] });
+      toast.success('Módulo atualizado');
+    },
+  });
+
   // Fetch missions
   const { data: missions = [], isLoading: missionsLoading } = useQuery({
     queryKey: ['admin-missions'],
@@ -171,26 +200,39 @@ export function SiteManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Module toggle */}
+      {/* Module toggles */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Missões de Impacto</CardTitle>
+          <CardTitle className="text-xl">Módulos do Dashboard</CardTitle>
           <CardDescription>
-            Gerencie as missões exibidas no dashboard dos usuários. Ative ou desative o módulo inteiro.
+            Ative ou desative módulos exibidos no dashboard dos usuários.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-base font-medium">Módulo Ativo</Label>
+              <Label className="text-base font-medium">Missões de Impacto</Label>
               <p className="text-sm text-muted-foreground">
-                {missionsEnabled ? 'As missões estão visíveis para os usuários' : 'As missões estão ocultas para todos'}
+                {missionsEnabled ? 'Missões e Diário de Impacto visíveis' : 'Missões e Diário ocultos para todos'}
               </p>
             </div>
             <Switch
               checked={!!missionsEnabled}
               onCheckedChange={(checked) => toggleModule.mutate(checked)}
               disabled={settingsLoading || toggleModule.isPending}
+            />
+          </div>
+          <div className="border-t pt-4 flex items-center justify-between">
+            <div>
+              <Label className="text-base font-medium">Impacto Ambiental Coletivo</Label>
+              <p className="text-sm text-muted-foreground">
+                {collectiveImpactEnabled ? 'Card de impacto coletivo visível no dashboard' : 'Card de impacto coletivo oculto para todos'}
+              </p>
+            </div>
+            <Switch
+              checked={!!collectiveImpactEnabled}
+              onCheckedChange={(checked) => toggleCollectiveImpact.mutate(checked)}
+              disabled={collectiveLoading || toggleCollectiveImpact.isPending}
             />
           </div>
         </CardContent>
