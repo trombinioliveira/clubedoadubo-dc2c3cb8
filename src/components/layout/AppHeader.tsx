@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Sparkles, ListOrdered, Settings, LogOut, User, Share2 } from 'lucide-react';
+import { Menu, X, Sparkles, ListOrdered, Settings, LogOut, User, Share2, Footprints } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -54,18 +54,19 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-4 lg:gap-6">
-          <Link 
-            to="/"
-            className={cn(
-              "text-sm font-medium transition-colors",
-              isActive('/') ? "text-primary" : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Início
-          </Link>
-          
           {user && !isAdmin && (
             <>
+              <Link 
+                to="/dashboard"
+                className={cn(
+                  "text-sm font-medium transition-colors flex items-center gap-1",
+                  isActive('/dashboard') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">1</span>
+                Passo a passo
+              </Link>
+              
               <Link 
                 to="/dreams"
                 className={cn(
@@ -73,8 +74,19 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   isActive('/dreams') ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Sparkles className="w-4 h-4" />
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">2</span>
                 Meus Sonhos
+              </Link>
+
+              <Link 
+                to="/indicacoes"
+                className={cn(
+                  "text-sm font-medium transition-colors flex items-center gap-1",
+                  isActive('/indicacoes') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">3</span>
+                Minhas Indicações
               </Link>
               
               <Link 
@@ -84,14 +96,8 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   isActive('/fifo') ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <ListOrdered className="w-4 h-4" />
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">4</span>
                 Fila FIFO
-              </Link>
-              
-              <Link to="/dashboard">
-                <Button variant={isActive('/dashboard') ? 'default' : 'outline'} size="sm">
-                  Meus PROs
-                </Button>
               </Link>
             </>
           )}
@@ -130,10 +136,6 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                       {!profile?.profile_completed_at && (
                         <span className="ml-auto text-xs text-destructive">!</span>
                       )}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/indicacoes')}>
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Indicações
                     </DropdownMenuItem>
                   </>
                 )}
@@ -176,14 +178,15 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
         <div className="md:hidden fixed inset-0 top-14 sm:top-16 z-50 bg-background animate-fade-in">
           <div className="container mx-auto px-4 py-4 space-y-1 max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] overflow-y-auto">
             <Link 
-              to="/"
+              to="/dashboard"
               onClick={() => setMenuOpen(false)}
               className={cn(
-                "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors text-base",
-                isActive('/') && "text-primary font-medium bg-primary/5"
+                "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                isActive('/dashboard') && "text-primary font-medium bg-primary/5"
               )}
             >
-              Início
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">1</span>
+              Passo a passo
             </Link>
             
             {user ? (
@@ -203,6 +206,39 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 ) : (
                   <>
                     <Link 
+                      to="/dreams"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/dreams') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">2</span>
+                      Meus Sonhos
+                    </Link>
+                    <Link 
+                      to="/indicacoes"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/indicacoes') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">3</span>
+                      Minhas Indicações
+                    </Link>
+                    <Link 
+                      to="/fifo"
+                      onClick={() => setMenuOpen(false)}
+                      className={cn(
+                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
+                        isActive('/fifo') && "text-primary font-medium bg-primary/5"
+                      )}
+                    >
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">4</span>
+                      Fila FIFO
+                    </Link>
+                    <Link 
                       to="/perfil"
                       onClick={() => setMenuOpen(false)}
                       className={cn(
@@ -215,49 +251,6 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                       {!profile?.profile_completed_at && (
                         <span className="ml-auto text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">Completar</span>
                       )}
-                    </Link>
-                    <Link 
-                      to="/indicacoes"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/indicacoes') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <Share2 className="w-5 h-5" />
-                      Indicações
-                    </Link>
-                    <Link 
-                      to="/dashboard"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors text-base",
-                        isActive('/dashboard') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      Meus PROs
-                    </Link>
-                    <Link 
-                      to="/dreams"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/dreams') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <Sparkles className="w-5 h-5" />
-                      Meus Sonhos
-                    </Link>
-                    <Link 
-                      to="/fifo"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/fifo') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <ListOrdered className="w-5 h-5" />
-                      Fila FIFO
                     </Link>
                   </>
                 )}
