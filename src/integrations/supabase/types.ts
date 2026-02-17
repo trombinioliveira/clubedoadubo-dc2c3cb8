@@ -739,6 +739,30 @@ export type Database = {
         }
         Relationships: []
       }
+      terms_acceptance: {
+        Row: {
+          accepted_at: string
+          id: string
+          ip_address: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          user_id: string
+          version?: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
