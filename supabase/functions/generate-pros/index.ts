@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
 interface GenerateRequest {
@@ -16,15 +16,60 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // --- Authentication & Authorization ---
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+    // Verify the JWT using anon client
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    })
+
+    const token = authHeader.replace('Bearer ', '')
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const callerUserId = claimsData.claims.sub
+
+    // Use service role client for admin check and data operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    // Check if user is admin
+    const { data: isAdmin, error: roleError } = await supabase.rpc('is_admin', { _user_id: callerUserId })
+    if (roleError || !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: admin role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // --- Input Validation ---
     const { amount, userId }: GenerateRequest = await req.json()
     
-    if (!amount || amount <= 0) {
+    if (!amount || typeof amount !== 'number' || amount <= 0 || amount > 100000) {
       return new Response(
-        JSON.stringify({ error: 'Valor inválido' }),
+        JSON.stringify({ error: 'Valor inválido. Máximo: 100.000 PROs por requisição.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!userId || typeof userId !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'userId inválido' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -40,12 +85,10 @@ Deno.serve(async (req) => {
     let allSampleCodes: string[] = []
     let totalGenerated = 0
 
-    console.log(`Starting generation of ${prosCount} PROs in ${totalBatches} batches`)
+    console.log(`Admin ${callerUserId} generating ${prosCount} PROs for user ${userId} in ${totalBatches} batches`)
 
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
       const batchAmount = Math.min(BATCH_SIZE, prosCount - (batchIndex * BATCH_SIZE))
-      
-      console.log(`Processing batch ${batchIndex + 1}/${totalBatches}: ${batchAmount} PROs`)
       
       const { data, error } = await supabase.rpc('generate_pros_batch', {
         p_amount: batchAmount,
@@ -66,13 +109,10 @@ Deno.serve(async (req) => {
         }
         lastPosition = result.last_position
         
-        // Collect sample codes from first batch only
         if (batchIndex === 0 && result.sample_codes) {
           allSampleCodes = result.sample_codes
         }
       }
-      
-      console.log(`Batch ${batchIndex + 1} complete. Total so far: ${totalGenerated}`)
     }
 
     console.log(`Generation complete. Total: ${totalGenerated} PROs`)
