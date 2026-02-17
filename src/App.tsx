@@ -21,6 +21,10 @@ import ContatoPage from "./pages/ContatoPage";
 import EconomiaCircularPage from "./pages/EconomiaCircularPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import CollectionPointPage from "./pages/CollectionPointPage";
+import TermosPage from "./pages/TermosPage";
+import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
+import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
+import NaturezaProPage from "./pages/NaturezaProPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -59,6 +63,10 @@ const App = () => (
               <Route path="/transparencia" element={<TransparenciaPage />} />
               <Route path="/contato" element={<ContatoPage />} />
               <Route path="/economia-circular" element={<EconomiaCircularPage />} />
+              <Route path="/termos" element={<TermosPage />} />
+              <Route path="/politica-de-privacidade" element={<PoliticaPrivacidadePage />} />
+              <Route path="/politica-de-riscos" element={<PoliticaRiscosPage />} />
+              <Route path="/natureza-do-pro" element={<NaturezaProPage />} />
             </Route>
             
             {/* Protected pages with AppLayout (logged-in header) */}

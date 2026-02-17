@@ -31,6 +31,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
@@ -97,6 +98,11 @@ export default function Auth() {
     e.preventDefault();
     setError(null);
     
+    if (!acceptedTerms) {
+      setError('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+      return;
+    }
+
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
@@ -122,9 +128,16 @@ export default function Auth() {
         setError(error.message);
       }
     } else {
-      // If WhatsApp was provided, we'll update it after profile is created
+      // Record terms acceptance
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) {
+        await supabase.from('terms_acceptance').insert({
+          user_id: newUser.id,
+          version: '1.0',
+        } as any);
+      }
+
       if (whatsapp) {
-        // Store for later update via webhook or profile completion
         localStorage.setItem('pending_whatsapp', whatsapp);
       }
       toast.success('Cadastro realizado! Verifique seu email para confirmar.');
@@ -139,6 +152,7 @@ export default function Auth() {
     setPassword('');
     setFullName('');
     setWhatsapp('');
+    setAcceptedTerms(false);
   };
 
   if (isLoading) {
@@ -364,17 +378,34 @@ export default function Auth() {
                     </p>
                   </div>
 
+                  {/* Terms acceptance checkbox */}
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      id="accept-terms"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-border accent-primary"
+                    />
+                    <label htmlFor="accept-terms" className="text-xs text-muted-foreground leading-relaxed">
+                      Li e aceito os{' '}
+                      <Link to="/termos" target="_blank" className="text-primary hover:underline">
+                        Termos de Uso
+                      </Link>{' '}
+                      e a{' '}
+                      <Link to="/politica-de-privacidade" target="_blank" className="text-primary hover:underline">
+                        Política de Privacidade
+                      </Link>.
+                    </label>
+                  </div>
+
                   <Button 
                     type="submit" 
                     className="w-full h-11 earth-gradient font-medium"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !acceptedTerms}
                   >
                     {isSubmitting ? 'Cadastrando...' : 'Criar conta'}
                   </Button>
-
-                  <p className="text-xs text-center text-muted-foreground pt-2">
-                    Ao criar sua conta, você passa a fazer parte de um ciclo de economia circular urbana, com regras claras e impacto real.
-                  </p>
                 </form>
               </TabsContent>
             </Tabs>
@@ -387,20 +418,20 @@ export default function Auth() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-              <Link to="/transparencia" className="hover:text-foreground transition-colors">
-                Transparência
-              </Link>
-              <span className="hidden md:inline">•</span>
-              <Link to="/faq" className="hover:text-foreground transition-colors">
-                FAQ
-              </Link>
-              <span className="hidden md:inline">•</span>
-              <Link to="/contato" className="hover:text-foreground transition-colors">
-                Contato
-              </Link>
-              <span className="hidden md:inline">•</span>
               <Link to="/termos" className="hover:text-foreground transition-colors">
                 Termos de Uso
+              </Link>
+              <span className="hidden md:inline">•</span>
+              <Link to="/politica-de-privacidade" className="hover:text-foreground transition-colors">
+                Política de Privacidade
+              </Link>
+              <span className="hidden md:inline">•</span>
+              <Link to="/politica-de-riscos" className="hover:text-foreground transition-colors">
+                Política de Riscos
+              </Link>
+              <span className="hidden md:inline">•</span>
+              <Link to="/natureza-do-pro" className="hover:text-foreground transition-colors">
+                Natureza do PRO
               </Link>
             </div>
             <p className="text-xs text-muted-foreground text-center md:text-right">

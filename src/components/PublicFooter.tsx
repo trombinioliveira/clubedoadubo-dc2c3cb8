@@ -84,6 +84,21 @@ export const PublicFooter = () => {
         </div>
       </div>
 
+      {/* Legal Links */}
+      <div className="border-t border-border/50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+            <Link to="/termos" className="hover:text-foreground transition-colors">Termos de Uso</Link>
+            <span>•</span>
+            <Link to="/politica-de-privacidade" className="hover:text-foreground transition-colors">Política de Privacidade</Link>
+            <span>•</span>
+            <Link to="/politica-de-riscos" className="hover:text-foreground transition-colors">Política de Riscos</Link>
+            <span>•</span>
+            <Link to="/natureza-do-pro" className="hover:text-foreground transition-colors">Natureza do PRO</Link>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Bar */}
       <div className="border-t border-border/50">
         <div className="container mx-auto px-4 py-6">
