@@ -53,48 +53,42 @@ export function SiteManagement() {
   const [editingMission, setEditingMission] = useState<Partial<Mission> | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Fetch missions enabled setting
-  const { data: missionsEnabled, isLoading: settingsLoading } = useQuery({
-    queryKey: ['site-settings', 'missions_enabled'],
+  // ─ Generic setting fetcher ─
+  const useSetting = (key: string, defaultVal = true) => useQuery({
+    queryKey: ['site-settings', key],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'missions_enabled')
-        .single();
-      if (error) throw error;
-      return (data?.value as any)?.enabled ?? true;
+      const { data, error } = await supabase.from('site_settings').select('value').eq('key', key).single();
+      if (error) return defaultVal;
+      return (data?.value as any)?.enabled ?? defaultVal;
     },
   });
 
-  // Fetch collective impact enabled setting
-  const { data: collectiveImpactEnabled, isLoading: collectiveLoading } = useQuery({
-    queryKey: ['site-settings', 'collective_impact_enabled'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'collective_impact_enabled')
-        .single();
-      if (error) throw error;
-      return (data?.value as any)?.enabled ?? true;
-    },
-  });
-
-  // Toggle collective impact module
-  const toggleCollectiveImpact = useMutation({
+  const useToggleSetting = (key: string) => useMutation({
     mutationFn: async (enabled: boolean) => {
-      const { error } = await supabase
-        .from('site_settings')
-        .update({ value: { enabled }, updated_by: (await supabase.auth.getUser()).data.user?.id })
-        .eq('key', 'collective_impact_enabled');
+      const user = (await supabase.auth.getUser()).data.user?.id;
+      const { error } = await supabase.from('site_settings')
+        .update({ value: { enabled }, updated_by: user })
+        .eq('key', key);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-      toast.success('Módulo atualizado');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['site-settings'] }); toast.success('Módulo atualizado'); },
   });
+
+  const { data: missionsEnabled, isLoading: settingsLoading } = useSetting('missions_enabled');
+  const { data: collectiveImpactEnabled, isLoading: collectiveLoading } = useSetting('collective_impact_enabled');
+  const { data: pubTransparency } = useSetting('public_transparency_enabled');
+  const { data: pubFifo } = useSetting('public_fifo_enabled');
+  const { data: pubSales } = useSetting('public_sales_enabled');
+  const { data: pubPoints } = useSetting('public_collection_points_enabled');
+  const { data: pubKpis } = useSetting('public_kpis_enabled');
+
+  const toggleMissions = useToggleSetting('missions_enabled');
+  const toggleCollective = useToggleSetting('collective_impact_enabled');
+  const togglePubTransparency = useToggleSetting('public_transparency_enabled');
+  const togglePubFifo = useToggleSetting('public_fifo_enabled');
+  const togglePubSales = useToggleSetting('public_sales_enabled');
+  const togglePubPoints = useToggleSetting('public_collection_points_enabled');
+  const togglePubKpis = useToggleSetting('public_kpis_enabled');
 
   // Fetch missions
   const { data: missions = [], isLoading: missionsLoading } = useQuery({
@@ -231,10 +225,39 @@ export function SiteManagement() {
             </div>
             <Switch
               checked={!!collectiveImpactEnabled}
-              onCheckedChange={(checked) => toggleCollectiveImpact.mutate(checked)}
-              disabled={collectiveLoading || toggleCollectiveImpact.isPending}
+              onCheckedChange={(checked) => toggleCollective.mutate(checked)}
+              disabled={collectiveLoading || toggleCollective.isPending}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Public Panel Toggles */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Painel Público de Transparência</CardTitle>
+          <CardDescription>Controle o que é visível em /painel-publico para visitantes anônimos.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[
+            { key: 'public_transparency_enabled', label: 'Painel Público (geral)', desc: 'Habilita ou desabilita o painel completo', data: pubTransparency, toggle: togglePubTransparency },
+            { key: 'public_kpis_enabled', label: 'KPIs Públicos', desc: 'Indicadores do ciclo (PROs, kg, vendas)', data: pubKpis, toggle: togglePubKpis },
+            { key: 'public_fifo_enabled', label: 'Fila FIFO Pública', desc: 'Tabela paginada da fila pública', data: pubFifo, toggle: togglePubFifo },
+            { key: 'public_sales_enabled', label: 'Vendas Públicas', desc: 'Listagem de entradas financeiras públicas', data: pubSales, toggle: togglePubSales },
+            { key: 'public_collection_points_enabled', label: 'Pontos de Coleta', desc: 'Lista de pontos ativos no painel', data: pubPoints, toggle: togglePubPoints },
+          ].map(({ key, label, desc, data, toggle }) => (
+            <div key={key} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+              <div>
+                <Label className="text-base font-medium">{label}</Label>
+                <p className="text-sm text-muted-foreground">{data ? desc + ' — ativo' : desc + ' — desativado'}</p>
+              </div>
+              <Switch
+                checked={!!data}
+                onCheckedChange={(checked) => toggle.mutate(checked)}
+                disabled={toggle.isPending}
+              />
+            </div>
+          ))}
         </CardContent>
       </Card>
 

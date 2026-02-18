@@ -2,12 +2,63 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, ArrowRight, Recycle, ListOrdered, Users, Ban, CheckCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Shield, ArrowRight, Recycle, ListOrdered, Users, Ban, CheckCircle, BarChart3, ExternalLink } from 'lucide-react';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from '@/components/icons/CycleIcons';
+import { useQuery } from '@tanstack/react-query';
+import { fetchPublicKPIs } from '@/lib/publicTransparency';
+
+function fmtKg(g: number) { const kg = g / 1000; return kg >= 1000 ? `${(kg/1000).toFixed(1)} t` : `${kg.toFixed(1)} kg`; }
+function fmtBRL(v: number) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v); }
 
 const TransparenciaPage = () => {
+  const { data: kpis, isLoading } = useQuery({
+    queryKey: ['public-kpis-transparencia'],
+    queryFn: fetchPublicKPIs,
+    staleTime: 120_000,
+  });
   return (
     <>
+      {/* KPIs Reais Block — inserido antes do Hero */}
+      <section className="py-8 bg-primary/5 border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" /> Dados reais do ciclo
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">Dados extraídos diretamente do banco do Clube do Adubo</p>
+            </div>
+            <Link to="/painel-publico">
+              <Button size="sm" className="gap-1 text-xs">
+                Ver Painel Completo <ExternalLink className="w-3 h-3" />
+              </Button>
+            </Link>
+          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-lg" />)}
+            </div>
+          ) : kpis ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Resíduo coletado', value: fmtKg(kpis.weightCollectedGrams) },
+                { label: 'PROs emitidos', value: kpis.totalPros.toLocaleString('pt-BR') },
+                { label: 'Vendas registradas', value: fmtBRL(kpis.totalSalesAmount) },
+                { label: 'Total pago', value: fmtBRL(kpis.totalDistributed) },
+              ].map((item) => (
+                <Card key={item.label} className="bg-background">
+                  <CardContent className="p-3">
+                    <p className="text-xs text-muted-foreground">{item.label}</p>
+                    <p className="text-lg font-bold text-foreground">{item.value}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
       {/* Hero */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto px-4 text-center">

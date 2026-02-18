@@ -95,6 +95,8 @@ export const PublicFooter = () => {
             <Link to="/politica-de-riscos" className="hover:text-foreground transition-colors">Política de Riscos</Link>
             <span>•</span>
             <Link to="/natureza-do-pro" className="hover:text-foreground transition-colors">Natureza do PRO</Link>
+            <span>•</span>
+            <Link to="/painel-publico" className="hover:text-foreground transition-colors font-medium text-primary/80">📊 Painel de Transparência</Link>
           </div>
         </div>
       </div>

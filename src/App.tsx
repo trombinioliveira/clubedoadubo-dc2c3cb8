@@ -25,6 +25,7 @@ import TermosPage from "./pages/TermosPage";
 import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
 import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
 import NaturezaProPage from "./pages/NaturezaProPage";
+import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidadePage />} />
               <Route path="/politica-de-riscos" element={<PoliticaRiscosPage />} />
               <Route path="/natureza-do-pro" element={<NaturezaProPage />} />
+              <Route path="/painel-publico" element={<PublicTransparencyDashboard />} />
             </Route>
             
             {/* Protected pages with AppLayout (logged-in header) */}
