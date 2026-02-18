@@ -557,6 +557,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pros_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "public_collection_points_list"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pros_dream_id_fkey"
             columns: ["dream_id"]
             isOneToOne: false
@@ -823,10 +830,101 @@ export type Database = {
             referencedRelation: "collection_points"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "weighings_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "public_collection_points_list"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
+      public_collection_points_list: {
+        Row: {
+          address: string | null
+          city: string | null
+          description: string | null
+          has_public_page: boolean | null
+          id: string | null
+          name: string | null
+          opening_hours: string | null
+          phone: string | null
+          slug: string | null
+          state: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          description?: string | null
+          has_public_page?: boolean | null
+          id?: string | null
+          name?: string | null
+          opening_hours?: string | null
+          phone?: string | null
+          slug?: string | null
+          state?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          description?: string | null
+          has_public_page?: boolean | null
+          id?: string | null
+          name?: string | null
+          opening_hours?: string | null
+          phone?: string | null
+          slug?: string | null
+          state?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      public_fifo_queue: {
+        Row: {
+          created_at: string | null
+          paid_at: string | null
+          position: number | null
+          pro_code: string | null
+          queue_id: string | null
+          status: Database["public"]["Enums"]["pro_status"] | null
+          weight_grams: number | null
+        }
+        Relationships: []
+      }
+      public_financial_entries: {
+        Row: {
+          amount: number | null
+          description: string | null
+          distributed_at: string | null
+          id: string | null
+          is_distributed: boolean | null
+          pros_paid: number | null
+          received_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          description?: string | null
+          distributed_at?: string | null
+          id?: string | null
+          is_distributed?: boolean | null
+          pros_paid?: number | null
+          received_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          description?: string | null
+          distributed_at?: string | null
+          id?: string | null
+          is_distributed?: boolean | null
+          pros_paid?: number | null
+          received_at?: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           member_since: string | null
@@ -898,6 +996,7 @@ export type Database = {
         Args: { p_referral_code: string }
         Returns: Json
       }
+      get_public_transparency_kpis: { Args: never; Returns: Json }
       get_referral_overview: {
         Args: never
         Returns: {
