@@ -35,6 +35,10 @@ export interface PublicSaleEntry {
   id: string;
   received_at: string;
   amount: number;
+  currency: string;
+  status: string;
+  provider: string;
+  product_key: string | null;
   description: string | null;
   is_distributed: boolean;
   pros_paid: number | null;
@@ -109,6 +113,7 @@ export async function fetchPublicSales(limit = 10): Promise<PublicSaleEntry[]> {
   const { data, error } = await supabase
     .from('public_financial_entries')
     .select('*')
+    .eq('status', 'confirmed')
     .order('received_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
@@ -165,6 +170,7 @@ export async function fetchMonthlyReport() {
     supabase
       .from('public_financial_entries')
       .select('amount, pros_paid')
+      .eq('status', 'confirmed')
       .gte('received_at', isoStart),
     supabase
       .from('weighings')
@@ -193,4 +199,26 @@ export async function fetchPublicDistributions(limit = 6): Promise<PublicDistrib
     .limit(limit);
   if (error) throw error;
   return (data || []) as PublicDistributionEntry[];
+}
+
+// ─── Checkout helper (calls create-mp-preference edge function) ──────────────
+
+export interface MPPreferenceResult {
+  init_point: string;
+  sandbox_init_point: string;
+  preference_id: string;
+  external_reference: string;
+}
+
+export async function createMPPreference(params: {
+  product_key: string;
+  quantity: number;
+  user_id?: string | null;
+  referral_code?: string | null;
+}): Promise<MPPreferenceResult> {
+  const { data, error } = await supabase.functions.invoke('create-mp-preference', {
+    body: params,
+  });
+  if (error) throw error;
+  return data as MPPreferenceResult;
 }

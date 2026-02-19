@@ -1,9 +1,9 @@
 project_id = "himgmfvanxftyxbzxjsu"
 
-[functions.webhook-purchase]
+[functions.create-mp-preference]
 verify_jwt = false
 
-[functions.webhook-purchase-declined]
+[functions.mp-webhook]
 verify_jwt = false
 
 [functions.delete-pros-batch]
@@ -11,4 +11,3 @@ verify_jwt = false
 
 [functions.generate-pros]
 verify_jwt = false
-

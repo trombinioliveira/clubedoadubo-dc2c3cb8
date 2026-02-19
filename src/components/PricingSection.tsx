@@ -2,13 +2,90 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Leaf, Recycle, Package, Gift, ArrowRight, Check, Droplets, TreeDeciduous, Sprout, TreePine, Star } from 'lucide-react';
+import { Leaf, Recycle, Package, Gift, ArrowRight, Check, Droplets, TreeDeciduous, Sprout, TreePine, Star, Loader2 } from 'lucide-react';
+import { createMPPreference } from '@/lib/publicTransparency';
+import { useAuth } from '@/lib/auth';
+import { toast } from 'sonner';
 
 interface PricingSectionProps {
   onGetStarted: () => void;
 }
 
 type PlanCategory = 'avulsa' | 'assinatura' | 'ciclo' | 'kits' | 'presentes' | 'todos';
+
+// ── Checkout hook ──────────────────────────────────────────────────────────────
+function useCheckout() {
+  const { user } = useAuth();
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
+
+  const checkout = async (product_key: string, quantity = 1) => {
+    setLoadingKey(product_key);
+    try {
+      const result = await createMPPreference({
+        product_key,
+        quantity,
+        user_id: user?.id ?? null,
+      });
+      // Redirect to Mercado Pago Checkout Pro
+      window.location.href = result.init_point;
+    } catch (err) {
+      console.error('Checkout error:', err);
+      toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
+    } finally {
+      setLoadingKey(null);
+    }
+  };
+
+  return { checkout, loadingKey };
+}
+
+// ── CheckoutButton ─────────────────────────────────────────────────────────────
+function CheckoutButton({
+  productKey,
+  label = 'Comprar',
+  variant = 'default' as 'default' | 'hero',
+  className = 'w-full',
+  quantity = 1,
+  onGetStarted,
+}: {
+  productKey: string | null;
+  label?: string;
+  variant?: 'default' | 'hero';
+  className?: string;
+  quantity?: number;
+  onGetStarted: () => void;
+}) {
+  const { checkout, loadingKey } = useCheckout();
+  const { user } = useAuth();
+  const isLoading = loadingKey === productKey;
+
+  const handleClick = () => {
+    if (!user) {
+      onGetStarted();
+      return;
+    }
+    if (productKey) {
+      checkout(productKey, quantity);
+    } else {
+      onGetStarted();
+    }
+  };
+
+  return (
+    <Button
+      onClick={handleClick}
+      variant={variant}
+      className={className}
+      disabled={isLoading}
+    >
+      {isLoading ? (
+        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Aguarde…</>
+      ) : (
+        <>{label}<ArrowRight className="w-4 h-4 ml-2" /></>
+      )}
+    </Button>
+  );
+}
 
 export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
   const [activeCategory, setActiveCategory] = useState<PlanCategory>('avulsa');
@@ -38,6 +115,9 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
           </p>
           <p className="text-sm text-muted-foreground/80 max-w-xl mx-auto">
             💡 <strong>Importante:</strong> O valor que você pode receber vem da venda real do adubo, não da entrada de novos participantes.
+          </p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Pagamentos processados com segurança via <strong>Mercado Pago</strong>
           </p>
         </div>
 
@@ -91,9 +171,7 @@ const AvulsaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xl font-bold text-primary">R$ 15</span>
-            <Button onClick={onGetStarted} size="sm">
-              Comprar
-            </Button>
+            <CheckoutButton productKey="adubo_granulado" label="Comprar" className="" onGetStarted={onGetStarted} />
           </div>
         </div>
         {/* Adubo Líquido */}
@@ -104,9 +182,7 @@ const AvulsaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xl font-bold text-primary">R$ 10</span>
-            <Button onClick={onGetStarted} size="sm">
-              Comprar
-            </Button>
+            <CheckoutButton productKey="adubo_liquido" label="Comprar" className="" onGetStarted={onGetStarted} />
           </div>
         </div>
       </CardContent>
@@ -148,10 +224,7 @@ const AvulsaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
             </li>
           </ul>
         </div>
-        <Button onClick={onGetStarted} variant="hero" className="w-full mt-4">
-          Ativar PROs
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        <CheckoutButton productKey="pro_avulso" label="Ativar PROs" variant="hero" className="w-full mt-4" onGetStarted={onGetStarted} />
       </CardContent>
     </Card>
   </div>
@@ -159,16 +232,16 @@ const AvulsaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
 
 const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
   const proPlans = [
-    { name: 'Semente', pros: 10, price: 10, icon: Sprout, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=ZNI2HOF' },
-    { name: 'Muda', pros: 25, price: 25, icon: Leaf, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=RYR5AYT' },
-    { name: 'Árvore', pros: 50, price: 50, icon: TreeDeciduous, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=M6SMJ2V' },
-    { name: 'Livre', pros: null, price: null, icon: Star, link: null },
+    { name: 'Semente', pros: 10, price: 10, icon: Sprout, productKey: 'assinatura_pros_semente' },
+    { name: 'Muda', pros: 25, price: 25, icon: Leaf, productKey: 'assinatura_pros_muda' },
+    { name: 'Árvore', pros: 50, price: 50, icon: TreeDeciduous, productKey: 'assinatura_pros_arvore' },
+    { name: 'Livre', pros: null, price: null, icon: Star, productKey: null },
   ];
 
   const aduboPlans = [
-    { name: 'Adubo Granulado', description: '0,5 kg mensal', price: 15, icon: Leaf, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=I5X3FYG' },
-    { name: 'Adubo Líquido', description: '500 ml mensal', price: 10, icon: Droplets, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=ZB6UOD7' },
-    { name: 'Granulado + Líquido', description: 'Ambos os adubos mensais', price: 22, icon: Star, link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=SWPRZQA', combo: true },
+    { name: 'Adubo Granulado', description: '0,5 kg mensal', price: 15, icon: Leaf, productKey: 'assinatura_granulado', combo: false },
+    { name: 'Adubo Líquido', description: '500 ml mensal', price: 10, icon: Droplets, productKey: 'assinatura_liquido', combo: false },
+    { name: 'Granulado + Líquido', description: 'Ambos os adubos mensais', price: 22, icon: Star, productKey: 'assinatura_combo', combo: true },
   ];
 
   return (
@@ -205,19 +278,7 @@ const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
                     <span className="text-lg font-medium text-muted-foreground">Personalizado</span>
                   )}
                 </div>
-                {plan.link ? (
-                  <Button asChild className="w-full">
-                    <a href={plan.link} target="_blank" rel="noopener noreferrer">
-                      Assinar
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </a>
-                  </Button>
-                ) : (
-                  <Button onClick={onGetStarted} className="w-full">
-                    Assinar
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                )}
+                <CheckoutButton productKey={plan.productKey} label="Assinar" className="w-full" onGetStarted={onGetStarted} />
               </CardContent>
             </Card>
           ))}
@@ -246,12 +307,7 @@ const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
                   <span className="text-2xl font-bold text-primary">R$ {plan.price}</span>
                   <span className="text-muted-foreground">/mês</span>
                 </div>
-                <Button asChild className="w-full">
-                  <a href={plan.link} target="_blank" rel="noopener noreferrer">
-                    Assinar
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </a>
-                </Button>
+                <CheckoutButton productKey={plan.productKey} label="Assinar" className="w-full" onGetStarted={onGetStarted} />
               </CardContent>
             </Card>
           ))}
@@ -263,34 +319,9 @@ const AssinaturaPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
 
 const CicloPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
   const cicloPlans = [
-    {
-      name: 'Semente',
-      emoji: '🌱',
-      pros: 10,
-      adubos: 1,
-      price: 25,
-      icon: Sprout,
-      link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=ETDZIY8',
-    },
-    {
-      name: 'Muda',
-      emoji: '🌿',
-      pros: 25,
-      adubos: 2,
-      price: 50,
-      popular: true,
-      icon: TreeDeciduous,
-      link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=GL2VODG',
-    },
-    {
-      name: 'Árvore',
-      emoji: '🌳',
-      pros: 50,
-      adubos: 3,
-      price: 90,
-      icon: TreePine,
-      link: 'https://checkout.nexano.com.br/checkout/cmkzlgiv50i611ztcqo23l6nu?offer=8YH02Y6',
-    },
+    { name: 'Semente', emoji: '🌱', pros: 10, adubos: 1, price: 25, icon: Sprout, productKey: 'plano_semente', popular: false },
+    { name: 'Muda', emoji: '🌿', pros: 25, adubos: 2, price: 50, popular: true, icon: TreeDeciduous, productKey: 'plano_muda' },
+    { name: 'Árvore', emoji: '🌳', pros: 50, adubos: 3, price: 90, icon: TreePine, productKey: 'plano_arvore', popular: false },
   ];
 
   return (
@@ -344,16 +375,13 @@ const CicloPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
                   Combinação flexível
                 </li>
               </ul>
-              <Button
-                asChild
+              <CheckoutButton
+                productKey={plan.productKey}
+                label="Assinar agora"
                 variant={plan.popular ? 'hero' : 'default'}
                 className="w-full"
-              >
-                <a href={plan.link} target="_blank" rel="noopener noreferrer">
-                  Assinar agora
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </a>
-              </Button>
+                onGetStarted={onGetStarted}
+              />
             </CardContent>
           </Card>
         ))}
@@ -391,10 +419,7 @@ const KitsPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
           <span className="text-sm text-muted-foreground line-through">R$ 60,00</span>
           <span className="text-3xl font-bold text-primary">R$ 50</span>
         </div>
-        <Button onClick={onGetStarted} className="w-full">
-          Comprar Kit
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        <CheckoutButton productKey="kit_iniciante" label="Comprar Kit" className="w-full" onGetStarted={onGetStarted} />
       </CardContent>
     </Card>
 
@@ -419,143 +444,89 @@ const KitsPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
           </li>
           <li className="flex items-center gap-2 text-muted-foreground">
             <Check className="w-4 h-4 text-primary" />
-            30 PROs
+            25 PROs
           </li>
         </ul>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-muted-foreground line-through">R$ 165,00</span>
-          <span className="text-3xl font-bold text-primary">R$ 130</span>
+          <span className="text-sm text-muted-foreground line-through">R$ 130,00</span>
+          <span className="text-3xl font-bold text-primary">R$ 100</span>
         </div>
-        <Button onClick={onGetStarted} variant="hero" className="w-full">
-          Comprar Kit
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        <CheckoutButton productKey="kit_jardim" label="Comprar Kit" className="w-full" onGetStarted={onGetStarted} />
       </CardContent>
     </Card>
   </div>
 );
 
-const PresentesPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
-  const giftProducts = [
-    { name: 'Adubo Granulado', description: '0,5 kg', price: 15, emoji: '🪴' },
-    { name: 'Adubo Líquido Concentrado', description: '500 ml', price: 10, emoji: '💧' },
-    { name: 'PROs (10 unidades)', description: '10 PROs de presente', price: 10, emoji: '♻️' },
-    { name: 'Kit Iniciante', description: '2× Granulado + 1× Líquido + 10 PROs', price: 50, emoji: '🌿' },
-    { name: 'Kit Jardim Completo', description: '5× Granulado + 3× Líquido + 30 PROs', price: 130, emoji: '🌳' },
-  ];
-
-  return (
-    <div>
-      <div className="text-center mb-6">
-        <Badge variant="default" className="mb-2">
-          🎁 Presentes sustentáveis
-        </Badge>
-        <h3 className="text-xl font-bold text-foreground">
-          Presenteie com propósito
-        </h3>
-        <p className="text-muted-foreground">Envie adubo, PROs ou kits para alguém especial</p>
-        <p className="text-xs text-muted-foreground/80 mt-2">
-          Todos os presentes podem ser enviados com uma mensagem personalizada
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {giftProducts.map((product) => (
-          <Card key={product.name} className="hover:shadow-elevated transition-shadow">
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{product.emoji}</span>
-                <CardTitle className="text-lg">{product.name}</CardTitle>
-              </div>
-              <CardDescription>{product.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
-                <span className="text-2xl font-bold text-primary">R$ {product.price}</span>
-              </div>
-              <Button onClick={onGetStarted} className="w-full">
-                Enviar de presente
-                <Gift className="w-4 h-4 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const TodosPlans = ({ onGetStarted }: { onGetStarted: () => void }) => {
-  const allProducts = [
-    // Adubos Avulsos
-    { category: 'Adubos', name: 'Adubo Granulado', description: '0,5 kg', price: 15, emoji: '🪴', type: 'avulso' },
-    { category: 'Adubos', name: 'Adubo Líquido Concentrado', description: '500 ml', price: 10, emoji: '💧', type: 'avulso' },
-    // PROs
-    { category: 'PROs', name: 'PRO Avulso', description: '1 PRO = 100g de resíduo', price: 1, emoji: '♻️', type: 'avulso' },
-    // Assinaturas de PROs
-    { category: 'Assinatura PROs', name: 'Plano Semente', description: '10 PROs/mês', price: 10, emoji: '🌱', type: 'assinatura' },
-    { category: 'Assinatura PROs', name: 'Plano Muda', description: '25 PROs/mês', price: 25, emoji: '🌿', type: 'assinatura' },
-    { category: 'Assinatura PROs', name: 'Plano Árvore', description: '50 PROs/mês', price: 50, emoji: '🌳', type: 'assinatura' },
-    // Assinaturas de Adubos
-    { category: 'Assinatura Adubos', name: 'Adubo Granulado Mensal', description: '0,5 kg/mês', price: 15, emoji: '🪴', type: 'assinatura' },
-    { category: 'Assinatura Adubos', name: 'Adubo Líquido Mensal', description: '500 ml/mês', price: 10, emoji: '💧', type: 'assinatura' },
-    { category: 'Assinatura Adubos', name: 'Combo Granulado + Líquido', description: 'Ambos mensais', price: 22, emoji: '⭐', type: 'assinatura' },
-    // Fechar o Ciclo
-    { category: 'Fechar o Ciclo', name: 'Ciclo Semente', description: '10 PROs + 1 adubo/mês', price: 25, emoji: '🌱', type: 'ciclo' },
-    { category: 'Fechar o Ciclo', name: 'Ciclo Muda', description: '25 PROs + 2 adubos/mês', price: 50, emoji: '🌿', type: 'ciclo', popular: true },
-    { category: 'Fechar o Ciclo', name: 'Ciclo Árvore', description: '50 PROs + 3 adubos/mês', price: 90, emoji: '🌳', type: 'ciclo' },
-    // Kits
-    { category: 'Kits', name: 'Kit Iniciante', description: '2× Granulado + 1× Líquido + 10 PROs', price: 50, emoji: '🌿', type: 'kit' },
-    { category: 'Kits', name: 'Kit Jardim Completo', description: '5× Granulado + 3× Líquido + 30 PROs', price: 130, emoji: '🌳', type: 'kit' },
-  ];
-
-  const categories = [...new Set(allProducts.map(p => p.category))];
-
-  return (
-    <div className="space-y-8">
-      {categories.map((category) => (
-        <div key={category}>
-          <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-            {category}
-          </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allProducts
-              .filter((p) => p.category === category)
-              .map((product) => (
-                <Card
-                  key={product.name}
-                  className={`hover:shadow-elevated transition-shadow ${
-                    product.popular ? 'border-primary/50' : ''
-                  }`}
-                >
-                  {product.popular && (
-                    <Badge className="absolute -top-2 right-4">Popular</Badge>
-                  )}
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{product.emoji}</span>
-                      <CardTitle className="text-base">{product.name}</CardTitle>
-                    </div>
-                    <CardDescription className="text-xs">{product.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xl font-bold text-primary">R$ {product.price}</span>
-                        {product.type === 'assinatura' || product.type === 'ciclo' ? (
-                          <span className="text-sm text-muted-foreground">/mês</span>
-                        ) : null}
-                      </div>
-                      <Button onClick={onGetStarted} size="sm">
-                        {product.type === 'assinatura' || product.type === 'ciclo' ? 'Assinar' : 'Comprar'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
+const PresentesPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
+  <div className="grid md:grid-cols-2 gap-6">
+    <Card className="hover:shadow-elevated transition-shadow">
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🎁</span>
+          <CardTitle>Presente Verde</CardTitle>
         </div>
-      ))}
-    </div>
-  );
-};
+        <CardDescription>Um presente com impacto real e rastreável</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2 mb-6">
+          <li className="flex items-center gap-2 text-muted-foreground">
+            <Check className="w-4 h-4 text-primary" />
+            10 PROs ativados em nome do presenteado
+          </li>
+          <li className="flex items-center gap-2 text-muted-foreground">
+            <Check className="w-4 h-4 text-primary" />
+            1 Adubo Granulado
+          </li>
+          <li className="flex items-center gap-2 text-muted-foreground">
+            <Check className="w-4 h-4 text-primary" />
+            Certificado digital de impacto
+          </li>
+        </ul>
+        <div className="mb-4">
+          <span className="text-3xl font-bold text-primary">R$ 30</span>
+        </div>
+        <CheckoutButton productKey="plano_semente" label="Presentear" className="w-full" onGetStarted={onGetStarted} />
+      </CardContent>
+    </Card>
+
+    <Card className="hover:shadow-elevated transition-shadow border-primary/50">
+      <CardHeader>
+        <Badge className="w-fit mb-2">Especial</Badge>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🌿</span>
+          <CardTitle>Presente Ciclo Completo</CardTitle>
+        </div>
+        <CardDescription>A experiência completa do ciclo como presente</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2 mb-6">
+          <li className="flex items-center gap-2 text-muted-foreground">
+            <Check className="w-4 h-4 text-primary" />
+            25 PROs ativados
+          </li>
+          <li className="flex items-center gap-2 text-muted-foreground">
+            <Check className="w-4 h-4 text-primary" />
+            2 Adubos (granulado + líquido)
+          </li>
+          <li className="flex items-center gap-2 text-muted-foreground">
+            <Check className="w-4 h-4 text-primary" />
+            Acesso ao painel de impacto
+          </li>
+        </ul>
+        <div className="mb-4">
+          <span className="text-3xl font-bold text-primary">R$ 60</span>
+        </div>
+        <CheckoutButton productKey="plano_muda" label="Presentear" className="w-full" onGetStarted={onGetStarted} />
+      </CardContent>
+    </Card>
+  </div>
+);
+
+const TodosPlans = ({ onGetStarted }: { onGetStarted: () => void }) => (
+  <div className="space-y-10">
+    <AvulsaPlans onGetStarted={onGetStarted} />
+    <AssinaturaPlans onGetStarted={onGetStarted} />
+    <CicloPlans onGetStarted={onGetStarted} />
+    <KitsPlans onGetStarted={onGetStarted} />
+  </div>
+);

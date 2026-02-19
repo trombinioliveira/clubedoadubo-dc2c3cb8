@@ -26,6 +26,7 @@ import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
 import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
 import NaturezaProPage from "./pages/NaturezaProPage";
 import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
+import CheckoutResultPage from "./pages/CheckoutResultPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -46,11 +47,7 @@ const App = () => (
           <Routes>
             {/* Auth pages - standalone */}
             <Route path="/auth" element={<Auth />} />
-            <Route path="/alterar-senha" element={
-              <ProtectedRoute>
-                <ChangePasswordPage />
-              </ProtectedRoute>
-            } />
+            <Route path="/alterar-senha" element={<ChangePasswordPage />} />
             
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
@@ -69,6 +66,9 @@ const App = () => (
               <Route path="/politica-de-riscos" element={<PoliticaRiscosPage />} />
               <Route path="/natureza-do-pro" element={<NaturezaProPage />} />
               <Route path="/painel-publico" element={<PublicTransparencyDashboard />} />
+              <Route path="/compra/sucesso" element={<CheckoutResultPage status="sucesso" />} />
+              <Route path="/compra/pendente" element={<CheckoutResultPage status="pendente" />} />
+              <Route path="/compra/erro" element={<CheckoutResultPage status="erro" />} />
             </Route>
             
             {/* Protected pages with AppLayout (logged-in header) */}
