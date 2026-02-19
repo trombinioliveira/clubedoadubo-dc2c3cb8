@@ -275,37 +275,61 @@ export type Database = {
           amount: number
           created_at: string
           created_by: string | null
+          currency: string
           description: string | null
           distributed_at: string | null
+          external_reference: string | null
           id: string
           is_distributed: boolean
+          product_key: string | null
           pros_paid: number | null
+          provider: string
+          provider_payment_id: string | null
           received_at: string
+          referral_code: string | null
+          status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           amount: number
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string | null
           distributed_at?: string | null
+          external_reference?: string | null
           id?: string
           is_distributed?: boolean
+          product_key?: string | null
           pros_paid?: number | null
+          provider?: string
+          provider_payment_id?: string | null
           received_at?: string
+          referral_code?: string | null
+          status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string | null
           distributed_at?: string | null
+          external_reference?: string | null
           id?: string
           is_distributed?: boolean
+          product_key?: string | null
           pros_paid?: number | null
+          provider?: string
+          provider_payment_id?: string | null
           received_at?: string
+          referral_code?: string | null
+          status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -995,30 +1019,42 @@ export type Database = {
       public_financial_entries: {
         Row: {
           amount: number | null
+          currency: string | null
           description: string | null
           distributed_at: string | null
           id: string | null
           is_distributed: boolean | null
+          product_key: string | null
           pros_paid: number | null
+          provider: string | null
           received_at: string | null
+          status: string | null
         }
         Insert: {
           amount?: number | null
+          currency?: string | null
           description?: string | null
           distributed_at?: string | null
           id?: string | null
           is_distributed?: boolean | null
+          product_key?: string | null
           pros_paid?: number | null
+          provider?: string | null
           received_at?: string | null
+          status?: string | null
         }
         Update: {
           amount?: number | null
+          currency?: string | null
           description?: string | null
           distributed_at?: string | null
           id?: string | null
           is_distributed?: boolean | null
+          product_key?: string | null
           pros_paid?: number | null
+          provider?: string | null
           received_at?: string | null
+          status?: string | null
         }
         Relationships: []
       }
