@@ -8,7 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Leaf, Mail, Lock, User, AlertCircle, Phone, Eye, EyeOff } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Mail, Lock, User, AlertCircle, Phone, Eye, EyeOff, CheckCircle2, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import logo from '@/assets/logo.webp';
@@ -21,6 +28,130 @@ const whatsappSchema = z.string().optional().refine(
   (val) => !val || /^\+?[1-9]\d{10,14}$/.test(val.replace(/\s/g, '')),
   'Número de WhatsApp inválido'
 );
+const resetEmailSchema = z.string().trim().email('Informe um email válido').max(255, 'Email muito longo');
+
+// ── ForgotPasswordModal ────────────────────────────────────────────────────
+interface ForgotPasswordModalProps {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}
+
+function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalProps) {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClose = (v: boolean) => {
+    if (!v) { setSent(false); setEmail(''); setError(null); }
+    onOpenChange(v);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const result = resetEmailSchema.safeParse(email);
+    if (!result.success) {
+      setError(result.error.errors[0].message);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/alterar-senha`,
+      });
+
+      if (resetError) {
+        // Don't reveal if email exists — show generic message
+        console.error('Reset error:', resetError.message);
+      }
+
+      // Always show success message (neutral — doesn't reveal email existence)
+      setSent(true);
+    } catch {
+      setError('Erro ao processar solicitação. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-primary" />
+            Redefinir senha
+          </DialogTitle>
+          <DialogDescription>
+            Informe seu email e enviaremos um link de redefinição.
+          </DialogDescription>
+        </DialogHeader>
+
+        {sent ? (
+          <div className="space-y-4 py-2">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-primary" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Se este email estiver cadastrado, você receberá um link de redefinição em breve.
+                Verifique também a caixa de spam.
+              </p>
+            </div>
+            <Button className="w-full" onClick={() => handleClose(false)}>
+              Fechar
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2 text-destructive text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => handleClose(false)}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" className="flex-1 earth-gradient" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Enviando…</>
+                ) : (
+                  'Enviar link'
+                )}
+              </Button>
+            </div>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -35,6 +166,7 @@ export default function Auth() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   useEffect(() => {
     if (user && !isLoading) {
@@ -264,7 +396,7 @@ export default function Auth() {
                     <button
                       type="button"
                       className="text-sm text-primary hover:underline"
-                      onClick={() => toast.info('Funcionalidade em desenvolvimento')}
+                      onClick={() => setShowForgotPassword(true)}
                     >
                       Esqueci minha senha
                     </button>
@@ -412,6 +544,12 @@ export default function Auth() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        open={showForgotPassword}
+        onOpenChange={setShowForgotPassword}
+      />
 
       {/* Footer */}
       <footer className="border-t border-border/40 bg-muted/30 py-6">
