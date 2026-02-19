@@ -7,7 +7,7 @@ import { ptBR } from 'date-fns/locale';
 import {
   RefreshCw, Leaf, Package, TrendingUp, DollarSign, MapPin, Clock,
   ArrowRight, Ban, Search, ChevronLeft, ChevronRight, Shield,
-  Recycle, BarChart3, ListOrdered, AlertCircle, Loader2, X
+  Recycle, BarChart3, ListOrdered, AlertCircle, Loader2, X, Receipt, Users2
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,7 +22,8 @@ import { HelpTooltip } from '@/components/shared/HelpTooltip';
 import {
   fetchPublicKPIs, fetchPublicFifo, fetchPublicSales,
   fetchPublicCollectionPoints, fetchSiteSettingsPublic, fetchMonthlyReport,
-  type PublicFifoEntry, type PublicSaleEntry, type PublicCollectionPoint
+  type PublicFifoEntry, type PublicSaleEntry, type PublicCollectionPoint,
+  type PublicDistributionEntry, fetchPublicDistributions,
 } from '@/lib/publicTransparency';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -171,6 +172,13 @@ export default function PublicTransparencyDashboard() {
     queryKey: ['public-monthly', refreshKey],
     queryFn: fetchMonthlyReport,
     staleTime: 120_000,
+  });
+
+  // ─ Distributions ─
+  const { data: distributions = [], isLoading: distributionsLoading } = useQuery({
+    queryKey: ['public-distributions', refreshKey],
+    queryFn: () => fetchPublicDistributions(8),
+    staleTime: 60_000,
   });
 
   const totalFifoPages = fifoData ? Math.ceil(Math.min(fifoData.count, limitTo200 ? 200 : 5000) / FIFO_PAGE_SIZE) : 1;
@@ -586,6 +594,58 @@ export default function PublicTransparencyDashboard() {
               </CardContent>
             </Card>
           ) : null}
+        </section>
+
+        {/* ── ÚLTIMAS DISTRIBUIÇÕES ── */}
+        <section>
+          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <Receipt className="w-5 h-5 text-primary" /> Últimas Distribuições Auditáveis
+            <HelpTooltip content="Cada distribuição é gerada automaticamente por uma venda real. Mostra quantos PROs foram pagos e o avanço real na fila." />
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Dados extraídos diretamente do banco do Clube do Adubo — sem PII, sem manipulação.
+          </p>
+
+          {distributionsLoading ? (
+            <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}</div>
+          ) : distributions.length === 0 ? (
+            <Card><CardContent className="py-10 text-center text-muted-foreground text-sm">
+              Nenhuma distribuição registrada ainda. As distribuições ocorrem automaticamente após cada venda confirmada.
+            </CardContent></Card>
+          ) : (
+            <div className="space-y-3">
+              {distributions.map((dist: PublicDistributionEntry) => (
+                <Card key={dist.id} className="hover:shadow-sm transition-shadow">
+                  <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Receipt className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{fmtBRL(Number(dist.gross_amount))}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {dist.sale_received_at ? fmtDate(dist.sale_received_at) : fmtDate(dist.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        <Users2 className="w-3.5 h-3.5" />
+                        {dist.pros_paid_count} PRO{dist.pros_paid_count !== 1 ? 's' : ''} pagos
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 text-xs font-medium">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        +{dist.fifo_positions_advanced} posições avançadas
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {fmtBRL(Number(dist.amount_to_fifo))} para fila • {fmtBRL(Number(dist.amount_to_operations))} para operações
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ── O QUE NÃO EXISTE AQUI ── */}
