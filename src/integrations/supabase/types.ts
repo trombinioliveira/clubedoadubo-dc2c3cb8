@@ -378,6 +378,55 @@ export type Database = {
         }
         Relationships: []
       }
+      pro_payouts: {
+        Row: {
+          amount_paid: number
+          id: string
+          paid_at: string
+          position_at_payment: number
+          pro_id: string
+          sale_distribution_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          id?: string
+          paid_at?: string
+          position_at_payment: number
+          pro_id: string
+          sale_distribution_id: string
+        }
+        Update: {
+          amount_paid?: number
+          id?: string
+          paid_at?: string
+          position_at_payment?: number
+          pro_id?: string
+          sale_distribution_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pro_payouts_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "pros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pro_payouts_sale_distribution_id_fkey"
+            columns: ["sale_distribution_id"]
+            isOneToOne: false
+            referencedRelation: "public_sale_distributions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pro_payouts_sale_distribution_id_fkey"
+            columns: ["sale_distribution_id"]
+            isOneToOne: false
+            referencedRelation: "sale_distributions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_status: string | null
@@ -643,6 +692,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      sale_distributions: {
+        Row: {
+          amount_to_fifo: number
+          amount_to_operations: number
+          created_at: string
+          fifo_positions_advanced: number
+          financial_entry_id: string
+          gross_amount: number
+          id: string
+          pros_paid_count: number
+        }
+        Insert: {
+          amount_to_fifo?: number
+          amount_to_operations?: number
+          created_at?: string
+          fifo_positions_advanced?: number
+          financial_entry_id: string
+          gross_amount?: number
+          id?: string
+          pros_paid_count?: number
+        }
+        Update: {
+          amount_to_fifo?: number
+          amount_to_operations?: number
+          created_at?: string
+          fifo_positions_advanced?: number
+          financial_entry_id?: string
+          gross_amount?: number
+          id?: string
+          pros_paid_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_distributions_financial_entry_id_fkey"
+            columns: ["financial_entry_id"]
+            isOneToOne: false
+            referencedRelation: "financial_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_distributions_financial_entry_id_fkey"
+            columns: ["financial_entry_id"]
+            isOneToOne: false
+            referencedRelation: "public_financial_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_points: {
         Row: {
@@ -949,6 +1046,36 @@ export type Database = {
         }
         Relationships: []
       }
+      public_sale_distributions: {
+        Row: {
+          amount_to_fifo: number | null
+          amount_to_operations: number | null
+          created_at: string | null
+          fifo_positions_advanced: number | null
+          financial_entry_id: string | null
+          gross_amount: number | null
+          id: string | null
+          pros_paid_count: number | null
+          sale_description: string | null
+          sale_received_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_distributions_financial_entry_id_fkey"
+            columns: ["financial_entry_id"]
+            isOneToOne: false
+            referencedRelation: "financial_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_distributions_financial_entry_id_fkey"
+            columns: ["financial_entry_id"]
+            isOneToOne: false
+            referencedRelation: "public_financial_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       count_active_referrals: { Args: { p_user_id: string }; Returns: number }
@@ -1023,6 +1150,10 @@ export type Database = {
           profile_id: string
           referral_code: string
         }[]
+      }
+      process_sale_distribution: {
+        Args: { p_financial_entry_id: string }
+        Returns: Json
       }
     }
     Enums: {

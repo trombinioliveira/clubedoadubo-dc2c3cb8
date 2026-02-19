@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe } from 'lucide-react';
+import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe, Receipt } from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
@@ -13,6 +13,7 @@ import { FinancialManagement } from '../components/FinancialManagement';
 import { OverviewDashboard } from '../components/OverviewDashboard';
 import { ReferralsManagement } from '../components/ReferralsManagement';
 import { SiteManagement } from '../components/SiteManagement';
+import { SaleDistributionsManagement } from '../components/SaleDistributionsManagement';
 
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
@@ -41,7 +42,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 gap-1">
+          <TabsList className="flex flex-wrap w-full gap-1">
             {/* (0) Visão Geral */}
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -81,6 +82,14 @@ export default function AdminDashboard() {
               <TabsTrigger value="financial" className="flex items-center gap-2">
                 <Wallet className="w-4 h-4" />
                 <span className="hidden sm:inline">Financeiro</span>
+              </TabsTrigger>
+            )}
+
+            {/* (5b) Distribuições por Venda - Admin only */}
+            {isAdmin && (
+              <TabsTrigger value="sale-distributions" className="flex items-center gap-2">
+                <Receipt className="w-4 h-4" />
+                <span className="hidden sm:inline">Distribuições</span>
               </TabsTrigger>
             )}
 
@@ -148,6 +157,13 @@ export default function AdminDashboard() {
           {isAdmin && (
             <TabsContent value="financial">
               <FinancialManagement />
+            </TabsContent>
+          )}
+
+          {/* (5b) Distribuições por Venda */}
+          {isAdmin && (
+            <TabsContent value="sale-distributions">
+              <SaleDistributionsManagement />
             </TabsContent>
           )}
 

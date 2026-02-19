@@ -290,18 +290,58 @@ Deno.serve(async (req) => {
       // User was created but profile update failed - log but don't fail
     }
 
+    // ─── Register financial entry and trigger FIFO distribution ───────────────
+    let financialEntryId: string | null = null;
+    try {
+      const saleAmount = transaction.amount ?? transaction.originalAmount ?? 0;
+      if (saleAmount > 0) {
+        const { data: feData, error: feError } = await supabase
+          .from('financial_entries')
+          .insert({
+            amount: saleAmount,
+            description: `Compra via Nexano — TX: ${transactionId}`,
+            received_at: transaction.payedAt ?? new Date().toISOString(),
+            is_distributed: false,
+          })
+          .select('id')
+          .single();
+
+        if (feError) {
+          console.error('Error creating financial entry:', feError.message);
+        } else if (feData?.id) {
+          financialEntryId = feData.id;
+          console.log('Financial entry created:', financialEntryId);
+
+          // ── Trigger FIFO distribution automatically ────────────────────────
+          const { data: distResult, error: distError } = await supabase
+            .rpc('process_sale_distribution', { p_financial_entry_id: financialEntryId });
+
+          if (distError) {
+            console.error('Error processing sale distribution:', distError.message);
+          } else {
+            console.log('Sale distribution processed:', distResult);
+          }
+        }
+      }
+    } catch (distErr) {
+      console.error('Distribution processing error:', distErr);
+      // Do NOT fail the webhook — user creation already succeeded
+    }
+
     console.log('User created successfully:', {
       user_id: authUser.user.id,
       email: sanitizedEmail,
       transaction_id: transactionId,
-      offer_code: payload.offerCode
+      offer_code: payload.offerCode,
+      financial_entry_id: financialEntryId,
     });
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: 'User created successfully',
-        user_id: authUser.user.id
+        user_id: authUser.user.id,
+        financial_entry_id: financialEntryId,
       }),
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -41,6 +41,18 @@ export interface PublicSaleEntry {
   distributed_at: string | null;
 }
 
+export interface PublicDistributionEntry {
+  id: string;
+  gross_amount: number;
+  amount_to_fifo: number;
+  amount_to_operations: number;
+  pros_paid_count: number;
+  fifo_positions_advanced: number;
+  created_at: string;
+  sale_received_at: string | null;
+  sale_description: string | null;
+}
+
 export interface PublicCollectionPoint {
   id: string;
   name: string;
@@ -171,4 +183,14 @@ export async function fetchMonthlyReport() {
   const kgProcessed = (prosRes.data || []).reduce((s, r) => s + (r.weight_grams || 0), 0) / 1000;
 
   return { salesAmount, prosPaid, kgCollected, kgProcessed, prosEmitted };
+}
+
+export async function fetchPublicDistributions(limit = 6): Promise<PublicDistributionEntry[]> {
+  const { data, error } = await (supabase as any)
+    .from('public_sale_distributions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []) as PublicDistributionEntry[];
 }

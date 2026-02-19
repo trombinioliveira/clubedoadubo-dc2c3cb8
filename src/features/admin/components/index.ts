@@ -13,3 +13,4 @@ export { CommissionLevelsEditor } from './CommissionLevelsEditor';
 export { ReferralLogs } from './ReferralLogs';
 export { ProUserAudit } from './ProUserAudit';
 export { SiteManagement } from './SiteManagement';
+export { SaleDistributionsManagement } from './SaleDistributionsManagement';
