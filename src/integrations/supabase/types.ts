@@ -235,6 +235,33 @@ export type Database = {
         }
         Relationships: []
       }
+      export_logs: {
+        Row: {
+          admin_user_id: string
+          dataset_type: string
+          exported_at: string
+          filters_applied: Json
+          id: string
+          rows_exported: number
+        }
+        Insert: {
+          admin_user_id: string
+          dataset_type: string
+          exported_at?: string
+          filters_applied?: Json
+          id?: string
+          rows_exported?: number
+        }
+        Update: {
+          admin_user_id?: string
+          dataset_type?: string
+          exported_at?: string
+          filters_applied?: Json
+          id?: string
+          rows_exported?: number
+        }
+        Relationships: []
+      }
       fifo_queue: {
         Row: {
           created_at: string

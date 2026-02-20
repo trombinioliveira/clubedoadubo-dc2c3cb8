@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { Search, Shield, Filter, MessageCircle, Mail, Eye, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ExportCSVButton } from '@/components/shared/ExportCSVButton';
+import { exportToCSV } from '@/lib/exportCSV';
 
 interface Profile {
   id: string;
@@ -193,7 +195,30 @@ export function UsersManagement() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Gerenciar Usuários</CardTitle>
-        <Badge variant="secondary">{filteredProfiles.length} usuários</Badge>
+        <div className="flex items-center gap-2">
+          <ExportCSVButton
+            hasSensitiveToggle
+            onExport={async (includeSensitive) => {
+              const data = filteredProfiles.map(p => {
+                const base: Record<string, unknown> = {
+                  id: p.id,
+                  codigo: p.referral_code || '',
+                  nome: p.full_name,
+                  status: p.account_status || 'active',
+                  data_cadastro: format(new Date(p.created_at), 'dd/MM/yyyy'),
+                  roles: (userRoles[p.user_id] || ['client']).join(', '),
+                };
+                if (includeSensitive) {
+                  base.email = p.email;
+                  base.whatsapp = p.whatsapp || '';
+                }
+                return base;
+              });
+              return exportToCSV(data, 'usuarios', 'users', { includeSensitive, statusFilter, count: data.length });
+            }}
+          />
+          <Badge variant="secondary">{filteredProfiles.length} usuários</Badge>
+        </div>
       </CardHeader>
       <CardContent>
         {/* Search and Filters */}

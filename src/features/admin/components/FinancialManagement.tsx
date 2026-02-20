@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { Plus, DollarSign, Wallet, Edit, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ExportCSVButton } from '@/components/shared/ExportCSVButton';
+import { exportToCSV } from '@/lib/exportCSV';
 
 const PRO_VALUE = 2.00; // R$ 2,00 por PRO
 
@@ -238,13 +240,27 @@ export function FinancialManagement() {
           <Wallet className="w-5 h-5" />
           Financeiro
         </CardTitle>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button className="earth-gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Registrar Entrada
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <ExportCSVButton
+            onExport={async () => {
+              const data = entries.map(e => ({
+                id: e.id,
+                valor: Number(e.amount).toFixed(2),
+                descricao: e.description || '',
+                status: e.is_distributed ? 'distribuido' : 'disponivel',
+                pros_pagos: e.pros_paid,
+                data: format(new Date(e.received_at), 'dd/MM/yyyy HH:mm'),
+              }));
+              return exportToCSV(data, 'financeiro', 'financial_entries');
+            }}
+          />
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <DialogTrigger asChild>
+              <Button className="earth-gradient">
+                <Plus className="w-4 h-4 mr-2" />
+                Registrar Entrada
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Registrar Entrada Financeira</DialogTitle>
@@ -283,6 +299,7 @@ export function FinancialManagement() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary Cards */}
