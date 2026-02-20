@@ -822,6 +822,30 @@ export type Database = {
         }
         Relationships: []
       }
+      reset_logs: {
+        Row: {
+          admin_user_id: string
+          details: Json
+          executed_at: string
+          id: string
+          mode: string
+        }
+        Insert: {
+          admin_user_id: string
+          details?: Json
+          executed_at?: string
+          id?: string
+          mode?: string
+        }
+        Update: {
+          admin_user_id?: string
+          details?: Json
+          executed_at?: string
+          id?: string
+          mode?: string
+        }
+        Relationships: []
+      }
       sale_distributions: {
         Row: {
           amount_to_fifo: number
