@@ -372,6 +372,84 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_events: {
+        Row: {
+          channel: string
+          created_at: string
+          error_message: string | null
+          id: string
+          idempotency_key: string
+          payload: Json
+          retry_count: number
+          sent_at: string | null
+          status: string
+          template: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          idempotency_key: string
+          payload?: Json
+          retry_count?: number
+          sent_at?: string | null
+          status?: string
+          template: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          idempotency_key?: string
+          payload?: Json
+          retry_count?: number
+          sent_at?: string | null
+          status?: string
+          template?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          email_enabled: boolean
+          notify_dream_milestones: boolean
+          notify_fifo_moved: boolean
+          notify_pro_credited: boolean
+          notify_pro_paid: boolean
+          notify_purchase: boolean
+          updated_at: string
+          user_id: string
+          whatsapp_enabled: boolean
+        }
+        Insert: {
+          email_enabled?: boolean
+          notify_dream_milestones?: boolean
+          notify_fifo_moved?: boolean
+          notify_pro_credited?: boolean
+          notify_pro_paid?: boolean
+          notify_purchase?: boolean
+          updated_at?: string
+          user_id: string
+          whatsapp_enabled?: boolean
+        }
+        Update: {
+          email_enabled?: boolean
+          notify_dream_milestones?: boolean
+          notify_fifo_moved?: boolean
+          notify_pro_credited?: boolean
+          notify_pro_paid?: boolean
+          notify_purchase?: boolean
+          updated_at?: string
+          user_id?: string
+          whatsapp_enabled?: boolean
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           code: string

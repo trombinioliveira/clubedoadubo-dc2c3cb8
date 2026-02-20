@@ -117,6 +117,22 @@ Deno.serve(async (req) => {
 
     console.log(`Generation complete. Total: ${totalGenerated} PROs`)
 
+    // Enqueue pro_credited notification
+    try {
+      await supabase.functions.invoke("enqueue-notification", {
+        body: {
+          user_id: userId,
+          template: "pro_credited",
+          payload: { quantity: totalGenerated, count: totalGenerated },
+          idempotency_key: `pro_credited:${firstPosition}:${lastPosition}:${userId}`,
+        },
+      });
+      // Trigger send immediately
+      await supabase.functions.invoke("send-notifications", { method: "POST" });
+    } catch (notifErr) {
+      console.warn("[generate-pros] Notification error:", notifErr);
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
