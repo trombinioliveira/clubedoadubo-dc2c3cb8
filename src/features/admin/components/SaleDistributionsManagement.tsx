@@ -11,6 +11,8 @@ import { Receipt, TrendingUp, Users, ArrowRight, ExternalLink, RefreshCw } from 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { ExportCSVButton } from '@/components/shared/ExportCSVButton';
+import { exportToCSV } from '@/lib/exportCSV';
 
 interface SaleDistribution {
   id: string;
@@ -137,9 +139,27 @@ export function SaleDistributionsManagement() {
             <Receipt className="w-5 h-5 text-primary" />
             Distribuições por Venda
           </CardTitle>
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
-            <RefreshCw className="w-4 h-4" /> Atualizar
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportCSVButton
+              onExport={async () => {
+                const data = distributions.map(d => ({
+                  id: d.id,
+                  financial_entry_id: d.financial_entry_id,
+                  valor_bruto: Number(d.gross_amount).toFixed(2),
+                  para_fifo: Number(d.amount_to_fifo).toFixed(2),
+                  para_operacoes: Number(d.amount_to_operations).toFixed(2),
+                  pros_pagos: d.pros_paid_count,
+                  avanco_fila: d.fifo_positions_advanced,
+                  data: d.sale_received_at ? fmtDate(d.sale_received_at) : fmtDate(d.created_at),
+                  descricao: d.sale_description || '',
+                }));
+                return exportToCSV(data, 'distribuicoes', 'sale_distributions');
+              }}
+            />
+            <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
+              <RefreshCw className="w-4 h-4" /> Atualizar
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

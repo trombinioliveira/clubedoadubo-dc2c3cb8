@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import { Plus, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ExportCSVButton } from '@/components/shared/ExportCSVButton';
+import { exportToCSV } from '@/lib/exportCSV';
 
 type BatchType = 'composting' | 'vermicomposting';
 type BatchStatus = 'processing' | 'ready' | 'partial_sold' | 'sold';
@@ -204,6 +206,21 @@ export function BatchesManagement() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Gerenciar Lotes</CardTitle>
+        <div className="flex items-center gap-2">
+          <ExportCSVButton
+            onExport={async () => {
+              const data = batches.map(b => ({
+                id: b.id,
+                codigo: b.code,
+                tipo: b.batch_type === 'composting' ? 'Compostagem' : 'Vermicompostagem',
+                status: b.status,
+                peso_kg: (b.total_weight_grams / 1000).toFixed(1),
+                data_inicio: format(new Date(b.start_date), 'dd/MM/yyyy'),
+                data_pronto: b.ready_date ? format(new Date(b.ready_date), 'dd/MM/yyyy') : '',
+              }));
+              return exportToCSV(data, 'lotes', 'batches');
+            }}
+          />
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button className="earth-gradient">
@@ -294,6 +311,7 @@ export function BatchesManagement() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (

@@ -15,6 +15,8 @@ import { toast } from 'sonner';
 import { Plus, Scale, Calendar, Clock, ChevronDown, ChevronRight, Package, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ExportCSVButton } from '@/components/shared/ExportCSVButton';
+import { exportToCSV } from '@/lib/exportCSV';
 
 interface CollectionPoint {
   id: string;
@@ -312,6 +314,20 @@ export function WeighingsManagement() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Registro de Pesagens</CardTitle>
+        <div className="flex items-center gap-2">
+          <ExportCSVButton
+            onExport={async () => {
+              const data = weighings.map(w => ({
+                id: w.id,
+                ponto_coleta: getPointName(w.collection_point_id),
+                peso_kg: (w.weight_grams / 1000).toFixed(2),
+                pros: w.pros?.length || Math.floor(w.weight_grams / 100),
+                data: format(new Date(w.weighed_at), 'dd/MM/yyyy HH:mm'),
+                notas: w.notes || '',
+              }));
+              return exportToCSV(data, 'pesagens', 'weighings');
+            }}
+          />
         <Dialog open={isAddOpen} onOpenChange={(open) => {
           setIsAddOpen(open);
           if (!open) {
@@ -402,6 +418,7 @@ export function WeighingsManagement() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
