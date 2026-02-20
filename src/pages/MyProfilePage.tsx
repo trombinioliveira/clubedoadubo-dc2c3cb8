@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from '@/hooks/use-toast';
 import { User, Mail, Phone, CreditCard, Calendar, Shield, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { NotificationPreferences } from '@/components/NotificationPreferences';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
@@ -491,6 +492,9 @@ export default function MyProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Notification Preferences */}
+      <NotificationPreferences />
       
       {/* OTP Dialog */}
       <Dialog open={otpDialogOpen} onOpenChange={setOtpDialogOpen}>

@@ -216,6 +216,77 @@ Deno.serve(async (req) => {
         console.log("[mp-webhook] Distribution result:", distResult);
       }
 
+      // ── Enqueue purchase_confirmed notification ───────────────────────
+      if (user_id) {
+        try {
+          await supabase.functions.invoke("enqueue-notification", {
+            body: {
+              user_id,
+              template: "purchase_confirmed",
+              payload: { amount, product_key, product_name: product_key },
+              idempotency_key: `purchase_confirmed:${paymentId}`,
+            },
+          });
+        } catch (notifErr) {
+          console.warn("[mp-webhook] Notification enqueue error:", notifErr);
+        }
+      }
+
+      // ── Enqueue pro_paid notifications for affected users ─────────────
+      if (distResult && typeof distResult === "object") {
+        const dr = distResult as Record<string, unknown>;
+        if (dr.success && dr.sale_distribution_id) {
+          try {
+            const { data: payouts } = await supabase
+              .from("pro_payouts")
+              .select("pro_id, pros!inner(user_id)")
+              .eq("sale_distribution_id", dr.sale_distribution_id as string);
+
+            if (payouts) {
+              const userIds = [...new Set(payouts.map((p: any) => p.pros?.user_id).filter(Boolean))];
+              for (const uid of userIds) {
+                await supabase.functions.invoke("enqueue-notification", {
+                  body: {
+                    user_id: uid,
+                    template: "pro_paid",
+                    payload: { pros_paid: dr.pros_paid, amount: dr.amount_used },
+                    idempotency_key: `pro_paid:${dr.sale_distribution_id}:${uid}`,
+                  },
+                });
+              }
+            }
+          } catch (notifErr) {
+            console.warn("[mp-webhook] Pro paid notification error:", notifErr);
+          }
+
+          // ── Enqueue fifo_moved for users with active PROs ─────────────
+          try {
+            const today = new Date().toISOString().slice(0, 10);
+            const { data: activeUsers } = await supabase
+              .from("fifo_queue")
+              .select("pros!inner(user_id)")
+              .in("status", ["pending", "processing", "ready", "sold"])
+              .limit(200);
+
+            if (activeUsers) {
+              const uniqueUsers = [...new Set(activeUsers.map((a: any) => a.pros?.user_id).filter(Boolean))];
+              for (const uid of uniqueUsers) {
+                await supabase.functions.invoke("enqueue-notification", {
+                  body: {
+                    user_id: uid,
+                    template: "fifo_moved",
+                    payload: {},
+                    idempotency_key: `fifo_moved:${today}:${uid}`,
+                  },
+                }).catch(() => {}); // anti-spam handled by enqueue
+              }
+            }
+          } catch (notifErr) {
+            console.warn("[mp-webhook] FIFO notification error:", notifErr);
+          }
+        }
+      }
+
       // ── Create / link user account if user_id provided ─────────────────
       if (user_id) {
         try {
@@ -227,6 +298,13 @@ Deno.serve(async (req) => {
         } catch (profileErr) {
           console.warn("[mp-webhook] Profile update error:", profileErr);
         }
+      }
+
+      // ── Process send queue immediately ─────────────────────────────────
+      try {
+        await supabase.functions.invoke("send-notifications", { method: "POST" });
+      } catch (sendErr) {
+        console.warn("[mp-webhook] Send notifications error:", sendErr);
       }
     }
 
