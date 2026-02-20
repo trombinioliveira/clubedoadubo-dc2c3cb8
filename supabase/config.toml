@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.send-notifications]
 verify_jwt = false
+
+[functions.reset-sandbox]
+verify_jwt = false
