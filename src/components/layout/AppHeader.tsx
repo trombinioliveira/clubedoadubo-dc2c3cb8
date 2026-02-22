@@ -174,133 +174,56 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
           )}
         </nav>
 
-        {/* Mobile menu button */}
-        <button 
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden p-2 -mr-2 hover:bg-muted rounded-lg transition-colors touch-manipulation"
-          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
-        >
-          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
-
-      {/* Mobile menu - full screen overlay */}
-      {menuOpen && (
-        <div className="md:hidden fixed inset-0 top-14 sm:top-16 z-50 bg-background/100 backdrop-blur-none animate-fade-in" style={{ backgroundColor: 'hsl(var(--background))' }}>
-          <div className="container mx-auto px-4 py-4 space-y-1 max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] overflow-y-auto">
-            <Link 
-              to="/ciclo"
-              onClick={() => setMenuOpen(false)}
-              className={cn(
-                "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                isActive('/ciclo') && "text-primary font-medium bg-primary/5"
-              )}
-            >
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">1</span>
-              Passo a passo
-            </Link>
-            
-            {user ? (
-              <>
-                {isAdmin ? (
-                  <Link 
-                    to="/admin"
-                    onClick={() => setMenuOpen(false)}
-                    className={cn(
-                      "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                      isActive('/admin') && "text-primary font-medium bg-primary/5"
-                    )}
-                  >
-                    <Settings className="w-5 h-5" />
-                    Painel Admin
-                  </Link>
-                ) : (
-                  <>
-                    <Link 
-                      to="/dreams"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/dreams') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">2</span>
-                      Meus Sonhos
-                    </Link>
-                    <Link 
-                      to="/indicacoes"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/indicacoes') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">3</span>
-                      Minhas Indicações
-                    </Link>
-                    <Link 
-                      to="/fifo"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/fifo') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">4</span>
-                      Fila FIFO
-                    </Link>
-                    <Link 
-                      to="/dashboard"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base font-medium",
-                        isActive('/dashboard') && "text-primary bg-primary/5"
-                      )}
-                    >
-                      <Sparkles className="w-5 h-5" />
-                      Meus PROs
-                    </Link>
-                    <Link 
-                      to="/perfil"
-                      onClick={() => setMenuOpen(false)}
-                      className={cn(
-                        "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                        isActive('/perfil') && "text-primary font-medium bg-primary/5"
-                      )}
-                    >
-                      <User className="w-5 h-5" />
-                      Meu Perfil
-                      {!profile?.profile_completed_at && (
-                        <span className="ml-auto text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">Completar</span>
-                      )}
-                    </Link>
-                  </>
-                )}
-                <div className="pt-4 border-t border-border mt-4">
-                  <button 
-                    onClick={() => { handleSignOut(); setMenuOpen(false); }}
-                    className="block w-full text-left p-4 rounded-xl hover:bg-destructive/10 transition-colors text-destructive flex items-center gap-3 text-base"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    Sair
-                  </button>
-                </div>
-              </>
-            ) : (
-              <Link 
-                to="/auth"
-                onClick={() => setMenuOpen(false)}
-                className="block w-full mt-4"
-              >
-                <Button className="w-full earth-gradient h-12 text-base">
-                  <User className="w-5 h-5 mr-2" />
-                  Entrar / Cadastrar
+        {/* Mobile: avatar/login only */}
+        <div className="md:hidden flex items-center gap-2">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                      {profile ? getInitials(profile.full_name) : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
-              </Link>
-            )}
-          </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-popover z-[60]">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium">{profile?.full_name || 'Usuário'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                {!isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate('/perfil')}>
+                    <User className="w-4 h-4 mr-2" />
+                    Meu Perfil
+                    {!profile?.profile_completed_at && (
+                      <span className="ml-auto text-xs text-destructive">!</span>
+                    )}
+                  </DropdownMenuItem>
+                )}
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Painel Admin
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/auth">
+              <Button className="earth-gradient" size="sm">
+                Entrar
+              </Button>
+            </Link>
+          )}
         </div>
-      )}
+      </div>
     </header>
   );
 }
