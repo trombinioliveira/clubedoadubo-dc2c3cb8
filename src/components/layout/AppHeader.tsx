@@ -181,7 +181,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
 
       {/* Mobile menu - full screen overlay */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 top-14 sm:top-16 z-50 bg-background animate-fade-in">
+        <div className="md:hidden fixed inset-0 top-14 sm:top-16 z-50 bg-background/100 backdrop-blur-none animate-fade-in" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <div className="container mx-auto px-4 py-4 space-y-1 max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] overflow-y-auto">
             <Link 
               to="/ciclo"
