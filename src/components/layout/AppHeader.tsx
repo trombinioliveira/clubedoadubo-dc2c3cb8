@@ -64,7 +64,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 )}
               >
                 <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">1</span>
-                <span className="hidden xs:inline">Passo a passo</span>
+                <span>Passo a passo</span>
               </Link>
               
               <Link 
@@ -75,7 +75,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 )}
               >
                 <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">2</span>
-                <span className="hidden xs:inline">Sonhos</span>
+                <span>Sonhos</span>
               </Link>
 
               <Link 
@@ -86,7 +86,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 )}
               >
                 <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">3</span>
-                <span className="hidden xs:inline">Indicações</span>
+                <span>Indicações</span>
               </Link>
               
               <Link 
@@ -97,7 +97,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 )}
               >
                 <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">4</span>
-                <span className="hidden xs:inline">FIFO</span>
+                <span>FIFO</span>
               </Link>
 
               <Link 
@@ -108,7 +108,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 )}
               >
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                <span className="hidden xs:inline">PROs</span>
+                <span>PROs</span>
               </Link>
             </>
           )}
