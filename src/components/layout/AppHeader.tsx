@@ -57,10 +57,10 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
           {user && !isAdmin && (
             <>
               <Link 
-                to="/dashboard"
+                to="/ciclo"
                 className={cn(
                   "text-sm font-medium transition-colors flex items-center gap-1",
-                  isActive('/dashboard') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  isActive('/ciclo') ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">1</span>
@@ -184,11 +184,11 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
         <div className="md:hidden fixed inset-0 top-14 sm:top-16 z-50 bg-background animate-fade-in">
           <div className="container mx-auto px-4 py-4 space-y-1 max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] overflow-y-auto">
             <Link 
-              to="/dashboard"
+              to="/ciclo"
               onClick={() => setMenuOpen(false)}
               className={cn(
                 "block w-full text-left p-4 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 text-base",
-                isActive('/dashboard') && "text-primary font-medium bg-primary/5"
+                isActive('/ciclo') && "text-primary font-medium bg-primary/5"
               )}
             >
               <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">1</span>
