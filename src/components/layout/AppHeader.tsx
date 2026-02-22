@@ -41,7 +41,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
+    <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
         {/* Logo */}
         <Link 
