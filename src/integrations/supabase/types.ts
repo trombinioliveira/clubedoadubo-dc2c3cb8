@@ -572,6 +572,7 @@ export type Database = {
           fertilizer_credits: number | null
           full_name: string
           gender: string | null
+          has_viewed_fifo: boolean
           id: string
           internal_balance: number | null
           is_blocked: boolean
@@ -604,6 +605,7 @@ export type Database = {
           fertilizer_credits?: number | null
           full_name: string
           gender?: string | null
+          has_viewed_fifo?: boolean
           id?: string
           internal_balance?: number | null
           is_blocked?: boolean
@@ -636,6 +638,7 @@ export type Database = {
           fertilizer_credits?: number | null
           full_name?: string
           gender?: string | null
+          has_viewed_fifo?: boolean
           id?: string
           internal_balance?: number | null
           is_blocked?: boolean

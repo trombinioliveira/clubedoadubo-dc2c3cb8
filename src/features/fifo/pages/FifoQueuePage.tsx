@@ -60,7 +60,17 @@ export default function FifoQueuePage() {
 
   useEffect(() => {
     fetchQueue();
+    markFifoViewed();
   }, [user]);
+
+  const markFifoViewed = async () => {
+    if (!user) return;
+    await supabase
+      .from('profiles')
+      .update({ has_viewed_fifo: true })
+      .eq('user_id', user.id)
+      .eq('has_viewed_fifo', false);
+  };
 
   const fetchQueue = async () => {
     setIsLoading(true);

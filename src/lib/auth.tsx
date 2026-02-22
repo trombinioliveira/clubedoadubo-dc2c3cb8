@@ -32,6 +32,7 @@ interface Profile {
   last_login_at: string | null;
   whatsapp_connected: boolean | null;
   account_status: string | null;
+  has_viewed_fifo: boolean;
 }
 
 interface AuthContextType {

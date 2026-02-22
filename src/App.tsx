@@ -27,6 +27,7 @@ import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
 import NaturezaProPage from "./pages/NaturezaProPage";
 import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
 import CheckoutResultPage from "./pages/CheckoutResultPage";
+import CicloPage from "./pages/CicloPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -87,6 +88,16 @@ const App = () => (
                   <PasswordChangeGuard>
                     <ProfileDeadlineGuard>
                       <DashboardPage />
+                    </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/ciclo" element={
+                <ProtectedRoute clientOnly>
+                  <PasswordChangeGuard>
+                    <ProfileDeadlineGuard>
+                      <CicloPage />
                     </ProfileDeadlineGuard>
                   </PasswordChangeGuard>
                 </ProtectedRoute>
