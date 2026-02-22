@@ -53,57 +53,62 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-4 lg:gap-6">
+        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
           {user && !isAdmin && (
             <>
               <Link 
                 to="/ciclo"
                 className={cn(
-                  "text-sm font-medium transition-colors flex items-center gap-1",
-                  isActive('/ciclo') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "text-sm font-medium transition-colors flex items-center gap-2 px-3 py-2 rounded-xl",
+                  isActive('/ciclo') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">1</span>
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">1</span>
                 Passo a passo
               </Link>
               
               <Link 
                 to="/dreams"
                 className={cn(
-                  "text-sm font-medium transition-colors flex items-center gap-1",
-                  isActive('/dreams') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "text-sm font-medium transition-colors flex items-center gap-2 px-3 py-2 rounded-xl",
+                  isActive('/dreams') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">2</span>
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">2</span>
                 Meus Sonhos
               </Link>
 
               <Link 
                 to="/indicacoes"
                 className={cn(
-                  "text-sm font-medium transition-colors flex items-center gap-1",
-                  isActive('/indicacoes') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "text-sm font-medium transition-colors flex items-center gap-2 px-3 py-2 rounded-xl",
+                  isActive('/indicacoes') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">3</span>
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">3</span>
                 Minhas Indicações
               </Link>
               
               <Link 
                 to="/fifo"
                 className={cn(
-                  "text-sm font-medium transition-colors flex items-center gap-1",
-                  isActive('/fifo') ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "text-sm font-medium transition-colors flex items-center gap-2 px-3 py-2 rounded-xl",
+                  isActive('/fifo') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">4</span>
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold">4</span>
                 Fila FIFO
               </Link>
 
-              <Link to="/dashboard">
-                <Button variant={isActive('/dashboard') ? 'default' : 'outline'} size="sm">
-                  Meus PROs
-                </Button>
+              <Link 
+                to="/dashboard"
+                className={cn(
+                  "text-sm font-medium transition-colors flex items-center gap-2 px-3 py-2 rounded-xl",
+                  isActive('/dashboard') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <Sparkles className="w-5 h-5" />
+                Meus PROs
               </Link>
             </>
           )}
