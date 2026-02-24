@@ -1,40 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { CycleVisual } from './CycleVisual';
-import { CircularEconomySection } from './landing/CircularEconomySection';
-import { Card, CardContent } from '@/components/ui/card';
-import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from './icons/CycleIcons';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { 
-  ArrowRight, 
-  Recycle, 
-  Users, 
-  ListOrdered, 
-  Waves, 
-  Trash2, 
-  Wind, 
-  Sprout, 
-  DollarSign,
-  Eye,
-  Target,
-  BookOpen,
-  CircleDot,
-  MessageCircle,
-  CheckCircle2,
-  Globe,
-  Heart,
-  ShoppingBag,
-  HelpCircle,
-  Mail,
-  Megaphone,
-  RotateCcw,
-  Compass,
-  FlaskConical,
-  Gift,
-  TrendingUp,
-  Building2,
-  ChartLine
-} from 'lucide-react';
+import { CheckCircle2, Sprout, Recycle, DollarSign, BarChart3, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface LandingPageProps {
@@ -42,346 +8,152 @@ interface LandingPageProps {
 }
 
 export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
-  const scrollToCycle = () => {
-    const cycleSection = document.getElementById('como-funciona');
-    cycleSection?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <>
-      {/* 1️⃣ HERO SECTION - Mobile optimized */}
-      <section className="relative overflow-hidden py-12 sm:py-16 md:py-24 lg:py-32">
+      {/* SEÇÃO 1 — HERO */}
+      <section className="relative overflow-hidden py-16 sm:py-20 md:py-28 lg:py-36">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-10 left-4 sm:top-20 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-10 right-4 sm:bottom-20 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-accent/10 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute top-10 left-4 sm:top-20 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-4 sm:bottom-20 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-accent/10 rounded-full blur-3xl" />
         </div>
-        
+
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full text-primary text-xs sm:text-sm font-medium mb-6 sm:mb-8">
-              <Recycle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              Economia Circular Urbana
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight px-2">
-              Participe de um ciclo que transforma resíduo em{' '}
-              <span className="text-primary">adubo, ajuda o meio ambiente e gera valor</span>
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight">
+              🌱 Transforme restos de comida em adubo — e receba por isso.
             </h1>
-            
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
-              O Clube do Adubo conecta pessoas a um ciclo urbano simples e transparente.
-              Resíduo vira adubo, o impacto é real — e quando o ciclo se fecha, o valor é distribuído com regras claras.
+
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-primary mb-8">
+              Simples assim.
             </p>
-            
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-4 sm:px-0">
-              <Button onClick={onGetStarted} variant="hero" size="lg" className="w-full sm:w-auto text-base">
+
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 mb-8 sm:mb-10 text-left max-w-xl mx-auto shadow-sm">
+              <p className="text-base sm:text-lg font-medium text-foreground mb-4">
+                Você participa de um sistema que:
+              </p>
+              <ul className="space-y-3 text-sm sm:text-base text-muted-foreground">
+                <li className="flex items-start gap-3">
+                  <Recycle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span>Processa resíduo orgânico real</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Sprout className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span>Vira adubo de verdade</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <DollarSign className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span>E distribui o valor gerado de forma transparente</span>
+                </li>
+              </ul>
+            </div>
+
+            <p className="text-base sm:text-lg text-muted-foreground mb-6">
+              👉 Clique, participe e acompanhe tudo.
+            </p>
+
+            <Link to="/comprar">
+              <Button variant="hero" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-6">
                 <Sprout className="w-5 h-5" />
-                Quero participar
+                Quero Participar do Ciclo
               </Button>
-              <Button variant="outline" size="lg" onClick={scrollToCycle} className="w-full sm:w-auto text-base">
-                <BookOpen className="w-5 h-5" />
-                Entender como funciona
-              </Button>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 2️⃣ O PROBLEMA - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-24 bg-destructive/5">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                🚯 O problema do resíduo orgânico urbano
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                Todos os dias, toneladas de restos de comida são descartadas nas cidades.
-                Em vez de voltar para o solo, esse material vai para aterros, onde vira poluição, desperdício e custo.
-                Isso afeta o meio ambiente, a cidade e o bolso de todo mundo.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {[
-                { icon: Trash2, title: 'Aterros lotados', description: 'Grande parte do lixo urbano é orgânico e poderia ser reaproveitada', color: 'text-destructive' },
-                { icon: Wind, title: 'Emissão de gases poluentes', description: 'Resíduo orgânico mal descartado gera gases que agravam a crise climática', color: 'text-muted-foreground' },
-                { icon: Sprout, title: 'Nutrientes desperdiçados', description: 'O que poderia virar adubo e regenerar o solo é tratado como lixo', color: 'text-primary' },
-                { icon: DollarSign, title: 'Custo ambiental e financeiro', description: 'A cidade paga para enterrar valor — e a conta volta em impostos e impacto', color: 'text-secondary' },
-              ].map((item, index) => (
-                <Card key={index} className="bg-background/50 border-destructive/20">
-                  <CardContent className="p-3 sm:p-5 text-center">
-                    <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 ${item.color}`} />
-                    <p className="font-medium text-foreground text-xs sm:text-sm md:text-base">{item.title}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <p className="text-center mt-6 sm:mt-8 text-sm sm:text-base lg:text-lg font-semibold text-foreground px-2">
-              ⏰ Isso não é um problema do futuro. <span className="text-destructive">É um problema de agora, urbano e diário.</span> E só muda quando o ciclo é repensado.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 3️⃣ A SOLUÇÃO - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                <Sprout className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                🌱 A Solução
-              </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                Economia circular real
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                O resíduo vira adubo de verdade, dentro da cidade, fechando o ciclo sem atalhos.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {[
-                { icon: Recycle, title: 'Ciclo fechado e contínuo', description: 'O resíduo entra, é transformado, o adubo é vendido e quem participou recebe o valor gerado' },
-                { icon: Globe, title: 'Impacto mensurável', description: 'Nada é estimativa — dados reais e rastreáveis' },
-                { icon: Eye, title: 'Rastreabilidade total', description: 'Do resíduo ao adubo e ao retorno que cai na sua conta' },
-                { icon: Users, title: 'Participação coletiva', description: 'Pessoas, feiras e parceiros no mesmo sistema' },
-              ].map((item, index) => (
-                <Card key={index} className="hover:shadow-elevated transition-all duration-300 group">
-                  <CardContent className="p-4 sm:p-6 text-center">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <item.icon className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
-                    </div>
-                    <h3 className="font-bold text-foreground mb-1 text-xs sm:text-sm md:text-base">{item.title}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{item.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3.5️⃣ ECONOMIA CIRCULAR - Regras do Sistema */}
-      <CircularEconomySection />
-
-      {/* 4️⃣ O CICLO COMPLETO - Mobile optimized */}
-      <section id="ciclo-visual" className="py-12 sm:py-16 md:py-24 bg-card scroll-mt-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-              🔄 O ciclo do Clube do Adubo
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto px-2">
-              Acompanhe cada etapa do ciclo — do resíduo ao valor, com transparência total.<br className="hidden sm:inline" />
-              Nada acontece escondido. O ciclo é claro, contínuo e pode ser acompanhado passo a passo.
-            </p>
-          </div>
-          
-          <CycleVisual />
-          
-          <p className="text-center text-primary mt-6 sm:mt-8 text-sm sm:text-base lg:text-lg font-semibold px-2">
-            🔁 O ciclo se repete. Um sistema contínuo, urbano e sustentável — onde impacto ambiental e retorno caminham juntos.
-          </p>
-        </div>
-      </section>
-
-      {/* 5️⃣ COMO FUNCIONA - PASSO A PASSO - Mobile optimized */}
-      <section id="como-funciona" className="py-12 sm:py-16 md:py-24 scroll-mt-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-              ✅ Simples, transparente e rastreável
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground px-2">
-              Entenda cada etapa do ciclo
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-5xl mx-auto">
-            {[
-              {
-                step: '1',
-                title: 'Ative PROs',
-                description: 'Cada PRO representa 100 g de resíduo orgânico real, que será processado.',
-                icon: LeafIcon,
-              },
-              {
-                step: '2',
-                title: 'O resíduo vira adubo',
-                description: 'Processamento biológico por compostagem urbana controlada.',
-                icon: CompostIcon,
-              },
-              {
-                step: '3',
-                title: 'Venda do adubo',
-                description: 'Produto real, com demanda real.',
-                icon: FertilizerIcon,
-              },
-              {
-                step: '4',
-                title: 'O valor é distribuído',
-                description: 'De forma justa, seguindo regras claras e públicas.',
-                icon: MoneyIcon,
-              },
-            ].map((item, index) => (
-              <Card key={index} className="group hover:shadow-elevated transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 earth-gradient" />
-                <CardContent className="p-3 sm:p-4 md:p-6 text-center pt-5 sm:pt-6 md:pt-8">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-3 md:mb-4 rounded-xl sm:rounded-2xl earth-gradient flex items-center justify-center group-hover:shadow-glow transition-all duration-300">
-                    <item.icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary-foreground" />
-                  </div>
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 mx-auto mb-2 sm:mb-3 rounded-full bg-muted flex items-center justify-center text-xs sm:text-sm font-bold text-muted-foreground">
-                    {item.step}
-                  </div>
-                  <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-xs sm:text-sm md:text-base">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground hidden sm:block">{item.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-6 sm:mt-8 md:mt-10 max-w-2xl mx-auto px-2">
-            <Card className="border-primary/30 bg-primary/5">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-start gap-3">
-                  <CircleDot className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-foreground text-sm sm:text-base mb-1">Nota importante:</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      Nada acontece sem resíduo orgânico real.<br />
-                      O ciclo só existe quando há processamento de resíduo de verdade.<br />
-                      Nada é acelerado artificialmente.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* 6️⃣ FILA FIFO x ONDAS DE IMPACTO - Mobile optimized */}
+      {/* SEÇÃO 2 — COMO FUNCIONA */}
       <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                🧭 Uma fila de pagamento. Muitas ondas de impacto.
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground px-2">
-                Duas coisas acontecem ao mesmo tempo, mas não se misturam.
-              </p>
-            </div>
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground text-center mb-8 sm:mb-12">
+              Como funciona?
+            </h2>
 
-            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-              <Card className="border-2 border-primary/40 hover:shadow-elevated transition-shadow bg-card">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl earth-gradient flex items-center justify-center shadow-glow flex-shrink-0">
-                      <ListOrdered className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground text-base sm:text-lg">💰 Fila FIFO (Pagamento)</h3>
-                      <p className="text-sm text-muted-foreground">(é aqui que você recebe)</p>
-                    </div>
-                  </div>
-                  <p className="text-sm sm:text-base text-muted-foreground mb-3">
-                    Ordem justa, fila única e global, totalmente transparente. Nada muda a ordem da fila.
+            <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-10">
+              {[
+                { num: '1', text: 'Você ativa uma unidade de processamento (PRO).' },
+                { num: '2', text: 'O resíduo vira adubo real.' },
+                { num: '3', text: 'Quando o adubo é vendido, o valor é distribuído para quem está na vez.' },
+              ].map((item) => (
+                <div key={item.num} className="flex items-start gap-4 sm:gap-5">
+                  <span className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full earth-gradient text-primary-foreground text-lg sm:text-xl font-bold flex-shrink-0">
+                    {item.num}
+                  </span>
+                  <p className="text-base sm:text-lg md:text-xl text-foreground font-medium pt-1.5 sm:pt-2">
+                    {item.text}
                   </p>
-                  <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Ordem justa</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Fila única e global</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Totalmente transparente</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>Nada muda a ordem</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-accent/40 hover:shadow-elevated transition-shadow bg-card">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl gold-gradient flex items-center justify-center flex-shrink-0">
-                      <Waves className="w-6 h-6 sm:w-7 sm:h-7 text-accent-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground text-base sm:text-lg">🌊 Ondas de Impacto (Engajamento)</h3>
-                      <p className="text-sm text-muted-foreground">Geram mais impacto ambiental. Nunca alteram a fila de pagamento.</p>
-                    </div>
-                  </div>
-                  <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
-                    <li className="flex items-center gap-2">
-                      <Sprout className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span>Indicações</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Sprout className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span>Engajamento</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Sprout className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span>Alcance ambiental</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Sprout className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span>Nunca alteram a fila</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
+                </div>
+              ))}
             </div>
 
-            <p className="text-center mt-4 sm:mt-6 text-sm sm:text-base text-muted-foreground px-2">
-              Suas ondas de impacto fazem o ciclo acontecer mais vezes. Isso não muda a ordem da fila, mas faz a fila andar mais rápido.
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 sm:p-6 text-center space-y-1">
+              <p className="text-sm sm:text-base text-foreground font-semibold">Sem promessas mágicas.</p>
+              <p className="text-sm sm:text-base text-foreground font-semibold">Sem atalhos.</p>
+              <p className="text-sm sm:text-base text-foreground font-semibold">Tudo rastreável.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 3 — O QUE É UM PRO */}
+      <section className="py-12 sm:py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-6 sm:mb-8">
+              O que é um PRO?
+            </h2>
+
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
+              PRO é apenas uma unidade de <span className="font-semibold text-foreground">100g de resíduo orgânico real</span>.
             </p>
-            <p className="text-center mt-4 sm:mt-6 text-lg sm:text-xl font-bold text-foreground px-2">
-              Fila é dinheiro. <span className="text-accent">Ondas são impacto.</span>
+
+            <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 mb-8 max-w-md mx-auto shadow-sm">
+              <p className="text-sm sm:text-base font-medium text-foreground mb-4">Cada PRO representa:</p>
+              <ul className="space-y-3 text-sm sm:text-base text-muted-foreground text-left">
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span>Resíduo processado</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span>Adubo produzido</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span>Participação no ciclo</span>
+                </li>
+              </ul>
+            </div>
+
+            <p className="text-base sm:text-lg font-semibold text-primary">
+              Simples. Nada mais que isso.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 7️⃣ POR QUE PARTICIPAR - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-24 bg-primary text-primary-foreground">
+      {/* SEÇÃO 4 — O QUE VOCÊ GANHA */}
+      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4 px-2">
-              🌱 Por que fazer parte do Clube do Adubo?
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-8 sm:mb-10">
+              O que você ganha?
             </h2>
-            <p className="text-center text-primary-foreground/80 mb-8 sm:mb-12 max-w-xl mx-auto text-sm sm:text-base px-2">
-              Aqui você não apenas consome. Você participa do ciclo.
-            </p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
+            <div className="space-y-5 sm:space-y-6 max-w-md mx-auto">
               {[
-                { icon: Globe, title: 'Impacto ambiental real', description: 'Seu resíduo vira adubo de verdade' },
-                { icon: Recycle, title: 'Economia circular urbana', description: 'Ciclo local e contínuo' },
-                { icon: Eye, title: 'Transparência total', description: 'Acompanhe cada etapa' },
-                { icon: Target, title: 'Sonhos conectados ao ciclo', description: 'Quando o ciclo acontece mais vezes, o caminho até seus sonhos fica mais curto' },
-                { icon: Users, title: 'Participação coletiva', description: 'Comunidade engajada' },
-                { icon: Heart, title: 'Ciclo contínuo', description: 'O valor retorna e se repete' },
-              ].map((item, index) => (
-                <div key={index} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-primary-foreground/10 rounded-xl hover:bg-primary-foreground/15 transition-colors">
-                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-bold mb-0.5 sm:mb-1 text-sm sm:text-base">{item.title}</h3>
-                    <p className="text-xs sm:text-sm opacity-90">{item.description}</p>
+                { icon: Sprout, text: 'Participa de impacto ambiental real' },
+                { icon: DollarSign, text: 'Recebe quando chega sua vez na fila' },
+                { icon: BarChart3, text: 'Pode acompanhar tudo publicamente' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 bg-card border border-border rounded-xl p-4 sm:p-5 shadow-sm">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
+                  <p className="text-sm sm:text-base md:text-lg text-foreground font-medium text-left">
+                    {item.text}
+                  </p>
                 </div>
               ))}
             </div>
@@ -389,283 +161,74 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* 8️⃣ CONFIANÇA E AÇÃO - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-20 bg-muted/20">
+      {/* SEÇÃO 5 — FILA */}
+      <section className="py-12 sm:py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8 sm:mb-10">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                ✅ Escolha como participar — com clareza total
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground px-2">
-                Tudo funciona dentro do ciclo.<br />
-                Sem atalhos. Sem promessas vazias.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <Link to="/planos" className="group">
-                <Card className="h-full border-2 border-primary/30 hover:border-primary hover:shadow-elevated transition-all duration-300 bg-card">
-                  <CardContent className="p-4 sm:p-6 text-center">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl earth-gradient flex items-center justify-center group-hover:shadow-glow transition-all">
-                      <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
-                    </div>
-                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Planos</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Ative PROs, adubos e assinaturas para entrar no ciclo
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/transparencia" className="group">
-                <Card className="h-full border-2 border-blue-500/30 hover:border-blue-500 hover:shadow-elevated transition-all duration-300 bg-card">
-                  <CardContent className="p-4 sm:p-6 text-center">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-blue-500 flex items-center justify-center group-hover:shadow-lg transition-all">
-                      <Eye className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                    </div>
-                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Transparência</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Acompanhe dados reais do resíduo, do ciclo e da fila FIFO
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/faq" className="group">
-                <Card className="h-full border-2 border-accent/30 hover:border-accent hover:shadow-elevated transition-all duration-300 bg-card">
-                  <CardContent className="p-4 sm:p-6 text-center">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl gold-gradient flex items-center justify-center group-hover:shadow-lg transition-all">
-                      <HelpCircle className="w-6 h-6 sm:w-7 sm:h-7 text-accent-foreground" />
-                    </div>
-                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">FAQ</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Entenda PROs, regras do sistema e o funcionamento do ciclo
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/contato" className="group">
-                <Card className="h-full border-2 border-purple-500/30 hover:border-purple-500 hover:shadow-elevated transition-all duration-300 bg-card">
-                  <CardContent className="p-4 sm:p-6 text-center">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl bg-purple-500 flex items-center justify-center group-hover:shadow-lg transition-all">
-                      <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                    </div>
-                    <h3 className="font-bold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Contato</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Fale com o Clube do Adubo. Pessoas reais.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9️⃣ CTA FINAL - Mobile optimized */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-gradient-to-b from-muted/30 to-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-              Pronto para participar do ciclo?
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-6 sm:mb-8">
+              Como funciona o pagamento?
             </h2>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-2 sm:mb-4 px-2">
-              Sustentabilidade não precisa ser complicada.
+
+            <div className="space-y-4 text-base sm:text-lg md:text-xl text-muted-foreground mb-8">
+              <p>Existe uma <span className="font-semibold text-foreground">fila única</span>.</p>
+              <p>Quem entra primeiro, <span className="font-semibold text-foreground">recebe primeiro</span>.</p>
+              <p><span className="font-semibold text-foreground">Nada muda</span> essa ordem.</p>
+              <p>Quanto mais adubo for vendido, mais rápido a fila anda.</p>
+            </div>
+
+            <p className="text-lg sm:text-xl font-semibold text-primary">
+              Simples assim.
             </p>
-            <p className="text-sm sm:text-base lg:text-lg text-foreground font-semibold mb-8 sm:mb-10 px-2">
-              Ela só precisa funcionar — e funcionar de verdade.
-            </p>
-            
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-4 sm:px-0">
-              <Button onClick={onGetStarted} variant="hero" size="lg" className="w-full sm:w-auto">
-                <Sprout className="w-5 h-5" />
-                Criar minha conta
-              </Button>
-              <Button variant="outline" size="lg" onClick={scrollToCycle} className="w-full sm:w-auto">
-                <BookOpen className="w-5 h-5" />
-                Entender melhor
-              </Button>
-              <Link to="/contato" className="w-full sm:w-auto">
-                <Button variant="ghost" size="lg" className="w-full">
-                  <MessageCircle className="w-5 h-5" />
-                  Falar com o Clube
-                </Button>
-              </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 6 — SEGURANÇA */}
+      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-8 sm:mb-10">
+              É seguro?
+            </h2>
+
+            <div className="space-y-4 max-w-md mx-auto">
+              {[
+                'Só existe valor se existir resíduo real',
+                'Só há pagamento se houver venda real de adubo',
+                'Dados públicos e rastreáveis',
+                'Regras claras',
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-left">
+                  <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
+                  <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">{text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 🔟 JORNADA DO HERÓI - Educação Interativa */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-b from-background to-muted/20">
+      {/* SEÇÃO 7 — CHAMADA FINAL */}
+      <section className="py-16 sm:py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8 sm:mb-12">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-accent/10 rounded-full text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                Educação
-              </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
-                📘 Quer ir mais fundo?<br />
-                <span className="text-primary">A Jornada do Herói do ciclo urbano</span>
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                Você não precisa ser especialista pra mudar a cidade.<br />
-                Aqui, o herói é você — alguém comum que decide transformar o que seria lixo em impacto real.
-              </p>
-            </div>
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4 sm:mb-6">
+              Quer participar?
+            </h2>
 
-            {/* Hero Journey Steps - Timeline Style */}
-            <div className="relative">
-              {/* Vertical line connector - hidden on mobile */}
-              <div className="hidden md:block absolute left-8 top-8 bottom-8 w-0.5 bg-gradient-to-b from-primary/50 via-accent/50 to-primary/50" />
-              
-              <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
-                {[
-                  {
-                    step: 1,
-                    icon: Megaphone,
-                    title: 'O Chamado',
-                    subtitle: 'O problema do resíduo orgânico urbano',
-                    summary: 'Todos os dias, enterramos valor sem perceber.',
-                    content: 'Todo dia, restos de comida saem de casa, de feiras e de restaurantes. Quando vão para aterros, viram poluição, desperdício e custo. O chamado é simples: parar de enterrar valor.',
-                    color: 'text-destructive',
-                    bgColor: 'bg-destructive/10',
-                  },
-                  {
-                    step: 2,
-                    icon: RotateCcw,
-                    title: 'A Virada',
-                    subtitle: 'Quando o lixo vira recurso',
-                    summary: 'O que parecia fim é começo.',
-                    content: 'O que parecia "fim de linha" é, na verdade, começo. Resíduo orgânico é nutriente — e nutriente pode voltar pro solo. A solução é urbana: um ciclo local que funciona de verdade.',
-                    color: 'text-primary',
-                    bgColor: 'bg-primary/10',
-                  },
-                  {
-                    step: 3,
-                    icon: Compass,
-                    title: 'O Mentor',
-                    subtitle: 'Como o Clube do Adubo guia o processo',
-                    summary: 'Método no lugar de promessa.',
-                    content: 'Você entra com uma decisão simples: participar do ciclo. O Clube entra com o método: registro, rastreabilidade e processo controlado. Sem atalhos. Sem promessas vazias. Com regras claras.',
-                    color: 'text-blue-500',
-                    bgColor: 'bg-blue-500/10',
-                  },
-                  {
-                    step: 4,
-                    icon: FlaskConical,
-                    title: 'As Provas',
-                    subtitle: 'Processamento orgânico e fechamento de ciclo',
-                    summary: 'Nada de mágica. Só processo.',
-                    content: 'O resíduo passa por compostagem urbana controlada e vira adubo natural. Nada é "mágica", é processo. O ciclo só existe quando há resíduo real e transformação real.',
-                    color: 'text-accent',
-                    bgColor: 'bg-accent/10',
-                  },
-                  {
-                    step: 5,
-                    icon: Gift,
-                    title: 'A Recompensa',
-                    subtitle: 'Impacto ambiental e valor na prática',
-                    summary: 'O valor nasce do ciclo.',
-                    content: 'Quando o adubo é vendido, nasce o valor — e ele é distribuído conforme as regras. Você acompanha o caminho todo: resíduo → adubo → venda → valor. Quanto mais o ciclo acontece, mais impacto a cidade sente.',
-                    color: 'text-primary',
-                    bgColor: 'bg-primary/10',
-                  },
-                  {
-                    step: 6,
-                    icon: TrendingUp,
-                    title: 'O Retorno',
-                    subtitle: 'Sustentabilidade e vida financeira (sem fantasia)',
-                    summary: 'Constância no lugar de ilusão.',
-                    content: 'Aqui não existe atalho. Existe constância. Impacto e valor caminham juntos, com transparência. É assim que metas e sonhos se conectam ao ciclo: frequência, clareza e acompanhamento.',
-                    color: 'text-secondary',
-                    bgColor: 'bg-secondary/10',
-                  },
-                  {
-                    step: 7,
-                    icon: Building2,
-                    title: 'A Nova Fase',
-                    subtitle: 'Impacto ambiental nas cidades',
-                    summary: 'A cidade muda junto.',
-                    content: 'Menos resíduo em aterros. Mais solo regenerado. Mais consciência coletiva. A cidade vira parte da solução — e você também.',
-                    color: 'text-primary',
-                    bgColor: 'bg-primary/10',
-                  },
-                ].map((item, index) => (
-                  <AccordionItem 
-                    key={item.step} 
-                    value={`step-${item.step}`}
-                    className="border-0"
-                  >
-                    <Card className="overflow-hidden border-2 hover:shadow-elevated transition-all duration-300 hover:border-primary/30">
-                      <AccordionTrigger className="hover:no-underline p-0 [&[data-state=open]>div]:bg-muted/50">
-                        <CardContent className="p-3 sm:p-4 md:p-5 w-full transition-colors">
-                          <div className="flex items-start gap-3 sm:gap-4 text-left">
-                            {/* Step number and icon */}
-                            <div className="relative flex-shrink-0">
-                              <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl ${item.bgColor} flex items-center justify-center transition-all`}>
-                                <item.icon className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${item.color}`} />
-                              </div>
-                              <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-bold">
-                                {item.step}
-                              </div>
-                            </div>
-                            
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
-                                <span className={`text-xs font-medium ${item.color}`}>STEP {item.step}</span>
-                                <span className="text-muted-foreground text-xs">•</span>
-                                <span className="font-bold text-foreground text-sm sm:text-base">{item.title}</span>
-                              </div>
-                              <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">{item.subtitle}</p>
-                              <p className="text-sm sm:text-base font-medium text-foreground italic">"{item.summary}"</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-3 sm:px-4 md:px-5 pb-4 sm:pb-5">
-                        <div className="ml-0 md:ml-20 pt-2 sm:pt-3 border-t border-border/50">
-                          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                            {item.content}
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
+            <p className="text-base sm:text-lg text-muted-foreground mb-3">
+              Não precisa entender tudo agora.
+            </p>
+            <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10">
+              Basta entrar no ciclo e acompanhar.
+            </p>
 
-            {/* Soft CTA */}
-            <div className="mt-10 sm:mt-12 md:mt-16">
-              <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
-                <CardContent className="p-6 sm:p-8 text-center">
-                  <p className="text-base sm:text-lg font-medium text-foreground mb-2">
-                    Você já faz parte dessa jornada.
-                  </p>
-                  <p className="text-sm sm:text-base text-muted-foreground mb-6">
-                    Quer seguir participando do ciclo?
-                  </p>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
-                    <Button onClick={onGetStarted} variant="hero" size="lg" className="w-full sm:w-auto">
-                      <Sprout className="w-5 h-5" />
-                      Participar do ciclo
-                    </Button>
-                    <Link to="/transparencia" className="w-full sm:w-auto">
-                      <Button variant="outline" size="lg" className="w-full">
-                        <ChartLine className="w-5 h-5" />
-                        Acompanhar transparência
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Link to="/comprar">
+              <Button variant="hero" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-6">
+                <Sprout className="w-5 h-5" />
+                Entrar no Ciclo
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
