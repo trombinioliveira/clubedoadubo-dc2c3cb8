@@ -120,7 +120,7 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
         </div>
 
         {/* ═══ SEÇÃO 2 — PLANO MAIS POPULAR ═══ */}
-        <div className="max-w-lg mx-auto">
+        <div id="plano-muda" className="max-w-lg mx-auto scroll-mt-24">
           <Card className="relative border-primary shadow-[0_0_30px_hsl(var(--primary)/0.15)] overflow-hidden">
             <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs px-3 py-1">
               ✨ Mais Popular
@@ -204,7 +204,7 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
         </div>
 
         {/* ═══ SEÇÃO 4 — PLANOS ANUAIS COM DESCONTO ═══ */}
-        <div className="max-w-4xl mx-auto">
+        <div id="planos-anuais" className="max-w-4xl mx-auto scroll-mt-24">
           <h2 className="text-2xl font-bold text-foreground text-center mb-2">
             🔥 Planos Anuais com Desconto
           </h2>
@@ -249,7 +249,7 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
         </div>
 
         {/* ═══ SEÇÃO 5 — PLANO MENSAL APENAS PRO ═══ */}
-        <div className="max-w-4xl mx-auto">
+        <div id="pro-avulso" className="max-w-4xl mx-auto scroll-mt-24">
           <h2 className="text-2xl font-bold text-foreground text-center mb-2">
             ♻️ Plano Mensal — Apenas PRO
           </h2>
@@ -280,7 +280,7 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
         </div>
 
         {/* ═══ SEÇÃO 6 — ASSINATURA APENAS DE ADUBO ═══ */}
-        <div className="max-w-4xl mx-auto">
+        <div id="adubo-mensal" className="max-w-4xl mx-auto scroll-mt-24">
           <h2 className="text-2xl font-bold text-foreground text-center mb-2">
             🪴 Assinatura de Adubo
           </h2>
