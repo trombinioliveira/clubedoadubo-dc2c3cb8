@@ -52,12 +52,19 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
               👉 Clique, participe e acompanhe tudo.
             </p>
 
-            <Link to="/comprar">
-              <Button variant="hero" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-6">
-                <Sprout className="w-5 h-5" />
-                Quero Participar do Ciclo
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link to="/planos#plano-muda">
+                <Button variant="hero" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-6">
+                  <Sprout className="w-5 h-5" />
+                  Quero Participar do Ciclo
+                </Button>
+              </Link>
+              <Link to="/planos#pro-avulso">
+                <Button variant="outline" size="lg" className="text-sm px-6 py-4">
+                  Começar com R$ 1
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -223,12 +230,19 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
               Basta entrar no ciclo e acompanhar.
             </p>
 
-            <Link to="/comprar">
-              <Button variant="hero" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-6">
-                <Sprout className="w-5 h-5" />
-                Entrar no Ciclo
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link to="/planos#plano-muda">
+                <Button variant="hero" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-6">
+                  <Sprout className="w-5 h-5" />
+                  Entrar no Ciclo
+                </Button>
+              </Link>
+              <Link to="/planos#pro-avulso">
+                <Button variant="outline" size="lg" className="text-sm px-6 py-4">
+                  Começar com R$ 1
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
