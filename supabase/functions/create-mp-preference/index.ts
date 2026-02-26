@@ -82,6 +82,21 @@ const PRODUCTS: Record<
     unit_price: 100.0,
     max_quantity: 10,
   },
+  anual_semente: {
+    title: "Plano Semente Anual — 10 PROs + 1 Adubo / mês por 12 meses",
+    unit_price: 270.0,
+    max_quantity: 1,
+  },
+  anual_muda: {
+    title: "Plano Muda Anual — 25 PROs + 2 Adubos / mês por 12 meses",
+    unit_price: 540.0,
+    max_quantity: 1,
+  },
+  anual_arvore: {
+    title: "Plano Árvore Anual — 50 PROs + 3 Adubos / mês por 12 meses",
+    unit_price: 972.0,
+    max_quantity: 1,
+  },
 };
 
 // ── Request schema ───────────────────────────────────────────────────────────
