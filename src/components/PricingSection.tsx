@@ -117,6 +117,22 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
           <p className="text-xs text-muted-foreground/60 mt-4">
             Pagamentos processados com segurança via <strong>Mercado Pago</strong>
           </p>
+
+          {/* ═══ TESTE COM R$ 1 ═══ */}
+          <div className="max-w-md mx-auto mt-8">
+            <Card className="bg-muted/50 border-dashed">
+              <CardHeader className="text-center pb-2">
+                <CardTitle className="text-lg text-muted-foreground">💡 Teste com R$ 1</CardTitle>
+                <CardDescription>Compra única — sem compromisso</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  1 PRO = R$ 1. Ative uma unidade e veja como funciona.
+                </p>
+                <CheckoutButton productKey="pro_avulso" label="Ativar 1 PRO" className="w-full" onGetStarted={onGetStarted} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* ═══ SEÇÃO 2 — PLANO MAIS POPULAR ═══ */}
@@ -311,21 +327,6 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
           </div>
         </div>
 
-        {/* ═══ SEÇÃO 7 — COMPRA ÚNICA (BAIXO DESTAQUE) ═══ */}
-        <div className="max-w-md mx-auto">
-          <Card className="bg-muted/50 border-dashed">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-lg text-muted-foreground">💡 Teste com R$ 1</CardTitle>
-              <CardDescription>Compra única — sem compromisso</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-sm text-muted-foreground">
-                1 PRO = R$ 1. Ative uma unidade e veja como funciona.
-              </p>
-              <CheckoutButton productKey="pro_avulso" label="Ativar 1 PRO" className="w-full" onGetStarted={onGetStarted} />
-            </CardContent>
-          </Card>
-        </div>
 
         {/* ═══ SEÇÃO SEGURANÇA ═══ */}
         <div className="max-w-2xl mx-auto">
