@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Clock, XCircle, ArrowRight, Sprout } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, ArrowRight, Sprout, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.webp';
 
 type Status = 'sucesso' | 'pendente' | 'erro';
@@ -46,9 +47,40 @@ export default function CheckoutResultPage({ status }: { status: Status }) {
   const cfg = CONFIG[status];
   const Icon = cfg.icon;
 
-  // Detect if this was a pro_avulso purchase from external_reference or product_key
-  const externalRef = searchParams.get('external_reference') || '';
-  const isProAvulso = externalRef.includes('pro_avulso');
+  const [isProAvulso, setIsProAvulso] = useState(false);
+  const [checking, setChecking] = useState(status === 'sucesso');
+
+  useEffect(() => {
+    if (status !== 'sucesso') return;
+
+    const externalRef = searchParams.get('external_reference') || '';
+    if (!externalRef) {
+      setChecking(false);
+      return;
+    }
+
+    // Look up financial_entries by external_reference to check product_key
+    const checkProductKey = async () => {
+      try {
+        const { data } = await supabase
+          .from('financial_entries')
+          .select('product_key')
+          .eq('external_reference', externalRef)
+          .limit(1)
+          .maybeSingle();
+
+        if (data?.product_key === 'pro_avulso') {
+          setIsProAvulso(true);
+        }
+      } catch (err) {
+        console.error('Error checking product_key:', err);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    checkProductKey();
+  }, [status, searchParams]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -90,7 +122,12 @@ export default function CheckoutResultPage({ status }: { status: Status }) {
           </Card>
 
           {/* ── Upgrade CTA for pro_avulso purchases ── */}
-          {status === 'sucesso' && isProAvulso && (
+          {status === 'sucesso' && checking && (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {status === 'sucesso' && !checking && isProAvulso && (
             <Card className="border-primary/30 bg-primary/5">
               <CardContent className="p-6 text-center space-y-4">
                 <Sprout className="w-10 h-10 text-primary mx-auto" />

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from '@/hooks/use-toast';
-import { User, Mail, Phone, CreditCard, Calendar, Shield, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { User, Shield, CheckCircle2, Loader2, AlertCircle, MapPin, Instagram } from 'lucide-react';
 import { NotificationPreferences } from '@/components/NotificationPreferences';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -33,6 +33,15 @@ interface ProfileFormData {
   email: string;
   whatsapp: string;
   pix_key: string;
+  public_name: string;
+  instagram: string;
+  address_street: string;
+  address_number: string;
+  address_complement: string;
+  address_neighborhood: string;
+  address_zipcode: string;
+  city: string;
+  address_state: string;
 }
 
 // CPF validation helper
@@ -60,7 +69,6 @@ const validateCPF = (cpf: string): boolean => {
   return true;
 };
 
-// Format CPF for display
 const formatCPF = (value: string): string => {
   const cleaned = value.replace(/\D/g, '');
   if (cleaned.length <= 3) return cleaned;
@@ -69,12 +77,17 @@ const formatCPF = (value: string): string => {
   return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9, 11)}`;
 };
 
-// Format phone for display
 const formatPhone = (value: string): string => {
   const cleaned = value.replace(/\D/g, '');
   if (cleaned.length <= 2) return cleaned;
   if (cleaned.length <= 7) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
   return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+};
+
+const formatCEP = (value: string): string => {
+  const cleaned = value.replace(/\D/g, '');
+  if (cleaned.length <= 5) return cleaned;
+  return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
 };
 
 export default function MyProfilePage() {
@@ -88,7 +101,16 @@ export default function MyProfilePage() {
     birth_date: '',
     email: '',
     whatsapp: '',
-    pix_key: ''
+    pix_key: '',
+    public_name: '',
+    instagram: '',
+    address_street: '',
+    address_number: '',
+    address_complement: '',
+    address_neighborhood: '',
+    address_zipcode: '',
+    city: '',
+    address_state: '',
   });
   
   // OTP verification state
@@ -98,7 +120,6 @@ export default function MyProfilePage() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   
-  // Verification status
   const [emailVerified, setEmailVerified] = useState(false);
   const [whatsappVerified, setWhatsappVerified] = useState(false);
   
@@ -113,7 +134,16 @@ export default function MyProfilePage() {
         birth_date: profile.birth_date || '',
         email: profile.email || '',
         whatsapp: profile.whatsapp ? formatPhone(profile.whatsapp) : '',
-        pix_key: profile.pix_key || ''
+        pix_key: profile.pix_key || '',
+        public_name: (profile as any).public_name || '',
+        instagram: (profile as any).instagram || '',
+        address_street: (profile as any).address_street || '',
+        address_number: (profile as any).address_number || '',
+        address_complement: (profile as any).address_complement || '',
+        address_neighborhood: (profile as any).address_neighborhood || '',
+        address_zipcode: (profile as any).address_zipcode ? formatCEP((profile as any).address_zipcode) : '',
+        city: (profile as any).city || '',
+        address_state: (profile as any).address_state || '',
       });
       setEmailVerified(!!profile.email_verified_at);
       setWhatsappVerified(!!profile.whatsapp_verified_at);
@@ -121,66 +151,35 @@ export default function MyProfilePage() {
   }, [profile]);
 
   const handleInputChange = (field: keyof ProfileFormData, value: string) => {
-    if (isProfileCompleted) return;
-    
     if (field === 'cpf') {
       value = formatCPF(value);
     } else if (field === 'whatsapp') {
       value = formatPhone(value);
+    } else if (field === 'address_zipcode') {
+      value = formatCEP(value);
     }
-    
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const sendOTP = async (type: 'email' | 'whatsapp') => {
     if (isProfileCompleted) return;
-    
     const target = type === 'email' ? formData.email : formData.whatsapp.replace(/\D/g, '');
-    
     if (!target || (type === 'email' && !formData.email.includes('@')) || (type === 'whatsapp' && target.length < 10)) {
-      toast({
-        title: 'Erro',
-        description: type === 'email' ? 'Digite um email válido' : 'Digite um WhatsApp válido',
-        variant: 'destructive'
-      });
+      toast({ title: 'Erro', description: type === 'email' ? 'Digite um email válido' : 'Digite um WhatsApp válido', variant: 'destructive' });
       return;
     }
-    
     setOtpSending(true);
-    
     try {
-      // Generate OTP code on server
       const code = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
-      
-      // Store OTP in database
-      const { error: insertError } = await supabase
-        .from('otp_codes')
-        .insert({
-          user_id: user?.id,
-          type,
-          code,
-          expires_at: expiresAt
-        });
-      
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+      const { error: insertError } = await supabase.from('otp_codes').insert({ user_id: user?.id, type, code, expires_at: expiresAt });
       if (insertError) throw insertError;
-      
-      // TODO: Actually send the OTP via email/WhatsApp service
-      // For now, we'll show it in a toast for testing
-      toast({
-        title: 'Código enviado!',
-        description: `Código de verificação (teste): ${code}`,
-      });
-      
+      toast({ title: 'Código enviado!', description: `Código de verificação (teste): ${code}` });
       setOtpType(type);
       setOtpCode('');
       setOtpDialogOpen(true);
     } catch (error: any) {
-      toast({
-        title: 'Erro ao enviar código',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast({ title: 'Erro ao enviar código', description: error.message, variant: 'destructive' });
     } finally {
       setOtpSending(false);
     }
@@ -188,91 +187,39 @@ export default function MyProfilePage() {
 
   const verifyOTP = async () => {
     if (!otpCode || otpCode.length !== 6) {
-      toast({
-        title: 'Código inválido',
-        description: 'Digite o código de 6 dígitos',
-        variant: 'destructive'
-      });
+      toast({ title: 'Código inválido', description: 'Digite o código de 6 dígitos', variant: 'destructive' });
       return;
     }
-    
     setOtpLoading(true);
-    
     try {
-      // Check OTP code
       const { data: otpData, error: fetchError } = await supabase
-        .from('otp_codes')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('type', otpType)
-        .eq('code', otpCode)
-        .is('used_at', null)
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      
+        .from('otp_codes').select('*').eq('user_id', user?.id).eq('type', otpType).eq('code', otpCode)
+        .is('used_at', null).gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).limit(1).single();
       if (fetchError || !otpData) {
-        toast({
-          title: 'Código inválido ou expirado',
-          description: 'Solicite um novo código',
-          variant: 'destructive'
-        });
+        toast({ title: 'Código inválido ou expirado', description: 'Solicite um novo código', variant: 'destructive' });
         return;
       }
-      
-      // Mark OTP as used
-      await supabase
-        .from('otp_codes')
-        .update({ used_at: new Date().toISOString() })
-        .eq('id', otpData.id);
-      
-      // Update profile verification status
+      await supabase.from('otp_codes').update({ used_at: new Date().toISOString() }).eq('id', otpData.id);
       const updateField = otpType === 'email' ? 'email_verified_at' : 'whatsapp_verified_at';
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ 
-          [updateField]: new Date().toISOString(),
-          ...(otpType === 'email' ? { email: formData.email } : { whatsapp: formData.whatsapp.replace(/\D/g, '') })
-        })
-        .eq('user_id', user?.id);
-      
+      const { error: updateError } = await supabase.from('profiles').update({
+        [updateField]: new Date().toISOString(),
+        ...(otpType === 'email' ? { email: formData.email } : { whatsapp: formData.whatsapp.replace(/\D/g, '') })
+      }).eq('user_id', user?.id);
       if (updateError) throw updateError;
-      
-      if (otpType === 'email') {
-        setEmailVerified(true);
-      } else {
-        setWhatsappVerified(true);
-      }
-      
-      toast({
-        title: 'Verificado!',
-        description: `${otpType === 'email' ? 'Email' : 'WhatsApp'} verificado com sucesso!`,
-      });
-      
+      if (otpType === 'email') setEmailVerified(true); else setWhatsappVerified(true);
+      toast({ title: 'Verificado!', description: `${otpType === 'email' ? 'Email' : 'WhatsApp'} verificado com sucesso!` });
       setOtpDialogOpen(false);
       await refreshProfile();
     } catch (error: any) {
-      toast({
-        title: 'Erro ao verificar',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast({ title: 'Erro ao verificar', description: error.message, variant: 'destructive' });
     } finally {
       setOtpLoading(false);
     }
   };
 
   const handleSave = async () => {
-    if (isProfileCompleted) return;
-    
-    // Validate required fields
     if (!formData.full_name.trim()) {
       toast({ title: 'Nome completo é obrigatório', variant: 'destructive' });
-      return;
-    }
-    if (!formData.gender) {
-      toast({ title: 'Gênero é obrigatório', variant: 'destructive' });
       return;
     }
     
@@ -282,53 +229,36 @@ export default function MyProfilePage() {
       return;
     }
     
-    if (!formData.birth_date) {
-      toast({ title: 'Data de nascimento é obrigatória', variant: 'destructive' });
-      return;
-    }
-    
-    // Email and WhatsApp verification temporarily disabled
-    // if (!emailVerified) {
-    //   toast({ title: 'Email precisa ser verificado', variant: 'destructive' });
-    //   return;
-    // }
-    
-    // if (!whatsappVerified) {
-    //   toast({ title: 'WhatsApp precisa ser verificado', variant: 'destructive' });
-    //   return;
-    // }
-    
     setIsSaving(true);
-    
     try {
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: formData.full_name.trim(),
-          gender: formData.gender,
+          gender: formData.gender || null,
           cpf: cleanedCPF,
-          birth_date: formData.birth_date,
+          birth_date: formData.birth_date || null,
           email: formData.email.trim(),
-          whatsapp: formData.whatsapp.replace(/\D/g, ''),
+          whatsapp: formData.whatsapp.replace(/\D/g, '') || null,
           pix_key: formData.pix_key.trim() || null,
-          profile_completed_at: new Date().toISOString()
-        })
+          public_name: formData.public_name.trim() || null,
+          instagram: formData.instagram.trim() || null,
+          address_street: formData.address_street.trim() || null,
+          address_number: formData.address_number.trim() || null,
+          address_complement: formData.address_complement.trim() || null,
+          address_neighborhood: formData.address_neighborhood.trim() || null,
+          address_zipcode: formData.address_zipcode.replace(/\D/g, '') || null,
+          city: formData.city.trim() || null,
+          address_state: formData.address_state.trim() || null,
+          profile_completed_at: isProfileCompleted ? undefined : new Date().toISOString(),
+        } as any)
         .eq('user_id', user?.id);
       
       if (error) throw error;
-      
-      toast({
-        title: 'Perfil salvo!',
-        description: 'Seus dados foram salvos com sucesso.',
-      });
-      
+      toast({ title: 'Perfil salvo!', description: 'Seus dados foram salvos com sucesso.' });
       await refreshProfile();
     } catch (error: any) {
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -339,7 +269,7 @@ export default function MyProfilePage() {
     : null;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -348,7 +278,7 @@ export default function MyProfilePage() {
           </CardTitle>
           <CardDescription>
             {isProfileCompleted 
-              ? 'Seus dados estão salvos e não podem ser alterados.'
+              ? 'Seus dados foram salvos. Você pode atualizar informações opcionais.'
               : 'Complete seu perfil para continuar usando o aplicativo.'
             }
           </CardDescription>
@@ -367,122 +297,127 @@ export default function MyProfilePage() {
             </Alert>
           )}
           
-          {/* Full Name */}
+          {/* ── Dados Pessoais ── */}
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Dados Pessoais</h3>
+
           <div className="space-y-2">
             <Label htmlFor="full_name">Nome Completo *</Label>
-            <Input
-              id="full_name"
-              value={formData.full_name}
-              onChange={(e) => handleInputChange('full_name', e.target.value)}
-              disabled={isProfileCompleted}
-              placeholder="Seu nome completo"
-            />
+            <Input id="full_name" value={formData.full_name} onChange={(e) => handleInputChange('full_name', e.target.value)} placeholder="Seu nome completo" />
           </div>
           
-          {/* Gender */}
           <div className="space-y-2">
-            <Label>Gênero *</Label>
-            <RadioGroup
-              value={formData.gender}
-              onValueChange={(value) => handleInputChange('gender', value)}
-              disabled={isProfileCompleted}
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="masculino" id="masculino" />
-                <Label htmlFor="masculino">Masculino</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="feminino" id="feminino" />
-                <Label htmlFor="feminino">Feminino</Label>
-              </div>
+            <Label>Gênero</Label>
+            <RadioGroup value={formData.gender} onValueChange={(v) => handleInputChange('gender', v)} className="flex gap-4">
+              <div className="flex items-center space-x-2"><RadioGroupItem value="masculino" id="masculino" /><Label htmlFor="masculino">Masculino</Label></div>
+              <div className="flex items-center space-x-2"><RadioGroupItem value="feminino" id="feminino" /><Label htmlFor="feminino">Feminino</Label></div>
             </RadioGroup>
           </div>
           
-          {/* CPF */}
           <div className="space-y-2">
             <Label htmlFor="cpf">CPF *</Label>
-            <Input
-              id="cpf"
-              value={formData.cpf}
-              onChange={(e) => handleInputChange('cpf', e.target.value)}
-              disabled={isProfileCompleted}
-              placeholder="000.000.000-00"
-              maxLength={14}
-            />
+            <Input id="cpf" value={formData.cpf} onChange={(e) => handleInputChange('cpf', e.target.value)} placeholder="000.000.000-00" maxLength={14} />
           </div>
           
-          {/* Birth Date */}
           <div className="space-y-2">
-            <Label htmlFor="birth_date">Data de Nascimento *</Label>
-            <Input
-              id="birth_date"
-              type="date"
-              value={formData.birth_date}
-              onChange={(e) => handleInputChange('birth_date', e.target.value)}
-              disabled={isProfileCompleted}
-            />
+            <Label htmlFor="birth_date">Data de Nascimento</Label>
+            <Input id="birth_date" type="date" value={formData.birth_date} onChange={(e) => handleInputChange('birth_date', e.target.value)} />
           </div>
           
-          {/* Email with verification */}
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
-          <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              disabled={isProfileCompleted}
-              placeholder="seu@email.com"
-            />
+            <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="seu@email.com" />
           </div>
           
-          {/* WhatsApp with verification */}
           <div className="space-y-2">
-            <Label htmlFor="whatsapp">WhatsApp *</Label>
-            <Input
-              id="whatsapp"
-              value={formData.whatsapp}
-              onChange={(e) => handleInputChange('whatsapp', e.target.value)}
-              disabled={isProfileCompleted}
-              placeholder="(11) 99999-9999"
-              maxLength={15}
-            />
+            <Label htmlFor="whatsapp">WhatsApp</Label>
+            <Input id="whatsapp" value={formData.whatsapp} onChange={(e) => handleInputChange('whatsapp', e.target.value)} placeholder="(11) 99999-9999" maxLength={15} />
           </div>
           
-          {/* PIX Key */}
           <div className="space-y-2">
             <Label htmlFor="pix_key">Chave PIX para Recebimento</Label>
-            <Input
-              id="pix_key"
-              value={formData.pix_key}
-              onChange={(e) => handleInputChange('pix_key', e.target.value)}
-              disabled={isProfileCompleted}
-              placeholder="CPF, Email, Telefone ou Chave Aleatória"
-            />
+            <Input id="pix_key" value={formData.pix_key} onChange={(e) => handleInputChange('pix_key', e.target.value)} placeholder="CPF, Email, Telefone ou Chave Aleatória" />
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <Shield className="w-3 h-3" />
               A retirada via PIX só será possível para pessoas com o mesmo CPF cadastrado.
             </p>
           </div>
+
+          {/* ── Perfil Público ── */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4 flex items-center gap-2">
+              <Instagram className="w-4 h-4" />
+              Perfil Público (opcional)
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="public_name">Nome Público</Label>
+                <Input id="public_name" value={formData.public_name} onChange={(e) => handleInputChange('public_name', e.target.value)} placeholder="Como você quer ser chamado publicamente" />
+                <p className="text-xs text-muted-foreground">Exibido na sua página pública /u/codigo</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram</Label>
+                <Input id="instagram" value={formData.instagram} onChange={(e) => handleInputChange('instagram', e.target.value)} placeholder="@seuusuario" />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Endereço ── */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-1 flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Endereço
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Obrigatório para planos que incluem envio de adubo.</p>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="address_street">Rua</Label>
+                  <Input id="address_street" value={formData.address_street} onChange={(e) => handleInputChange('address_street', e.target.value)} placeholder="Rua, Avenida..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address_number">Número</Label>
+                  <Input id="address_number" value={formData.address_number} onChange={(e) => handleInputChange('address_number', e.target.value)} placeholder="123" />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="address_complement">Complemento</Label>
+                <Input id="address_complement" value={formData.address_complement} onChange={(e) => handleInputChange('address_complement', e.target.value)} placeholder="Apto, Bloco... (opcional)" />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="address_neighborhood">Bairro</Label>
+                <Input id="address_neighborhood" value={formData.address_neighborhood} onChange={(e) => handleInputChange('address_neighborhood', e.target.value)} placeholder="Bairro" />
+              </div>
+              
+              <div className="grid grid-cols-5 gap-4">
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="address_zipcode">CEP</Label>
+                  <Input id="address_zipcode" value={formData.address_zipcode} onChange={(e) => handleInputChange('address_zipcode', e.target.value)} placeholder="00000-000" maxLength={9} />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input id="city" value={formData.city} onChange={(e) => handleInputChange('city', e.target.value)} placeholder="Cidade" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address_state">UF</Label>
+                  <Input id="address_state" value={formData.address_state} onChange={(e) => handleInputChange('address_state', e.target.value)} placeholder="SP" maxLength={2} />
+                </div>
+              </div>
+            </div>
+          </div>
           
           {/* Save Button */}
-          {!isProfileCompleted && (
-            <Button 
-              onClick={handleSave} 
-              disabled={isSaving}
-              className="w-full"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar Perfil'
-              )}
-            </Button>
-          )}
+          <Button onClick={handleSave} disabled={isSaving} className="w-full">
+            {isSaving ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>
+            ) : (
+              isProfileCompleted ? 'Atualizar Perfil' : 'Salvar Perfil'
+            )}
+          </Button>
           
           {isProfileCompleted && profile?.profile_completed_at && (
             <div className="text-center text-sm text-muted-foreground">
@@ -500,17 +435,13 @@ export default function MyProfilePage() {
       <Dialog open={otpDialogOpen} onOpenChange={setOtpDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Verificar {otpType === 'email' ? 'Email' : 'WhatsApp'}</DialogTitle>
+            <DialogTitle>Verificação</DialogTitle>
             <DialogDescription>
-              Digite o código de 6 dígitos enviado para {otpType === 'email' ? formData.email : formData.whatsapp}
+              Digite o código de 6 dígitos enviado para seu {otpType === 'email' ? 'email' : 'WhatsApp'}.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
-            <InputOTP
-              maxLength={6}
-              value={otpCode}
-              onChange={setOtpCode}
-            >
+            <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
                 <InputOTPSlot index={1} />
@@ -520,12 +451,8 @@ export default function MyProfilePage() {
                 <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
-            <Button onClick={verifyOTP} disabled={otpLoading || otpCode.length !== 6}>
-              {otpLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Verificar Código
-            </Button>
-            <Button variant="link" onClick={() => sendOTP(otpType)} disabled={otpSending}>
-              Reenviar código
+            <Button onClick={verifyOTP} disabled={otpLoading} className="w-full">
+              {otpLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verificando...</> : 'Verificar'}
             </Button>
           </div>
         </DialogContent>

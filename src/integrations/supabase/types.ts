@@ -559,10 +559,17 @@ export type Database = {
       profiles: {
         Row: {
           account_status: string | null
+          address_complement: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zipcode: string | null
           auth_provider: string | null
           birth_date: string | null
           blocked_at: string | null
           blocked_reason: string | null
+          city: string | null
           commission_preference: string | null
           cpf: string | null
           created_at: string
@@ -574,6 +581,7 @@ export type Database = {
           gender: string | null
           has_viewed_fifo: boolean
           id: string
+          instagram: string | null
           internal_balance: number | null
           is_blocked: boolean
           last_login_at: string | null
@@ -582,8 +590,10 @@ export type Database = {
           pix_key: string | null
           profile_completed_at: string | null
           profile_deadline: string | null
+          public_name: string | null
           referral_code: string | null
           referred_by: string | null
+          state: string | null
           updated_at: string
           user_id: string
           whatsapp: string | null
@@ -592,10 +602,17 @@ export type Database = {
         }
         Insert: {
           account_status?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zipcode?: string | null
           auth_provider?: string | null
           birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
+          city?: string | null
           commission_preference?: string | null
           cpf?: string | null
           created_at?: string
@@ -607,6 +624,7 @@ export type Database = {
           gender?: string | null
           has_viewed_fifo?: boolean
           id?: string
+          instagram?: string | null
           internal_balance?: number | null
           is_blocked?: boolean
           last_login_at?: string | null
@@ -615,8 +633,10 @@ export type Database = {
           pix_key?: string | null
           profile_completed_at?: string | null
           profile_deadline?: string | null
+          public_name?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          state?: string | null
           updated_at?: string
           user_id: string
           whatsapp?: string | null
@@ -625,10 +645,17 @@ export type Database = {
         }
         Update: {
           account_status?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zipcode?: string | null
           auth_provider?: string | null
           birth_date?: string | null
           blocked_at?: string | null
           blocked_reason?: string | null
+          city?: string | null
           commission_preference?: string | null
           cpf?: string | null
           created_at?: string
@@ -640,6 +667,7 @@ export type Database = {
           gender?: string | null
           has_viewed_fifo?: boolean
           id?: string
+          instagram?: string | null
           internal_balance?: number | null
           is_blocked?: boolean
           last_login_at?: string | null
@@ -648,8 +676,10 @@ export type Database = {
           pix_key?: string | null
           profile_completed_at?: string | null
           profile_deadline?: string | null
+          public_name?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          state?: string | null
           updated_at?: string
           user_id?: string
           whatsapp?: string | null
