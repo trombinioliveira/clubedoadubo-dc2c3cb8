@@ -313,7 +313,6 @@ Deno.serve(async (req) => {
                 {
                   user_id,
                   plan_key: product_key,
-                  plan_type: product_key,
                   status: "active",
                   last_payment_id: financialEntryId,
                   updated_at: new Date().toISOString(),
