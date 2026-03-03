@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Leaf, ArrowRight, Check, Sprout, TreeDeciduous, Star, Loader2, Shield, Droplets, ChevronDown, ChevronUp, Truck } from 'lucide-react';
 import { createMPPreference } from '@/lib/publicTransparency';
 import { useAuth } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+// Product keys that require a complete address (plans with fertilizer delivery)
+const REQUIRES_ADDRESS = [
+  'plano_semente', 'plano_muda', 'plano_arvore',
+  'assinatura_granulado', 'assinatura_liquido', 'assinatura_combo',
+  'anual_semente', 'anual_muda', 'anual_arvore',
+];
 
 interface PricingSectionProps {
   onGetStarted: () => void;
@@ -15,8 +24,33 @@ interface PricingSectionProps {
 function useCheckout() {
   const { user } = useAuth();
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const checkout = async (product_key: string, quantity = 1) => {
+    // Check address requirement for fertilizer plans
+    if (user && REQUIRES_ADDRESS.includes(product_key)) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('address_street, address_number, address_neighborhood, address_zipcode, city, address_state')
+          .eq('user_id', user.id)
+          .single();
+
+        const p = profile as any;
+        const addressComplete = p?.address_street && p?.address_number && p?.address_neighborhood && p?.address_zipcode && p?.city && p?.address_state;
+        
+        if (!addressComplete) {
+          toast.error('Complete seu endereço para receber adubo.', {
+            description: 'Redirecionando para o perfil...',
+          });
+          setTimeout(() => navigate('/perfil'), 1500);
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking address:', err);
+      }
+    }
+
     setLoadingKey(product_key);
     try {
       const result = await createMPPreference({
@@ -102,9 +136,16 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
           <p className="text-muted-foreground/80 text-sm mb-6">
             Participação contínua no ciclo. Sem precisar lembrar.
           </p>
-          <p className="text-xs text-muted-foreground/60">
+          <p className="text-xs text-muted-foreground/60 mb-8">
             Pagamentos processados com segurança via <strong>Mercado Pago</strong>
           </p>
+          <CheckoutButton
+            productKey="plano_muda"
+            label="👉 Assinar Plano Muda"
+            variant="hero"
+            className="text-base py-6 px-8"
+            onGetStarted={onGetStarted}
+          />
         </div>
 
         {/* ═══ SEÇÃO PRINCIPAL — 3 PLANOS MENSAIS ═══ */}

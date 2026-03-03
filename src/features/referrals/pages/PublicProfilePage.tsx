@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Leaf, 
-  Recycle, 
   Users, 
   Award, 
   ArrowRight,
   CheckCircle,
-  Calendar
+  Calendar,
+  Instagram
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -67,6 +67,10 @@ export function PublicProfilePage() {
     4: 'bg-amber-500/20 text-amber-600',
   };
 
+  // Use public_name if available, fallback to publicName from RPC
+  const displayName = (profile as any).public_name || profile.publicName;
+  const instagram = (profile as any).instagram as string | null;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/5 to-background">
       {/* Header */}
@@ -90,12 +94,12 @@ export function PublicProfilePage() {
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center text-2xl font-bold text-secondary">
-                {profile.publicName.charAt(0)}
+                {displayName.charAt(0)}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl font-bold text-foreground">
-                    {profile.publicName}
+                    {displayName}
                   </h1>
                   {profile.sealActive && (
                     <Badge className={levelColors[profile.currentLevel] || levelColors[1]}>
@@ -104,11 +108,22 @@ export function PublicProfilePage() {
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1 flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
                     Membro desde {format(new Date(profile.memberSince), "MMMM 'de' yyyy", { locale: ptBR })}
                   </span>
+                  {instagram && (
+                    <a
+                      href={`https://instagram.com/${instagram.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <Instagram className="w-4 h-4" />
+                      {instagram.startsWith('@') ? instagram : `@${instagram}`}
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -132,8 +147,8 @@ export function PublicProfilePage() {
                 <p className="text-3xl font-bold text-foreground">{profile.totalWeightKg.toFixed(1)}</p>
                 <p className="text-sm text-muted-foreground">kg de Resíduo</p>
               </div>
-              <div className="p-4 bg-emerald-500/10 rounded-xl text-center">
-                <p className="text-3xl font-bold text-emerald-600">{profile.co2AvoidedKg.toFixed(1)}</p>
+              <div className="p-4 bg-secondary/10 rounded-xl text-center">
+                <p className="text-3xl font-bold text-secondary">{profile.co2AvoidedKg.toFixed(1)}</p>
                 <p className="text-sm text-muted-foreground">kg CO₂ Evitado</p>
               </div>
               <div className="p-4 bg-secondary/10 rounded-xl text-center">
@@ -175,7 +190,7 @@ export function PublicProfilePage() {
               Faça parte do ciclo!
             </h2>
             <p className="text-muted-foreground mb-4">
-              Junte-se a {profile.publicName} e milhares de pessoas transformando resíduos em impacto real.
+              Junte-se a {displayName} e milhares de pessoas transformando resíduos em impacto real.
             </p>
             <Link to="/auth">
               <Button className="w-full sm:w-auto" size="lg">
