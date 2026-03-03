@@ -58,7 +58,8 @@ export function DashboardPage() {
 
   const userName = profile?.full_name?.split(' ')[0] || 'Participante';
   const referralCode = profile?.referral_code || 'CODIGO';
-  const pixKey = profile?.pix_key || profile?.cpf || 'chave-pix';
+  const pixKey = profile?.pix_key || null;
+  const hasPixKey = !!pixKey;
 
   // Main RPC query
   const { data: summary, isLoading } = useQuery({
@@ -109,7 +110,9 @@ export function DashboardPage() {
       </div>
 
       {/* Modals */}
-      <AddProsPixModal open={pixModalOpen} onOpenChange={setPixModalOpen} pixKey={pixKey} userName={userName} />
+      {hasPixKey ? (
+        <AddProsPixModal open={pixModalOpen} onOpenChange={setPixModalOpen} pixKey={pixKey!} userName={userName} />
+      ) : null}
       <QrCodeModal open={qrCodeModalOpen} onOpenChange={setQrCodeModalOpen} referralCode={referralCode} userName={userName} />
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
@@ -123,9 +126,15 @@ export function DashboardPage() {
                 <p className="text-lg font-semibold text-foreground">Você ainda não ativou nenhum PRO.</p>
                 <p className="text-sm text-muted-foreground">Ative seu primeiro PRO para entrar no ciclo da economia circular.</p>
                 <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
-                  <Button size="lg" className="gap-2" onClick={() => setPixModalOpen(true)}>
-                    <Sprout className="w-5 h-5" /> Ativar primeiro PRO
-                  </Button>
+                  {hasPixKey ? (
+                    <Button size="lg" className="gap-2" onClick={() => setPixModalOpen(true)}>
+                      <Sprout className="w-5 h-5" /> Ativar primeiro PRO
+                    </Button>
+                  ) : (
+                    <Button size="lg" className="gap-2" onClick={() => navigate('/perfil')}>
+                      Cadastrar chave Pix
+                    </Button>
+                  )}
                   <Button variant="ghost" size="sm" onClick={() => navigate('/ciclo')}>
                     Entender o ciclo <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
@@ -176,15 +185,29 @@ export function DashboardPage() {
         </Card>
 
         {/* CTA DOMINANTE */}
-        <motion.div whileTap={{ scale: 0.98 }}>
-          <Button
-            size="lg"
-            className="w-full gap-2 text-base py-6 shadow-lg"
-            onClick={() => setPixModalOpen(true)}
-          >
-            <Sprout className="w-5 h-5" /> Ativar mais PROs
-          </Button>
-        </motion.div>
+        {hasPixKey ? (
+          <motion.div whileTap={{ scale: 0.98 }}>
+            <Button
+              size="lg"
+              className="w-full gap-2 text-base py-6 shadow-lg"
+              onClick={() => setPixModalOpen(true)}
+            >
+              <Sprout className="w-5 h-5" /> Ativar mais PROs
+            </Button>
+          </motion.div>
+        ) : (
+          <Card className="border-amber-500/30 bg-amber-50 dark:bg-amber-950/20">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Chave Pix não cadastrada</p>
+                <p className="text-xs text-muted-foreground">Cadastre sua chave Pix para ativar PROs.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate('/perfil')}>
+                Ir para perfil
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* BLOCO 2 — Movimento global */}
         <Card>
