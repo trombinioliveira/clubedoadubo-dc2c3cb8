@@ -23,8 +23,8 @@ const PRODUCTS: Record<
     max_quantity: 100,
   },
   adubo_liquido: {
-    title: "Adubo Líquido Concentrado 500 ml",
-    unit_price: 10.0,
+    title: "Adubo Líquido Concentrado 600 ml",
+    unit_price: 15.0,
     max_quantity: 100,
   },
   plano_semente: {
@@ -63,13 +63,13 @@ const PRODUCTS: Record<
     max_quantity: 1,
   },
   assinatura_liquido: {
-    title: "Assinatura Adubo Líquido 500 ml / mês",
-    unit_price: 10.0,
+    title: "Assinatura Adubo Líquido 600 ml / mês",
+    unit_price: 15.0,
     max_quantity: 1,
   },
   assinatura_combo: {
     title: "Assinatura Granulado + Líquido / mês",
-    unit_price: 22.0,
+    unit_price: 28.0,
     max_quantity: 1,
   },
   kit_iniciante: {
@@ -164,6 +164,7 @@ Deno.serve(async (req) => {
       'plano_semente', 'plano_muda', 'plano_arvore',
       'anual_semente', 'anual_muda', 'anual_arvore',
       'assinatura_granulado', 'assinatura_liquido', 'assinatura_combo',
+      'adubo_granulado', 'adubo_liquido',
     ];
 
     if (user_id && REQUIRES_ADDRESS.includes(product_key)) {
@@ -220,9 +221,9 @@ Deno.serve(async (req) => {
       external_reference,
       notification_url: webhookUrl,
       back_urls: {
-        success: `${baseUrl}/compra/sucesso`,
-        pending: `${baseUrl}/compra/pendente`,
-        failure: `${baseUrl}/compra/erro`,
+        success: `${baseUrl}/compra/sucesso?external_reference=${external_reference}`,
+        pending: `${baseUrl}/compra/pendente?external_reference=${external_reference}`,
+        failure: `${baseUrl}/compra/erro?external_reference=${external_reference}`,
       },
       auto_return: "approved",
       metadata: {

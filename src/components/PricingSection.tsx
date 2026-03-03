@@ -14,6 +14,7 @@ const REQUIRES_ADDRESS = [
   'plano_semente', 'plano_muda', 'plano_arvore',
   'assinatura_granulado', 'assinatura_liquido', 'assinatura_combo',
   'anual_semente', 'anual_muda', 'anual_arvore',
+  'adubo_granulado', 'adubo_liquido',
 ];
 
 interface PricingSectionProps {
@@ -365,8 +366,8 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
                 <div className="grid sm:grid-cols-3 gap-6">
                   {[
                     { name: 'Granulado', desc: '0,5 kg mensal', price: 15, icon: Leaf, key: 'assinatura_granulado' },
-                    { name: 'Líquido', desc: '500 ml mensal', price: 10, icon: Droplets, key: 'assinatura_liquido' },
-                    { name: 'Combo', desc: 'Granulado + Líquido', price: 22, icon: Star, key: 'assinatura_combo', highlight: true },
+                    { name: 'Líquido', desc: '600 ml mensal', price: 15, icon: Droplets, key: 'assinatura_liquido' },
+                    { name: 'Combo', desc: 'Granulado + Líquido', price: 28, icon: Star, key: 'assinatura_combo', highlight: true },
                   ].map((plan) => (
                     <Card key={plan.name} className={`hover:shadow-elevated transition-shadow ${plan.highlight ? 'border-primary/50' : ''}`}>
                       {plan.highlight && <Badge className="mx-auto w-fit mt-3">Combo</Badge>}
