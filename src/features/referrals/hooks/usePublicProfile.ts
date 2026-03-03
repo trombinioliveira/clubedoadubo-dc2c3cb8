@@ -17,6 +17,8 @@ export interface PublicProfileData {
   // Network impact
   referralsCount: number;
   networkPros: number;
+  // Public identity
+  instagram: string | null;
 }
 
 export function usePublicProfile(referralCode: string | undefined) {

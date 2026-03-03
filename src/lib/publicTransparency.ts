@@ -219,6 +219,15 @@ export async function createMPPreference(params: {
   const { data, error } = await supabase.functions.invoke('create-mp-preference', {
     body: params,
   });
-  if (error) throw error;
+  if (error) {
+    // Check if the edge function returned ADDRESS_INCOMPLETE
+    if (data?.error === 'ADDRESS_INCOMPLETE') {
+      throw new Error('ADDRESS_INCOMPLETE');
+    }
+    throw error;
+  }
+  if (data?.error === 'ADDRESS_INCOMPLETE') {
+    throw new Error('ADDRESS_INCOMPLETE');
+  }
   return data as MPPreferenceResult;
 }

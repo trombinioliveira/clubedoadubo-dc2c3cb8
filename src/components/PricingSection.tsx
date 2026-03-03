@@ -59,9 +59,16 @@ function useCheckout() {
         user_id: user?.id ?? null,
       });
       window.location.href = result.init_point;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Checkout error:', err);
-      toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
+      if (err?.message === 'ADDRESS_INCOMPLETE') {
+        toast.error('Complete seu endereço para receber adubo.', {
+          description: 'Redirecionando para o perfil...',
+        });
+        setTimeout(() => navigate('/perfil'), 1500);
+      } else {
+        toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
+      }
     } finally {
       setLoadingKey(null);
     }
