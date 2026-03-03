@@ -31,9 +31,9 @@ const PLAN_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Ativo', variant: 'default' as const },
-  { value: 'paused', label: 'Pausado', variant: 'secondary' as const },
-  { value: 'canceled', label: 'Cancelado', variant: 'destructive' as const },
+  { value: 'active', label: 'Ativo' },
+  { value: 'paused', label: 'Pausado' },
+  { value: 'canceled', label: 'Cancelado' },
 ];
 
 const PAGE_SIZE = 25;
@@ -42,9 +42,15 @@ function getPlanLabel(key: string) {
   return PLAN_OPTIONS.find(p => p.value === key)?.label || key;
 }
 
-function getStatusBadge(status: string) {
+function StatusBadge({ status }: { status: string }) {
   const opt = STATUS_OPTIONS.find(s => s.value === status);
-  return <Badge variant={opt?.variant || 'outline'}>{opt?.label || status}</Badge>;
+  const label = opt?.label || status;
+  const variant =
+    status === 'active' ? 'default'
+    : status === 'paused' ? 'secondary'
+    : status === 'canceled' ? 'destructive'
+    : 'secondary';
+  return <Badge variant={variant}>{label}</Badge>;
 }
 
 type SubscriptionRow = {
@@ -56,6 +62,18 @@ type SubscriptionRow = {
   last_payment_id: string | null;
   updated_at: string;
   profiles: { full_name: string; email: string } | null;
+};
+
+type LogRow = {
+  id: string;
+  changed_at: string;
+  old_plan_key: string | null;
+  new_plan_key: string | null;
+  old_status: string | null;
+  new_status: string | null;
+  reason: string | null;
+  admin_user_id: string;
+  admin: { full_name: string; email: string } | null;
 };
 
 export function SubscriptionsManagement() {
@@ -75,13 +93,13 @@ export function SubscriptionsManagement() {
   const [editReason, setEditReason] = useState('');
   const [confirmCancel, setConfirmCancel] = useState(false);
 
-  // Fetch subscriptions
+  // Fetch subscriptions (left join – no !inner)
   const { data: subsData, isLoading } = useQuery({
     queryKey: ['admin-subscriptions', search, filterStatus, filterPlan, page],
     queryFn: async () => {
       let query = supabase
         .from('subscriptions')
-        .select('*, profiles!inner(full_name, email)', { count: 'exact' })
+        .select('*, profiles(full_name, email)', { count: 'exact' })
         .order('updated_at', { ascending: false })
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
@@ -97,37 +115,45 @@ export function SubscriptionsManagement() {
     },
   });
 
-  // Fetch logs for modal
+  // Fetch logs with admin profile join
   const { data: logs } = useQuery({
     queryKey: ['subscription-logs', editingSub?.id],
     enabled: !!editingSub,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subscription_logs')
-        .select('*')
+        .select('*, admin:profiles!subscription_logs_admin_user_id_fkey(full_name, email)')
         .eq('subscription_id', editingSub!.id)
         .order('changed_at', { ascending: false })
         .limit(50);
-      if (error) throw error;
-      return data || [];
+      if (error) {
+        // Fallback without join if FK hint fails
+        const { data: fallback, error: err2 } = await supabase
+          .from('subscription_logs')
+          .select('*')
+          .eq('subscription_id', editingSub!.id)
+          .order('changed_at', { ascending: false })
+          .limit(50);
+        if (err2) throw err2;
+        return (fallback || []) as unknown as LogRow[];
+      }
+      return (data || []) as unknown as LogRow[];
     },
   });
 
-  // Mutation
+  // Mutation (admin only)
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!editingSub) throw new Error('No subscription');
       const oldPlan = editingSub.plan_key;
       const oldStatus = editingSub.status;
 
-      // Update subscription
       const { error: updateErr } = await supabase
         .from('subscriptions')
         .update({ plan_key: editPlan, status: editStatus, updated_at: new Date().toISOString() })
         .eq('id', editingSub.id);
       if (updateErr) throw updateErr;
 
-      // Insert log
       const { error: logErr } = await supabase
         .from('subscription_logs')
         .insert({
@@ -166,6 +192,12 @@ export function SubscriptionsManagement() {
     }
     updateMutation.mutate();
   };
+
+  function getAdminLabel(log: LogRow) {
+    if (log.admin?.full_name) return log.admin.full_name;
+    if (log.admin?.email) return log.admin.email;
+    return log.admin_user_id?.slice(0, 8) + '…';
+  }
 
   const rows = subsData?.rows || [];
   const totalCount = subsData?.count || 0;
@@ -235,7 +267,7 @@ export function SubscriptionsManagement() {
                       <TableCell className="font-medium">{sub.profiles?.full_name || '—'}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{sub.profiles?.email || '—'}</TableCell>
                       <TableCell>{getPlanLabel(sub.plan_key)}</TableCell>
-                      <TableCell>{getStatusBadge(sub.status)}</TableCell>
+                      <TableCell><StatusBadge status={sub.status} /></TableCell>
                       <TableCell className="text-sm">{format(new Date(sub.started_at), 'dd/MM/yy', { locale: ptBR })}</TableCell>
                       <TableCell>
                         {sub.last_payment_id ? (
@@ -255,7 +287,6 @@ export function SubscriptionsManagement() {
                           variant="outline"
                           size="sm"
                           onClick={() => openEdit(sub)}
-                          disabled={!isAdmin}
                         >
                           {isAdmin ? 'Editar' : 'Ver'}
                         </Button>
@@ -292,8 +323,8 @@ export function SubscriptionsManagement() {
             {editingSub && (
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium">{editingSub.profiles?.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{editingSub.profiles?.email}</p>
+                  <p className="text-sm font-medium">{editingSub.profiles?.full_name || '—'}</p>
+                  <p className="text-xs text-muted-foreground">{editingSub.profiles?.email || '—'}</p>
                 </div>
 
                 {/* Plan */}
@@ -318,7 +349,7 @@ export function SubscriptionsManagement() {
                   </Select>
                 </div>
 
-                {/* Reason */}
+                {/* Reason (admin only) */}
                 {isAdmin && (
                   <div className="space-y-1">
                     <label className="text-sm font-medium">Motivo (opcional)</label>
@@ -337,6 +368,7 @@ export function SubscriptionsManagement() {
                   </div>
                 )}
 
+                {/* Footer – admin only */}
                 {isAdmin && (
                   <DialogFooter className="gap-2">
                     <Button variant="ghost" onClick={() => { setEditingSub(null); setConfirmCancel(false); }}>Voltar</Button>
@@ -353,11 +385,14 @@ export function SubscriptionsManagement() {
                     <p className="text-xs text-muted-foreground">Nenhuma alteração manual registrada.</p>
                   ) : (
                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {logs.map((log: any) => (
+                      {logs.map((log: LogRow) => (
                         <div key={log.id} className="text-xs border rounded p-2 space-y-0.5">
-                          <p className="text-muted-foreground">{format(new Date(log.changed_at), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-muted-foreground">{format(new Date(log.changed_at), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                            <p className="text-muted-foreground font-medium">{getAdminLabel(log)}</p>
+                          </div>
                           {(log.old_plan_key !== log.new_plan_key) && (
-                            <p>Plano: <span className="line-through">{getPlanLabel(log.old_plan_key)}</span> → <span className="font-medium">{getPlanLabel(log.new_plan_key)}</span></p>
+                            <p>Plano: <span className="line-through">{getPlanLabel(log.old_plan_key || '')}</span> → <span className="font-medium">{getPlanLabel(log.new_plan_key || '')}</span></p>
                           )}
                           {(log.old_status !== log.new_status) && (
                             <p>Status: <span className="line-through">{log.old_status}</span> → <span className="font-medium">{log.new_status}</span></p>
