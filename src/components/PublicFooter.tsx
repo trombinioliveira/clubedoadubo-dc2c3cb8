@@ -96,6 +96,8 @@ export const PublicFooter = () => {
             <span>•</span>
             <Link to="/natureza-do-pro" className="hover:text-foreground transition-colors">Natureza do PRO</Link>
             <span>•</span>
+            <Link to="/economia-circular" className="hover:text-foreground transition-colors">Economia Circular</Link>
+            <span>•</span>
             <Link to="/painel-publico" className="hover:text-foreground transition-colors font-medium text-primary/80">📊 Painel de Transparência</Link>
           </div>
         </div>

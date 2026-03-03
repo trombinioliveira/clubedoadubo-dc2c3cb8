@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Leaf, Recycle, Users, Scale, Package, Phone, Clock, ArrowLeft, TreePine } from 'lucide-react';
+import { MapPin, Leaf, Recycle, Users, Scale, Package, Phone, Clock, ArrowLeft, TreePine, Sprout, Eye, ArrowRight } from 'lucide-react';
 import logoImage from '@/assets/logo.webp';
 
 interface PointData {
@@ -92,7 +92,7 @@ export default function CollectionPointPage() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero — Restructured */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-primary/5">
         <div className="container mx-auto px-4 py-12 sm:py-20">
           <div className="max-w-3xl mx-auto text-center">
@@ -100,20 +100,56 @@ export default function CollectionPointPage() {
               <MapPin className="w-3 h-3 mr-1" />
               Ponto de Coleta
             </Badge>
-            <h1 className="text-3xl sm:text-5xl font-bold text-foreground mb-3">
-              {data.name}
+            <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-3">
+              Este local faz parte do ciclo.
             </h1>
             <p className="text-lg text-muted-foreground mb-2">
-              {data.address}
+              {data.name} — {data.city}/{data.state}
             </p>
-            <p className="text-muted-foreground">
-              {data.city}/{data.state}
+            <p className="text-sm text-muted-foreground">
+              {data.address}
             </p>
           </div>
         </div>
       </section>
 
       <main className="container mx-auto px-4 py-10 max-w-4xl space-y-10">
+        {/* Mini explicação 3 passos */}
+        <section>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { num: '1', text: 'Resíduo orgânico é coletado aqui.', icon: Recycle },
+              { num: '2', text: 'Vira adubo real por meio do processamento.', icon: Sprout },
+              { num: '3', text: 'Você participa e acompanha o ciclo.', icon: Eye },
+            ].map((step) => (
+              <Card key={step.num}>
+                <CardContent className="p-5 text-center">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full earth-gradient text-primary-foreground text-lg font-bold mb-3">
+                    {step.num}
+                  </span>
+                  <p className="text-sm text-foreground font-medium">{step.text}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* CTAs */}
+        <section className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link to="/planos">
+            <Button variant="hero" size="lg">
+              <Sprout className="w-5 h-5 mr-2" />
+              Participar também
+            </Button>
+          </Link>
+          <Link to="/painel-publico">
+            <Button variant="outline" size="lg">
+              <Eye className="w-4 h-4 mr-2" />
+              Ver painel público
+            </Button>
+          </Link>
+        </section>
+
         {/* Description */}
         {data.description && (
           <section>
@@ -186,24 +222,6 @@ export default function CollectionPointPage() {
               </Card>
             ))}
           </div>
-        </section>
-
-        {/* CTA */}
-        <section className="text-center py-8">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="p-8">
-              <Leaf className="w-10 h-10 text-primary mx-auto mb-3" />
-              <h3 className="text-xl font-bold mb-2">Faça parte do ciclo!</h3>
-              <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                Traga seus resíduos orgânicos para este ponto de coleta e contribua com a economia circular urbana.
-              </p>
-              <Link to="/auth">
-                <Button className="earth-gradient">
-                  Criar minha conta
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </section>
       </main>
 
