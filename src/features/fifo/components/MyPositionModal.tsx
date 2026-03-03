@@ -33,6 +33,14 @@ interface MyPositionModalProps {
   userFirstPosition: number | null;
 }
 
+const statusLabels: Record<ProStatus, { label: string; emoji: string }> = {
+  pending: { label: 'Coleta', emoji: '📍' },
+  processing: { label: 'Processamento', emoji: '🏭' },
+  ready: { label: 'Produção', emoji: '🌾' },
+  sold: { label: 'Venda', emoji: '📦' },
+  paid: { label: 'Pago', emoji: '💰' },
+};
+
 export function MyPositionModal({ 
   isOpen, 
   onClose, 
@@ -41,13 +49,24 @@ export function MyPositionModal({
   paidCount,
   userFirstPosition 
 }: MyPositionModalProps) {
+  // Group user PROs by status
+  const statusCounts = userPros.reduce((acc, pro) => {
+    acc[pro.queue_status] = (acc[pro.queue_status] || 0) + 1;
+    return acc;
+  }, {} as Record<ProStatus, number>);
+
+  // Get next unpaid PROs (sorted by position)
+  const unpaidPros = userPros
+    .filter(p => p.queue_status !== 'paid')
+    .sort((a, b) => a.queue_position - b.queue_position);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="w-5 h-5 text-emerald-600" />
-            Sua Posição na Fila FIFO
+            Seus PROs na Fila FIFO
           </DialogTitle>
         </DialogHeader>
         
@@ -66,52 +85,65 @@ export function MyPositionModal({
             </div>
           ) : (
             <>
-              <div className="text-center p-4 bg-emerald-100 rounded-lg">
-                <p className="text-xs text-emerald-700 mb-1">Sua melhor posição</p>
-                <p className="text-4xl font-bold text-emerald-700">
-                  {userFirstPosition}º
+              {/* Summary by status */}
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground mb-3 font-medium">
+                  Você possui <strong className="text-foreground">{userPros.length} PROs</strong> em diferentes etapas da fila:
                 </p>
+                <div className="grid grid-cols-5 gap-1">
+                  {(['pending', 'processing', 'ready', 'sold', 'paid'] as ProStatus[]).map(status => {
+                    const count = statusCounts[status] || 0;
+                    const info = statusLabels[status];
+                    return (
+                      <div key={status} className="text-center">
+                        <span className="text-lg">{info.emoji}</span>
+                        <p className="text-lg font-bold">{count}</p>
+                        <p className="text-[9px] text-muted-foreground leading-tight">{info.label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
+              {/* Next positions */}
+              {unpaidPros.length > 0 && (
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800 font-medium mb-2">
+                    Próximas posições na fila ({unpaidPros.length} PROs ativos):
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {unpaidPros.slice(0, 10).map(pro => (
+                      <Badge key={pro.queue_id} variant="outline" className="text-xs gap-1">
+                        #{pro.queue_position} {statusLabels[pro.queue_status].emoji}
+                      </Badge>
+                    ))}
+                    {unpaidPros.length > 10 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{unpaidPros.length - 10} mais
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Global context */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-muted/50 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground mb-1">PROs à frente</p>
+                  <p className="text-xs text-muted-foreground mb-1">PROs à frente do seu 1º</p>
                   <p className="text-2xl font-bold text-orange-600">{prosAhead}</p>
                 </div>
                 <div className="p-3 bg-muted/50 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground mb-1">Já avançaram (pagos)</p>
+                  <p className="text-xs text-muted-foreground mb-1">Total pagos (global)</p>
                   <p className="text-2xl font-bold text-emerald-600">{paidCount}</p>
                 </div>
               </div>
 
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800 font-medium mb-1">Seus PROs na fila:</p>
-                <div className="flex flex-wrap gap-1">
-                  {userPros.slice(0, 10).map(pro => (
-                    <Badge key={pro.queue_id} variant="outline" className="text-xs">
-                      #{pro.queue_position}
-                    </Badge>
-                  ))}
-                  {userPros.length > 10 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{userPros.length - 10} mais
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
               <div className="text-center p-3 border border-dashed border-emerald-300 rounded-lg bg-emerald-50/50">
-                <p className="text-xs text-muted-foreground">
-                  Como o avanço ocorre?
-                </p>
-                <p className="text-sm text-emerald-700 font-medium mt-1">
+                <p className="text-sm text-emerald-700 font-medium">
                   Cada venda real de adubo paga o próximo da fila!
                 </p>
-              </div>
-
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <p className="text-xs text-amber-800 text-center">
-                  💡 A fila se move com impacto real, não com promessas.
+                <p className="text-xs text-muted-foreground mt-1">
+                  Você pode ter vários PROs em posições diferentes — todos avançam com o ciclo.
                 </p>
               </div>
             </>
