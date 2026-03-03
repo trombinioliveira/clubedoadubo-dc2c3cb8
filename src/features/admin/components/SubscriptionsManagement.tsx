@@ -93,25 +93,53 @@ export function SubscriptionsManagement() {
   const [editReason, setEditReason] = useState('');
   const [confirmCancel, setConfirmCancel] = useState(false);
 
-  // Fetch subscriptions (left join – no !inner)
+  // Fetch subscriptions + profiles (no FK, so fetch separately)
   const { data: subsData, isLoading } = useQuery({
     queryKey: ['admin-subscriptions', search, filterStatus, filterPlan, page],
     queryFn: async () => {
       let query = supabase
         .from('subscriptions')
-        .select('*, profiles(full_name, email)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .order('updated_at', { ascending: false })
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
       if (filterStatus !== 'all') query = query.eq('status', filterStatus);
       if (filterPlan !== 'all') query = query.eq('plan_key', filterPlan);
-      if (search.trim()) {
-        query = query.or(`full_name.ilike.%${search.trim()}%,email.ilike.%${search.trim()}%`, { referencedTable: 'profiles' });
-      }
 
       const { data, error, count } = await query;
       if (error) throw error;
-      return { rows: (data || []) as unknown as SubscriptionRow[], count: count || 0 };
+
+      // Fetch profiles for user_ids
+      const userIds = (data || []).map((s: any) => s.user_id).filter(Boolean);
+      let profilesMap: Record<string, { full_name: string; email: string }> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email')
+          .in('user_id', userIds);
+        if (profiles) {
+          for (const p of profiles) {
+            profilesMap[p.user_id] = { full_name: p.full_name, email: p.email };
+          }
+        }
+      }
+
+      const rows = (data || []).map((s: any) => ({
+        ...s,
+        profiles: profilesMap[s.user_id] || null,
+      })) as unknown as SubscriptionRow[];
+
+      // Client-side search filter on profile name/email
+      let filtered = rows;
+      if (search.trim()) {
+        const q = search.trim().toLowerCase();
+        filtered = rows.filter(r =>
+          r.profiles?.full_name?.toLowerCase().includes(q) ||
+          r.profiles?.email?.toLowerCase().includes(q)
+        );
+      }
+
+      return { rows: filtered, count: count || 0 };
     },
   });
 
