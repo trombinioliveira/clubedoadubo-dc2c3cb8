@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe, Receipt, Bell, RotateCcw } from 'lucide-react';
+import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe, Receipt, Bell, RotateCcw, CreditCard } from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
@@ -16,6 +16,7 @@ import { SiteManagement } from '../components/SiteManagement';
 import { SaleDistributionsManagement } from '../components/SaleDistributionsManagement';
 import { NotificationsManagement } from '../components/NotificationsManagement';
 import { ResetSandbox } from '../components/ResetSandbox';
+import { SubscriptionsManagement } from '../components/SubscriptionsManagement';
 
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
@@ -133,6 +134,12 @@ export default function AdminDashboard() {
               </TabsTrigger>
             )}
 
+            {/* Assinaturas - Admin + Staff */}
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4" />
+              <span className="hidden sm:inline">Assinaturas</span>
+            </TabsTrigger>
+
             {/* (11) Reset Sandbox - Admin only */}
             {isAdmin && (
               <TabsTrigger value="reset-sandbox" className="flex items-center gap-2">
@@ -217,6 +224,11 @@ export default function AdminDashboard() {
               <NotificationsManagement />
             </TabsContent>
           )}
+
+          {/* Assinaturas */}
+          <TabsContent value="subscriptions">
+            <SubscriptionsManagement />
+          </TabsContent>
 
           {/* (11) Reset Sandbox */}
           {isAdmin && (

@@ -15,3 +15,4 @@ export { ProUserAudit } from './ProUserAudit';
 export { SiteManagement } from './SiteManagement';
 export { SaleDistributionsManagement } from './SaleDistributionsManagement';
 export { NotificationsManagement } from './NotificationsManagement';
+export { SubscriptionsManagement } from './SubscriptionsManagement';
