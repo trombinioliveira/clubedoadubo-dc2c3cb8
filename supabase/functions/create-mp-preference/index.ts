@@ -159,6 +159,37 @@ Deno.serve(async (req) => {
       );
     }
 
+    // ── Server-side address validation for fertilizer plans ─────────────────
+    const REQUIRES_ADDRESS = [
+      'plano_semente', 'plano_muda', 'plano_arvore',
+      'anual_semente', 'anual_muda', 'anual_arvore',
+      'assinatura_granulado', 'assinatura_liquido', 'assinatura_combo',
+    ];
+
+    if (user_id && REQUIRES_ADDRESS.includes(product_key)) {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      );
+
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("address_street, address_number, address_neighborhood, address_zipcode, city, address_state")
+        .eq("user_id", user_id)
+        .single();
+
+      const p = profile as Record<string, string | null> | null;
+      const addressComplete = p?.address_street && p?.address_number && p?.address_neighborhood && p?.address_zipcode && p?.city && p?.address_state;
+
+      if (!addressComplete) {
+        return new Response(
+          JSON.stringify({ error: "ADDRESS_INCOMPLETE" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     // ── Generate external reference (idempotency key) ──────────────────────
     const external_reference = crypto.randomUUID();
     const baseUrl = req.headers.get("origin") || "https://clubedoadubo.lovable.app";
