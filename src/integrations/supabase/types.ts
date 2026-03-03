@@ -990,6 +990,50 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_logs: {
+        Row: {
+          admin_user_id: string
+          changed_at: string
+          id: string
+          new_plan_key: string | null
+          new_status: string | null
+          old_plan_key: string | null
+          old_status: string | null
+          reason: string | null
+          subscription_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          changed_at?: string
+          id?: string
+          new_plan_key?: string | null
+          new_status?: string | null
+          old_plan_key?: string | null
+          old_status?: string | null
+          reason?: string | null
+          subscription_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          changed_at?: string
+          id?: string
+          new_plan_key?: string | null
+          new_status?: string | null
+          old_plan_key?: string | null
+          old_status?: string | null
+          reason?: string | null
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_logs_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancelled_at: string | null
