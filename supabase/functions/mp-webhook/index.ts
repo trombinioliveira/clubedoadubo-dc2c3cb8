@@ -298,6 +298,37 @@ Deno.serve(async (req) => {
         } catch (profileErr) {
           console.warn("[mp-webhook] Profile update error:", profileErr);
         }
+
+        // ── Upsert subscription for plan/subscription products ────────────
+        const SUBSCRIPTION_PREFIXES = ["plano_", "assinatura_", "anual_"];
+        const isSubscriptionProduct = product_key && SUBSCRIPTION_PREFIXES.some(
+          (prefix) => product_key.startsWith(prefix)
+        );
+
+        if (isSubscriptionProduct && financialEntryId) {
+          try {
+            const { error: subErr } = await supabase
+              .from("subscriptions")
+              .upsert(
+                {
+                  user_id,
+                  plan_key: product_key,
+                  plan_type: product_key,
+                  status: "active",
+                  last_payment_id: financialEntryId,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id" }
+              );
+            if (subErr) {
+              console.error("[mp-webhook] Subscription upsert error:", subErr.message);
+            } else {
+              console.log("[mp-webhook] Subscription upserted for user:", user_id, "plan:", product_key);
+            }
+          } catch (subCatchErr) {
+            console.warn("[mp-webhook] Subscription upsert catch:", subCatchErr);
+          }
+        }
       }
 
       // ── Process send queue immediately ─────────────────────────────────

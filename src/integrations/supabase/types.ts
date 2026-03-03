@@ -996,7 +996,9 @@ export type Database = {
           created_at: string
           current_cycle: number
           id: string
+          last_payment_id: string | null
           next_billing_at: string | null
+          plan_key: string
           plan_type: string
           started_at: string
           status: string
@@ -1008,7 +1010,9 @@ export type Database = {
           created_at?: string
           current_cycle?: number
           id?: string
+          last_payment_id?: string | null
           next_billing_at?: string | null
+          plan_key: string
           plan_type?: string
           started_at?: string
           status?: string
@@ -1020,14 +1024,31 @@ export type Database = {
           created_at?: string
           current_cycle?: number
           id?: string
+          last_payment_id?: string | null
           next_billing_at?: string | null
+          plan_key?: string
           plan_type?: string
           started_at?: string
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_last_payment_id_fkey"
+            columns: ["last_payment_id"]
+            isOneToOne: false
+            referencedRelation: "financial_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_last_payment_id_fkey"
+            columns: ["last_payment_id"]
+            isOneToOne: false
+            referencedRelation: "public_financial_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       terms_acceptance: {
         Row: {
@@ -1333,6 +1354,7 @@ export type Database = {
           users_with_referrals: number
         }[]
       }
+      get_user_dashboard_summary: { Args: { p_user_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
