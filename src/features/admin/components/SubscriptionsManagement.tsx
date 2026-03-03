@@ -143,29 +143,38 @@ export function SubscriptionsManagement() {
     },
   });
 
-  // Fetch logs with admin profile join
+  // Fetch logs + admin profiles (no FK, fetch separately)
   const { data: logs } = useQuery({
     queryKey: ['subscription-logs', editingSub?.id],
     enabled: !!editingSub,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subscription_logs')
-        .select('*, admin:profiles!subscription_logs_admin_user_id_fkey(full_name, email)')
+        .select('*')
         .eq('subscription_id', editingSub!.id)
         .order('changed_at', { ascending: false })
         .limit(50);
-      if (error) {
-        // Fallback without join if FK hint fails
-        const { data: fallback, error: err2 } = await supabase
-          .from('subscription_logs')
-          .select('*')
-          .eq('subscription_id', editingSub!.id)
-          .order('changed_at', { ascending: false })
-          .limit(50);
-        if (err2) throw err2;
-        return (fallback || []) as unknown as LogRow[];
+      if (error) throw error;
+
+      // Fetch admin profiles
+      const adminIds = [...new Set((data || []).map((l: any) => l.admin_user_id).filter(Boolean))];
+      let adminMap: Record<string, { full_name: string; email: string }> = {};
+      if (adminIds.length > 0) {
+        const { data: admins } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email')
+          .in('user_id', adminIds);
+        if (admins) {
+          for (const a of admins) {
+            adminMap[a.user_id] = { full_name: a.full_name, email: a.email };
+          }
+        }
       }
-      return (data || []) as unknown as LogRow[];
+
+      return (data || []).map((l: any) => ({
+        ...l,
+        admin: adminMap[l.admin_user_id] || null,
+      })) as unknown as LogRow[];
     },
   });
 
