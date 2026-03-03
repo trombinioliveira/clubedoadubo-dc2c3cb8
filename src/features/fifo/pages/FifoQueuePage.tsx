@@ -164,8 +164,8 @@ export default function FifoQueuePage() {
             className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg gap-2"
             disabled={!user}
           >
-            <Eye className="w-5 h-5" />
-            Ver minha posição na Fila FIFO
+           <Eye className="w-5 h-5" />
+            Ver meus PROs na Fila
           </Button>
         </div>
 

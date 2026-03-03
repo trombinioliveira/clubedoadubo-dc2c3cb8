@@ -227,17 +227,75 @@ export function GenerateProsPanel() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20">
+      {/* Generation Form */}
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-            <AlertCircle className="w-5 h-5" />
-            Geração Temporariamente Desabilitada
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Gerar Novos PROs
           </CardTitle>
           <CardDescription>
-            A geração de PROs está temporariamente desabilitada para manutenção do sistema.
-            Os PROs existentes continuam funcionando normalmente.
+            Cada R$ 1,00 gera 1 PRO (100g de resíduo). Máximo: 100.000 por vez.
           </CardDescription>
         </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="amount">Valor em R$ (1 PRO = R$ 1,00)</Label>
+            <div className="flex gap-3">
+              <Input
+                id="amount"
+                type="number"
+                min="1"
+                max="100000"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Ex: 200"
+                disabled={isGenerating}
+                className="max-w-xs"
+              />
+              <Button
+                onClick={handleGenerate}
+                disabled={isGenerating || prosCount === 0}
+                className="gap-2"
+              >
+                {isGenerating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
+                Gerar {prosCount > 0 ? `${prosCount.toLocaleString('pt-BR')} PROs` : ''}
+              </Button>
+            </div>
+          </div>
+
+          {progress.phase && (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">{progress.phase}</p>
+              <Progress value={progress.current} className="h-2" />
+            </div>
+          )}
+
+          {lastGeneration && (
+            <div className="p-4 rounded-lg border border-green-500/30 bg-green-50/50">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="font-medium text-green-800">
+                  {lastGeneration.count.toLocaleString('pt-BR')} PROs gerados!
+                </span>
+              </div>
+              {lastGeneration.codes.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {lastGeneration.codes.slice(0, 5).map(code => (
+                    <Badge key={code} variant="outline" className="text-xs font-mono">{code}</Badge>
+                  ))}
+                  {lastGeneration.codes.length > 5 && (
+                    <Badge variant="secondary" className="text-xs">+{lastGeneration.codes.length - 5}</Badge>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
       </Card>
 
       {/* Generation History - Read Only */}
