@@ -165,7 +165,7 @@ export default function FifoQueuePage() {
             disabled={!user}
           >
            <Eye className="w-5 h-5" />
-            Ver meus PROs na Fila
+            Ver meus resíduos no ciclo
           </Button>
         </div>
 

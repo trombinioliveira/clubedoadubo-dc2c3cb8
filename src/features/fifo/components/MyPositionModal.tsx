@@ -66,7 +66,7 @@ export function MyPositionModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="w-5 h-5 text-emerald-600" />
-            Seus PROs na Fila FIFO
+            Seus resíduos no ciclo
           </DialogTitle>
         </DialogHeader>
         
@@ -88,7 +88,7 @@ export function MyPositionModal({
               {/* Summary by status */}
               <div className="p-4 bg-muted/50 rounded-lg">
                 <p className="text-xs text-muted-foreground mb-3 font-medium">
-                  Você possui <strong className="text-foreground">{userPros.length} PROs</strong> em diferentes etapas da fila:
+                  Você possui <strong className="text-foreground">{userPros.length} resíduos</strong> em diferentes etapas do ciclo:
                 </p>
                 <div className="grid grid-cols-5 gap-1">
                   {(['pending', 'processing', 'ready', 'sold', 'paid'] as ProStatus[]).map(status => {
@@ -109,7 +109,7 @@ export function MyPositionModal({
               {unpaidPros.length > 0 && (
                 <div className="p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-800 font-medium mb-2">
-                    Próximas posições na fila ({unpaidPros.length} PROs ativos):
+                    Posições dos seus resíduos ({unpaidPros.length} ativos):
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {unpaidPros.slice(0, 10).map(pro => (
@@ -129,7 +129,7 @@ export function MyPositionModal({
               {/* Global context */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-muted/50 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground mb-1">PROs à frente do seu 1º</p>
+                  <p className="text-xs text-muted-foreground mb-1">Resíduos à frente no ciclo</p>
                   <p className="text-2xl font-bold text-orange-600">{prosAhead}</p>
                 </div>
                 <div className="p-3 bg-muted/50 rounded-lg text-center">
@@ -140,10 +140,13 @@ export function MyPositionModal({
 
               <div className="text-center p-3 border border-dashed border-emerald-300 rounded-lg bg-emerald-50/50">
                 <p className="text-sm text-emerald-700 font-medium">
-                  Cada venda real de adubo paga o próximo da fila!
+                  Cada venda real de adubo move o ciclo adiante.
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Você pode ter vários PROs em posições diferentes — todos avançam com o ciclo.
+                  O ciclo tem tempo biológico real: coleta → compostagem → venda.
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Você pode ter vários resíduos em posições diferentes — todos avançam juntos.
                 </p>
               </div>
             </>
