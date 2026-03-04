@@ -300,6 +300,7 @@ export type Database = {
       financial_entries: {
         Row: {
           amount: number
+          attribution: Json | null
           created_at: string
           created_by: string | null
           currency: string
@@ -320,6 +321,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          attribution?: Json | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -340,6 +342,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          attribution?: Json | null
           created_at?: string
           created_by?: string | null
           currency?: string

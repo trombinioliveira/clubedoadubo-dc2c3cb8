@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe, Receipt, Bell, RotateCcw, CreditCard } from 'lucide-react';
+import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe, Receipt, Bell, RotateCcw, CreditCard, ClipboardList } from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
@@ -17,6 +17,7 @@ import { SaleDistributionsManagement } from '../components/SaleDistributionsMana
 import { NotificationsManagement } from '../components/NotificationsManagement';
 import { ResetSandbox } from '../components/ResetSandbox';
 import { SubscriptionsManagement } from '../components/SubscriptionsManagement';
+import { QAGoLivePanel } from '../components/QAGoLivePanel';
 
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
@@ -147,6 +148,14 @@ export default function AdminDashboard() {
                 <span className="hidden sm:inline">Reset</span>
               </TabsTrigger>
             )}
+
+            {/* (12) QA / Go-Live - Admin only */}
+            {isAdmin && (
+              <TabsTrigger value="qa-golive" className="flex items-center gap-2">
+                <ClipboardList className="w-4 h-4" />
+                <span className="hidden sm:inline">QA / Go-Live</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* (0) Visão Geral */}
@@ -234,6 +243,13 @@ export default function AdminDashboard() {
           {isAdmin && (
             <TabsContent value="reset-sandbox">
               <ResetSandbox />
+            </TabsContent>
+          )}
+
+          {/* (12) QA / Go-Live */}
+          {isAdmin && (
+            <TabsContent value="qa-golive">
+              <QAGoLivePanel />
             </TabsContent>
           )}
         </Tabs>

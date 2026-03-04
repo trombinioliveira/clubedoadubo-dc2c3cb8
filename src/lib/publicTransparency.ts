@@ -205,7 +205,6 @@ export async function fetchPublicDistributions(limit = 6): Promise<PublicDistrib
 
 export interface MPPreferenceResult {
   init_point: string;
-  sandbox_init_point: string;
   preference_id: string;
   external_reference: string;
 }
@@ -215,12 +214,12 @@ export async function createMPPreference(params: {
   quantity: number;
   user_id?: string | null;
   referral_code?: string | null;
+  collection_point_slug?: string | null;
 }): Promise<MPPreferenceResult> {
   const { data, error } = await supabase.functions.invoke('create-mp-preference', {
     body: params,
   });
   if (error) {
-    // Check if the edge function returned ADDRESS_INCOMPLETE
     if (data?.error === 'ADDRESS_INCOMPLETE') {
       throw new Error('ADDRESS_INCOMPLETE');
     }

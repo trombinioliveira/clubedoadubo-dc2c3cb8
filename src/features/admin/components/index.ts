@@ -16,3 +16,4 @@ export { SiteManagement } from './SiteManagement';
 export { SaleDistributionsManagement } from './SaleDistributionsManagement';
 export { NotificationsManagement } from './NotificationsManagement';
 export { SubscriptionsManagement } from './SubscriptionsManagement';
+export { QAGoLivePanel } from './QAGoLivePanel';

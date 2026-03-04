@@ -1,13 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Mail, MessageCircle, ArrowRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const ContatoPage = () => {
-  const whatsappNumber = '5511999999999'; // TODO: Replace with real number
+  const [whatsapp, setWhatsapp] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('key, value')
+        .in('key', ['contact_whatsapp', 'contact_email']);
+      
+      if (data) {
+        for (const row of data) {
+          const val = typeof row.value === 'object' && row.value !== null
+            ? (row.value as any).value ?? null
+            : row.value;
+          if (row.key === 'contact_whatsapp') setWhatsapp(val as string | null);
+          if (row.key === 'contact_email') setEmail(val as string | null);
+        }
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const whatsappDigits = whatsapp?.replace(/\D/g, '') ?? '';
   const whatsappMessage = encodeURIComponent('Olá! Gostaria de saber mais sobre o Clube do Adubo.');
-  const email = 'contato@clubedoadubo.com.br'; // TODO: Replace with real email
 
   return (
     <>
@@ -43,16 +67,22 @@ const ContatoPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild className="w-full bg-green-500 hover:bg-green-600">
-                  <a 
-                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Abrir WhatsApp
-                  </a>
-                </Button>
+                {loading ? (
+                  <div className="h-10 bg-muted animate-pulse rounded" />
+                ) : whatsappDigits ? (
+                  <Button asChild className="w-full bg-green-500 hover:bg-green-600">
+                    <a 
+                      href={`https://wa.me/${whatsappDigits}?text=${whatsappMessage}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Abrir WhatsApp
+                    </a>
+                  </Button>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">Contato em configuração</p>
+                )}
               </CardContent>
             </Card>
 
@@ -68,12 +98,18 @@ const ContatoPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild variant="outline" className="w-full">
-                  <a href={`mailto:${email}`}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    {email}
-                  </a>
-                </Button>
+                {loading ? (
+                  <div className="h-10 bg-muted animate-pulse rounded" />
+                ) : email ? (
+                  <Button asChild variant="outline" className="w-full">
+                    <a href={`mailto:${email}`}>
+                      <Mail className="w-4 h-4 mr-2" />
+                      {email}
+                    </a>
+                  </Button>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">Contato em configuração</p>
+                )}
               </CardContent>
             </Card>
           </div>
