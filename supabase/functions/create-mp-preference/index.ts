@@ -105,6 +105,7 @@ const RequestSchema = z.object({
   quantity: z.number().int().min(1).max(50000),
   user_id: z.string().uuid().optional().nullable(),
   referral_code: z.string().max(20).optional().nullable(),
+  collection_point_slug: z.string().max(100).optional().nullable(),
 });
 
 Deno.serve(async (req) => {
@@ -139,7 +140,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { product_key, quantity, user_id, referral_code } = parsed.data;
+    const { product_key, quantity, user_id, referral_code, collection_point_slug } = parsed.data;
 
     // ── Validate product ───────────────────────────────────────────────────
     const product = PRODUCTS[product_key];
@@ -167,13 +168,14 @@ Deno.serve(async (req) => {
       'adubo_granulado', 'adubo_liquido',
     ];
 
-    if (user_id && REQUIRES_ADDRESS.includes(product_key)) {
-      const supabaseAdmin = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-        { auth: { autoRefreshToken: false, persistSession: false } }
-      );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
 
+    if (user_id && REQUIRES_ADDRESS.includes(product_key)) {
       const { data: profile } = await supabaseAdmin
         .from("profiles")
         .select("address_street, address_number, address_neighborhood, address_zipcode, city, address_state")
@@ -191,9 +193,34 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Build attribution metadata ─────────────────────────────────────────
+    let attribution: Record<string, unknown> | null = null;
+
+    if (collection_point_slug) {
+      // Look up collection point name for richer attribution
+      const { data: cpData } = await supabaseAdmin
+        .from("collection_points")
+        .select("name, slug, id")
+        .eq("slug", collection_point_slug)
+        .eq("is_active", true)
+        .single();
+
+      attribution = {
+        source: "collection_point",
+        slug: collection_point_slug,
+        collection_point_id: cpData?.id ?? null,
+        name: cpData?.name ?? collection_point_slug,
+      };
+    } else if (referral_code) {
+      attribution = {
+        source: "referral",
+        referral_code,
+      };
+    }
+
     // ── Generate external reference (idempotency key) ──────────────────────
     const external_reference = crypto.randomUUID();
-    const baseUrl = req.headers.get("origin") || "https://clubedoadubo.lovable.app";
+    const baseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "https://clubedoadubo.lovable.app";
 
     // ── Mercado Pago API ───────────────────────────────────────────────────
     const mpToken = Deno.env.get("MP_ACCESS_TOKEN");
@@ -205,7 +232,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const webhookUrl = `${supabaseUrl}/functions/v1/mp-webhook`;
 
     const preferencePayload = {
@@ -230,6 +256,7 @@ Deno.serve(async (req) => {
         product_key,
         user_id: user_id ?? null,
         referral_code: referral_code ?? null,
+        collection_point_slug: collection_point_slug ?? null,
         cda_version: "2.0",
       },
       payment_methods: {
@@ -264,13 +291,7 @@ Deno.serve(async (req) => {
 
     // ── Pre-register a pending financial entry for traceability ────────────
     try {
-      const supabase = createClient(
-        supabaseUrl,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-        { auth: { autoRefreshToken: false, persistSession: false } }
-      );
-
-      await supabase.from("financial_entries").insert({
+      await supabaseAdmin.from("financial_entries").insert({
         amount: product.unit_price * quantity,
         currency: "BRL",
         status: "pending",
@@ -283,6 +304,7 @@ Deno.serve(async (req) => {
         description: `${product.title} × ${quantity}`,
         is_distributed: false,
         received_at: new Date().toISOString(),
+        attribution: attribution,
       });
     } catch (dbErr) {
       // Non-critical — webhook will upsert on confirmation
@@ -292,7 +314,6 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         init_point: mpData.init_point,
-        sandbox_init_point: mpData.sandbox_init_point,
         preference_id: mpData.id,
         external_reference,
       }),

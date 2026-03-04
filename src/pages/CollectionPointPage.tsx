@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Leaf, Recycle, Users, Scale, Package, Phone, Clock, ArrowLeft, TreePine, Sprout, Eye, ArrowRight } from 'lucide-react';
+import { MapPin, Leaf, Recycle, Users, Scale, Package, Phone, Clock, ArrowLeft, TreePine, Sprout, Eye, ArrowRight, Loader2, ShoppingCart } from 'lucide-react';
+import { createMPPreference } from '@/lib/publicTransparency';
+import { useAuth } from '@/lib/auth';
+import { toast } from 'sonner';
 import logoImage from '@/assets/logo.webp';
 
 interface PointData {
@@ -30,6 +33,9 @@ export default function CollectionPointPage() {
   const [data, setData] = useState<PointData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!slug) return;
@@ -43,6 +49,33 @@ export default function CollectionPointPage() {
       setIsLoading(false);
     })();
   }, [slug]);
+
+  const handleBuyFromPoint = async (product_key: string, quantity = 1) => {
+    if (!user) {
+      toast.info('Faça login para participar do ciclo.');
+      navigate('/auth');
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const result = await createMPPreference({
+        product_key,
+        quantity,
+        user_id: user.id,
+        collection_point_slug: slug ?? null,
+      });
+      window.location.href = result.init_point;
+    } catch (err: any) {
+      if (err?.message === 'ADDRESS_INCOMPLETE') {
+        toast.error('Complete seu endereço para continuar.', { description: 'Redirecionando para o perfil...' });
+        setTimeout(() => navigate('/perfil'), 1500);
+      } else {
+        toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
+      }
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -92,7 +125,7 @@ export default function CollectionPointPage() {
         </div>
       </header>
 
-      {/* Hero — Restructured */}
+      {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-primary/5">
         <div className="container mx-auto px-4 py-12 sm:py-20">
           <div className="max-w-3xl mx-auto text-center">
@@ -134,20 +167,39 @@ export default function CollectionPointPage() {
           </div>
         </section>
 
-        {/* CTAs */}
-        <section className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link to="/planos">
-            <Button variant="hero" size="lg">
-              <Sprout className="w-5 h-5 mr-2" />
-              Participar também
+        {/* CTAs — Purchase attributed to this point */}
+        <section className="space-y-4">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">Participar por este ponto</h2>
+            <p className="text-sm text-muted-foreground">
+              Sua compra será vinculada a este ponto de coleta.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              variant="hero"
+              size="lg"
+              disabled={checkoutLoading}
+              onClick={() => handleBuyFromPoint('pro_avulso', 1)}
+            >
+              {checkoutLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
+              Comprar 1 PRO (R$ 1)
             </Button>
-          </Link>
-          <Link to="/painel-publico">
-            <Button variant="outline" size="lg">
-              <Eye className="w-4 h-4 mr-2" />
-              Ver painel público
-            </Button>
-          </Link>
+            <Link to="/planos">
+              <Button variant="outline" size="lg">
+                <Sprout className="w-5 h-5 mr-2" />
+                Ver todos os planos
+              </Button>
+            </Link>
+          </div>
+          <div className="flex justify-center">
+            <Link to="/painel-publico">
+              <Button variant="ghost" size="sm">
+                <Eye className="w-4 h-4 mr-2" />
+                Ver painel público
+              </Button>
+            </Link>
+          </div>
         </section>
 
         {/* Description */}
