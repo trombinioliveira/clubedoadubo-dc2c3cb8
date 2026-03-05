@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.reset-sandbox]
 verify_jwt = false
+
+[functions.create-mp-subscription]
+verify_jwt = false

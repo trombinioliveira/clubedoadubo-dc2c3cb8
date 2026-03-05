@@ -510,6 +510,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pro_activations: {
+        Row: {
+          collection_point_id: string | null
+          consumed_at: string | null
+          created_at: string
+          external_reference: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          collection_point_id?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          external_reference: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          collection_point_id?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          external_reference?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       pro_payouts: {
         Row: {
           amount_paid: number
@@ -1044,9 +1071,11 @@ export type Database = {
           current_cycle: number
           id: string
           last_payment_id: string | null
+          mp_preapproval_id: string | null
           next_billing_at: string | null
           plan_key: string
           plan_type: string
+          pros_per_cycle: number
           started_at: string
           status: string
           updated_at: string
@@ -1058,9 +1087,11 @@ export type Database = {
           current_cycle?: number
           id?: string
           last_payment_id?: string | null
+          mp_preapproval_id?: string | null
           next_billing_at?: string | null
           plan_key: string
           plan_type?: string
+          pros_per_cycle?: number
           started_at?: string
           status?: string
           updated_at?: string
@@ -1072,9 +1103,11 @@ export type Database = {
           current_cycle?: number
           id?: string
           last_payment_id?: string | null
+          mp_preapproval_id?: string | null
           next_billing_at?: string | null
           plan_key?: string
           plan_type?: string
+          pros_per_cycle?: number
           started_at?: string
           status?: string
           updated_at?: string
@@ -1344,6 +1377,7 @@ export type Database = {
       }
     }
     Functions: {
+      consume_pro_activations: { Args: never; Returns: undefined }
       count_active_referrals: { Args: { p_user_id: string }; Returns: number }
       generate_otp_code: { Args: never; Returns: string }
       generate_pro_code: { Args: never; Returns: string }
