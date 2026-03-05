@@ -104,7 +104,9 @@ export function DashboardPage() {
         <div className="container mx-auto">
           <h1 className="text-2xl font-bold text-foreground">Olá, {userName} 👋</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isNewUser ? 'Comece sua jornada no ciclo.' : 'Seu centro de decisões.'}
+            {isNewUser 
+              ? 'Comece sua jornada no ciclo.' 
+              : 'Você já entrou no ciclo. Acompanhe sua posição e o movimento.'}
           </p>
         </div>
       </div>
@@ -123,8 +125,8 @@ export function DashboardPage() {
             <Card className="border-primary/30 bg-primary/5">
               <CardContent className="p-5 space-y-3 text-center">
                 <Rocket className="w-10 h-10 mx-auto text-primary" />
-                <p className="text-lg font-semibold text-foreground">Você ainda não ativou nenhum PRO.</p>
-                <p className="text-sm text-muted-foreground">Ative seu primeiro PRO para entrar no ciclo da economia circular.</p>
+                <p className="text-lg font-semibold text-foreground">Comece sua jornada no ciclo.</p>
+                <p className="text-sm text-muted-foreground">Ative seu primeiro PRO para participar da economia circular urbana.</p>
                 <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
                   {hasPixKey ? (
                     <Button size="lg" className="gap-2" onClick={() => setPixModalOpen(true)}>
