@@ -1169,6 +1169,36 @@ export type Database = {
           },
         ]
       }
+      system_ledger: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          reference_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          reference_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          reference_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       terms_acceptance: {
         Row: {
           accepted_at: string
@@ -1491,6 +1521,16 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      ledger_event: {
+        Args: {
+          p_amount: number
+          p_event_type: string
+          p_metadata?: Json
+          p_reference_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       lookup_referral_code: {
         Args: { code: string }
         Returns: {

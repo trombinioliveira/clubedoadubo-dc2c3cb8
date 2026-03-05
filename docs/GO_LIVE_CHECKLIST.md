@@ -208,3 +208,49 @@ Validar: `/contato` → WhatsApp, email e Instagram @clubedoadubo visíveis.
 - [ ] HIBP Check ativado no Auth
 
 > **process_sale_distribution / mp-webhook / FIFO engine: INALTERADOS** ✅
+
+---
+
+## SYSTEM LEDGER
+
+O `system_ledger` registra todos os eventos econômicos do sistema de forma auditável, sem alterar nenhuma lógica financeira.
+
+### Eventos registrados
+
+| Evento | Quando | Dados |
+|--------|--------|-------|
+| `subscription_credit` | Pagamento de plano confirmado → `pro_credits` criado | `product_key`, quantidade |
+| `pro_activated` | `consume_pro_activations()` transfere PRO do pool | PRO id, user_id |
+| `adubo_sale` | `financial_entries` com status `confirmed` inserido | amount, financial_entry_id |
+| `pro_paid` | `pro_payouts` registrado (via `process_sale_distribution`) | PRO id, amount_paid |
+
+### Triggers
+
+| Trigger | Tabela | Evento |
+|---------|--------|--------|
+| `trg_ledger_adubo_sale` | `financial_entries` | AFTER INSERT |
+| `trg_ledger_pro_paid` | `pro_payouts` | AFTER INSERT |
+
+### Consultas de auditoria
+
+```sql
+-- Últimos eventos do ledger
+SELECT * FROM system_ledger ORDER BY created_at DESC LIMIT 20;
+
+-- Resumo por tipo
+SELECT event_type, count(*), sum(amount)
+FROM system_ledger
+GROUP BY event_type;
+
+-- Eventos de um usuário
+SELECT * FROM system_ledger
+WHERE user_id = 'UUID'
+ORDER BY created_at DESC;
+```
+
+### Finalidade
+
+- Ledger financeiro auditável
+- Histórico completo de eventos econômicos
+- Rastreamento de ponta a ponta
+- Base para transparência pública
