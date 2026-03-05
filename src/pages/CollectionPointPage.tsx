@@ -192,6 +192,9 @@ export default function CollectionPointPage() {
               </Button>
             </Link>
           </div>
+          <p className="text-center text-sm text-primary font-medium">
+            🌱 Você está apoiando o ponto {data.name}.
+          </p>
           <div className="flex justify-center">
             <Link to="/painel-publico">
               <Button variant="ghost" size="sm">

@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { 
-  Activity, ExternalLink, CheckCircle2, AlertTriangle, Database, 
-  RefreshCw, Loader2, MapPin, ShoppingCart, ClipboardList
+  Activity, ExternalLink, CheckCircle2, Database, 
+  RefreshCw, Loader2, MapPin, ClipboardList, CreditCard
 } from 'lucide-react';
 
 interface TableCounts {
@@ -22,11 +22,11 @@ interface TableCounts {
   commission_levels: number;
   collection_points: number;
   profiles: number;
+  pro_credits: number;
+  pro_activations: number;
 }
 
 interface IntegrityResult {
-  duplicateCodes: number;
-  duplicatePositions: number;
   prosWithoutFifo: number;
   fifoWithoutPros: number;
 }
@@ -40,15 +40,24 @@ interface PointAttribution {
   attribution: any;
 }
 
+interface ProCredit {
+  id: string;
+  user_id: string;
+  product_key: string | null;
+  quantity_total: number;
+  quantity_remaining: number;
+  created_at: string;
+}
+
 export function QAGoLivePanel() {
   const [envMode, setEnvMode] = useState<string>('loading...');
   const [counts, setCounts] = useState<TableCounts | null>(null);
   const [integrity, setIntegrity] = useState<IntegrityResult | null>(null);
   const [pointPurchases, setPointPurchases] = useState<PointAttribution[]>([]);
+  const [pendingCredits, setPendingCredits] = useState<ProCredit[]>([]);
   const [lastEntry, setLastEntry] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // Manual checklist (not persisted)
   const [checklist, setChecklist] = useState<Record<string, boolean>>({
     auth_signup: false,
     auth_email: false,
@@ -65,12 +74,13 @@ export function QAGoLivePanel() {
     admin_subscriptions: false,
     admin_notifications: false,
     admin_reset_blocked: false,
+    plan_credits: false,
+    plan_conversion: false,
   });
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
 
-    // env_mode
     const { data: envData } = await supabase
       .from('site_settings')
       .select('value')
@@ -78,8 +88,7 @@ export function QAGoLivePanel() {
       .single();
     setEnvMode((envData?.value as any)?.mode ?? 'unknown');
 
-    // counts
-    const tables = ['pros', 'fifo_queue', 'financial_entries', 'sale_distributions', 'pro_payouts', 'subscriptions', 'subscription_logs', 'reset_logs', 'commission_levels', 'collection_points', 'profiles'] as const;
+    const tables = ['pros', 'fifo_queue', 'financial_entries', 'sale_distributions', 'pro_payouts', 'subscriptions', 'subscription_logs', 'reset_logs', 'commission_levels', 'collection_points', 'profiles', 'pro_credits', 'pro_activations'] as const;
     const countsResult: any = {};
     await Promise.all(
       tables.map(async (t) => {
@@ -89,7 +98,6 @@ export function QAGoLivePanel() {
     );
     setCounts(countsResult);
 
-    // last financial_entry
     const { data: lastFe } = await supabase
       .from('financial_entries')
       .select('id, status, product_key, is_distributed, attribution, created_at, amount')
@@ -98,7 +106,6 @@ export function QAGoLivePanel() {
       .single();
     setLastEntry(lastFe);
 
-    // point purchases (last 10 with attribution)
     const { data: ptPurchases } = await supabase
       .from('financial_entries')
       .select('id, amount, product_key, status, created_at, attribution')
@@ -107,6 +114,15 @@ export function QAGoLivePanel() {
       .limit(10);
     setPointPurchases((ptPurchases ?? []) as PointAttribution[]);
 
+    // Pending pro_credits
+    const { data: credits } = await supabase
+      .from('pro_credits')
+      .select('id, user_id, product_key, quantity_total, quantity_remaining, created_at')
+      .gt('quantity_remaining', 0)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    setPendingCredits((credits ?? []) as ProCredit[]);
+
     setLoading(false);
   }, []);
 
@@ -114,21 +130,12 @@ export function QAGoLivePanel() {
 
   const runIntegrity = async () => {
     setLoading(true);
-    // duplicate codes
-    const { data: dupCodes } = await supabase.rpc('generate_otp_code'); // dummy — we'll count via query
-    // We can't run raw SQL from client, so we use a workaround: count distinct vs total
     const { count: totalPros } = await supabase.from('pros').select('*', { count: 'exact', head: true });
     const { count: totalFifo } = await supabase.from('fifo_queue').select('*', { count: 'exact', head: true });
 
-    // Check parity
-    const prosCount = totalPros ?? 0;
-    const fifoCount = totalFifo ?? 0;
-
     setIntegrity({
-      duplicateCodes: 0, // Can't detect from client without RPC
-      duplicatePositions: 0,
-      prosWithoutFifo: Math.max(0, prosCount - fifoCount),
-      fifoWithoutPros: Math.max(0, fifoCount - prosCount),
+      prosWithoutFifo: Math.max(0, (totalPros ?? 0) - (totalFifo ?? 0)),
+      fifoWithoutPros: Math.max(0, (totalFifo ?? 0) - (totalPros ?? 0)),
     });
     setLoading(false);
   };
@@ -196,7 +203,6 @@ export function QAGoLivePanel() {
             </div>
           )}
 
-          {/* Point purchases */}
           {pointPurchases.length > 0 && (
             <div>
               <p className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -216,6 +222,40 @@ export function QAGoLivePanel() {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Assinaturas / Créditos */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CreditCard className="w-5 h-5" />
+            Assinaturas & Créditos
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium">pro_credits pendentes (quantity_remaining &gt; 0):</span>
+            <Badge variant="secondary">{pendingCredits.length}</Badge>
+          </div>
+          {pendingCredits.length > 0 && (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {pendingCredits.map((c) => (
+                <div key={c.id} className="text-xs p-2 bg-muted/30 rounded flex justify-between items-center">
+                  <span>
+                    <Badge variant="outline" className="mr-2">{c.product_key ?? 'manual'}</Badge>
+                    {c.quantity_remaining}/{c.quantity_total} restantes
+                  </span>
+                  <span className="text-muted-foreground">
+                    {new Date(c.created_at).toLocaleDateString('pt-BR')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            A Edge Function <code>convert-pro-credits</code> converte créditos em PROs a cada execução (máx 200).
+          </p>
         </CardContent>
       </Card>
 
@@ -261,6 +301,9 @@ export function QAGoLivePanel() {
             <Button variant="outline" size="sm" onClick={() => window.open('/fifo', '_blank')}>
               <ExternalLink className="w-3 h-3 mr-1" /> /fifo
             </Button>
+            <Button variant="outline" size="sm" onClick={() => window.open('/ciclo', '_blank')}>
+              <ExternalLink className="w-3 h-3 mr-1" /> /ciclo
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -289,6 +332,10 @@ export function QAGoLivePanel() {
             { header: 'Pagamento', items: [
               { key: 'pay_avulso', label: 'pro_avulso (R$ 1)' },
               { key: 'pay_plano', label: 'plano_muda (R$ 50)' },
+            ]},
+            { header: 'Planos (Créditos)', items: [
+              { key: 'plan_credits', label: 'Plano gera pro_credits corretamente' },
+              { key: 'plan_conversion', label: 'convert_pro_credits gera PROs via ativação' },
             ]},
             { header: 'Ponto (QR/Referral)', items: [
               { key: 'point_purchase', label: 'Compra via /ponto/:slug' },

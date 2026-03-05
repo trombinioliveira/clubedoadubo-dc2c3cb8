@@ -117,7 +117,7 @@ export function FifoQueueColumns({ queue, userId, onSelectEntry, isLoading }: Fi
                       >
                         <div className="flex items-center justify-between gap-1">
                           <span className="text-[10px] font-mono font-bold text-primary truncate">
-                            {entry.pro_code?.slice(-6)}
+                            PRO #{entry.queue_position}
                           </span>
                           {isUserPro && (
                             <Badge variant="default" className="text-[8px] px-1 py-0 h-4">
@@ -125,11 +125,11 @@ export function FifoQueueColumns({ queue, userId, onSelectEntry, isLoading }: Fi
                             </Badge>
                           )}
                         </div>
-                        <p className="text-[9px] text-muted-foreground truncate mt-0.5">
-                          {entry.user_name?.split(' ')[0] || 'Participante'}
+                        <p className="text-[9px] font-mono text-muted-foreground truncate mt-0.5">
+                          {entry.pro_code}
                         </p>
                         <p className="text-[8px] text-muted-foreground">
-                          #{entry.queue_position}
+                          {entry.user_name?.split(' ')[0] || 'Participante'}
                         </p>
                       </button>
                     );

@@ -75,7 +75,7 @@ SELECT position, count(*) FROM fifo_queue GROUP BY position HAVING count(*) > 1 
 
 ---
 
-## Passo 5 — Teste E2E Pagamento
+## Passo 5 — Teste E2E Pagamento (PRO Avulso)
 
 ### 5.1 Compra pro_avulso (R$ 1)
 
@@ -85,29 +85,68 @@ SELECT position, count(*) FROM fifo_queue GROUP BY position HAVING count(*) > 1 
 4. Validar:
 
 ```sql
--- Financial entry criada e confirmada
 SELECT id, status, product_key, is_distributed, external_reference, attribution
 FROM financial_entries
 ORDER BY created_at DESC LIMIT 1;
 
--- Distribuição processada
 SELECT * FROM sale_distributions ORDER BY created_at DESC LIMIT 1;
 
--- Pagamentos efetuados
 SELECT * FROM pro_payouts ORDER BY paid_at DESC LIMIT 5;
 ```
 
-### 5.2 Compra plano_muda (R$ 50)
+### 5.2 Compra plano_muda (R$ 50) — via create-mp-subscription
 
 ```sql
-SELECT id, user_id, plan_key, status, started_at
+SELECT id, user_id, plan_key, status, started_at, mp_preapproval_id
 FROM subscriptions
 ORDER BY updated_at DESC LIMIT 1;
 ```
 
 ---
 
-## Passo 6 — Teste Ponto por QR (Referral do Ponto)
+## Passo 6 — Validação de Planos (Créditos)
+
+Quando um pagamento com `product_key IN ('plano_semente','plano_muda','plano_arvore')` é confirmado:
+
+1. O trigger `create_user_pros_from_confirmed_payment` cria um registro em `pro_credits`:
+
+```sql
+SELECT id, user_id, product_key, quantity_total, quantity_remaining, created_at
+FROM pro_credits
+ORDER BY created_at DESC LIMIT 5;
+```
+
+2. A Edge Function `convert-pro-credits` (agendada ou manual) converte créditos em PROs:
+
+```sql
+-- Chamar manualmente para testar:
+SELECT * FROM convert_pro_credits(200);
+
+-- Verificar ativações geradas:
+SELECT * FROM pro_activations ORDER BY created_at DESC LIMIT 10;
+
+-- O trigger consume_pro_activations gera PROs direct automaticamente.
+SELECT count(*) FROM pros WHERE pro_type = 'direct';
+```
+
+3. Quantidades por plano:
+   - `plano_semente` → 10 créditos
+   - `plano_muda` → 25 créditos
+   - `plano_arvore` → 50 créditos
+
+### Função `process_sale_distribution_safe`
+
+Para QA manual, use esta função wrapper que verifica se existem PROs elegíveis antes de processar:
+
+```sql
+SELECT process_sale_distribution_safe('<financial_entry_id>');
+```
+
+Se não houver PROs com status `sold`, retorna `{ skipped: true, reason: 'no_eligible_sold' }`.
+
+---
+
+## Passo 7 — Teste Ponto por QR (Referral do Ponto)
 
 1. Abra `/ponto/mb` (simula scan de QR Code)
 2. Clique **Comprar 1 PRO (R$ 1)** — a compra deve carregar `collection_point_slug=mb`
@@ -115,7 +154,6 @@ ORDER BY updated_at DESC LIMIT 1;
 4. Validar:
 
 ```sql
--- Deve ter attribution com source=collection_point e slug=mb
 SELECT id, amount, product_key, status, attribution
 FROM financial_entries
 WHERE attribution->>'source' = 'collection_point'
@@ -126,7 +164,7 @@ ORDER BY created_at DESC LIMIT 5;
 
 ---
 
-## Passo 7 — Contato
+## Passo 8 — Contato e Redes Sociais
 
 No Supabase SQL Editor, configure os dados de contato:
 
@@ -137,16 +175,23 @@ INSERT INTO site_settings (key, value) VALUES
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 ```
 
-Validar: acesse `/contato` e confirme que WhatsApp e email estão visíveis.
+Validar:
+- `/contato` → WhatsApp e email visíveis + link Instagram @clubedoadubo
+- Rodapé → link @clubedoadubo visível
 
 ---
 
 ## Roteiro de Teste Client
 
+### Criar usuário de teste:
+1. Cadastrar `cliente.teste@gmail.com`
+2. Completar perfil com endereço completo em `/perfil`
+3. Cadastrar chave Pix
+
 ### Telas a validar:
-- `/dashboard` — KPIs, PROs no ciclo, sonhos
-- `/fifo` — Fila FIFO, modal "Ver meus resíduos no ciclo"
-- `/ciclo` — Ciclo visual
+- `/dashboard` — KPIs, PROs no ciclo, sonhos, copy correto
+- `/fifo` — Fila FIFO, modal "Ver meus resíduos no ciclo", formato PRO #101 · CODIGO
+- `/ciclo` — Passo a passo alinhado com ciclo real (ativar PRO, compostagem, venda, pagamento)
 - `/dreams` — Sonhos
 - `/assinatura` — Plano ativo
 - `/indicacoes` — Link de indicação, indicados
@@ -168,9 +213,11 @@ Validar: acesse `/contato` e confirme que WhatsApp e email estão visíveis.
 - [ ] Reset bloqueado na UI
 - [ ] Seed de 200 PROs gerado
 - [ ] Compra pro_avulso testada
-- [ ] Compra plano testada
+- [ ] Compra plano testada (pro_credits gerados)
+- [ ] convert_pro_credits executado (PROs criados)
 - [ ] Compra via ponto testada (attribution ok)
 - [ ] /contato com dados reais
+- [ ] Instagram @clubedoadubo visível
 - [ ] Mobile testado (iPhone + Android)
 - [ ] /painel-publico com KPIs
 - [ ] HIBP Check ativado no Auth

@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.create-mp-subscription]
 verify_jwt = false
+
+[functions.convert-pro-credits]
+verify_jwt = false

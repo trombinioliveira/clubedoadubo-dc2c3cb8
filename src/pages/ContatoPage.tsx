@@ -116,6 +116,20 @@ const ContatoPage = () => {
         </div>
       </section>
 
+      {/* Instagram */}
+      <section className="py-8 md:py-10">
+        <div className="container mx-auto px-4 text-center">
+          <a
+            href="https://instagram.com/clubedoadubo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full hover:opacity-90 transition-opacity font-medium"
+          >
+            📸 @clubedoadubo no Instagram
+          </a>
+        </div>
+      </section>
+
       {/* FAQ CTA */}
       <section className="py-12 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4 text-center">

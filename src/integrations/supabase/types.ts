@@ -537,6 +537,45 @@ export type Database = {
         }
         Relationships: []
       }
+      pro_credits: {
+        Row: {
+          created_at: string
+          external_reference: string | null
+          id: string
+          product_key: string | null
+          quantity_remaining: number
+          quantity_total: number
+          source: string
+          subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          external_reference?: string | null
+          id?: string
+          product_key?: string | null
+          quantity_remaining: number
+          quantity_total: number
+          source?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          external_reference?: string | null
+          id?: string
+          product_key?: string | null
+          quantity_remaining?: number
+          quantity_total?: number
+          source?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pro_payouts: {
         Row: {
           amount_paid: number
@@ -1378,6 +1417,12 @@ export type Database = {
     }
     Functions: {
       consume_pro_activations: { Args: never; Returns: undefined }
+      convert_pro_credits: {
+        Args: { max_to_convert?: number }
+        Returns: {
+          converted: number
+        }[]
+      }
       count_active_referrals: { Args: { p_user_id: string }; Returns: number }
       generate_otp_code: { Args: never; Returns: string }
       generate_pro_code: { Args: never; Returns: string }
@@ -1453,6 +1498,10 @@ export type Database = {
         }[]
       }
       process_sale_distribution: {
+        Args: { p_financial_entry_id: string }
+        Returns: Json
+      }
+      process_sale_distribution_safe: {
         Args: { p_financial_entry_id: string }
         Returns: Json
       }

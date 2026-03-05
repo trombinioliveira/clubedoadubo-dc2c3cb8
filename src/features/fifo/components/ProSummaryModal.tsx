@@ -80,9 +80,9 @@ export function ProSummaryModal({ entry, onClose }: ProSummaryModalProps) {
         <div className="space-y-4">
           {/* Code display */}
           <div className="text-center p-4 bg-primary/10 rounded-lg">
-            <p className="text-xs text-muted-foreground mb-1">Código único</p>
+            <p className="text-xs text-muted-foreground mb-1">Identificação</p>
             <p className="text-2xl font-bold font-mono text-primary">
-              {entry.pro_code}
+              PRO #{entry.queue_position} · {entry.pro_code}
             </p>
           </div>
 
@@ -177,12 +177,12 @@ export function ProSummaryModal({ entry, onClose }: ProSummaryModalProps) {
           </div>
 
           {/* Educational note */}
-          <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-200">
-            <p className="text-xs text-amber-800">
-              💡 Este PRO só gera valor quando o ciclo é concluído.
+          <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-1">
+            <p className="text-xs text-amber-800 font-medium">
+              💡 O valor só é gerado quando o adubo é vendido.
             </p>
-            <p className="text-xs text-amber-700 mt-1">
-              O PRO entra na fila. O Real do Ciclo move a fila.
+            <p className="text-xs text-amber-700">
+              Nada fura a fila. O dinheiro vem da venda do adubo, não de novas pessoas.
             </p>
           </div>
         </div>

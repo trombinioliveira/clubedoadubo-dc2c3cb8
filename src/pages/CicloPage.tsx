@@ -62,8 +62,8 @@ export default function CicloPage() {
     {
       num: 1,
       icon: Sparkles,
-      title: 'Ative seu primeiro PRO',
-      description: 'Cada PRO representa 100g de resíduo real sendo transformado.',
+      title: 'Ative um PRO (assuma uma posição)',
+      description: 'Ao ativar, você assume uma posição existente na fila global. Cada PRO = 100g de resíduo real.',
       completed: status.hasPro,
       action: () => setShowPurchaseModal(true),
       actionLabel: 'Ativar agora',
@@ -71,17 +71,17 @@ export default function CicloPage() {
     {
       num: 2,
       icon: ListOrdered,
-      title: 'Entenda sua posição na fila',
-      description: 'A fila é única, cronológica e pública. Ninguém fura.',
+      title: 'Acompanhe o ciclo biológico',
+      description: 'Resíduo → compostagem → produção de adubo. O ciclo tem tempo real.',
       completed: status.hasViewedFifo,
       action: () => navigate('/fifo'),
-      actionLabel: 'Ver minha posição',
+      actionLabel: 'Ver meus PROs na fila',
     },
     {
       num: 3,
       icon: Heart,
-      title: 'Conecte um sonho ao ciclo',
-      description: 'Dê um destino ao seu impacto.',
+      title: 'Conecte um sonho',
+      description: 'Dê um destino ao valor gerado quando o adubo for vendido.',
       completed: status.hasDream,
       action: () => navigate('/dreams'),
       actionLabel: 'Criar meu primeiro sonho',
@@ -89,8 +89,8 @@ export default function CicloPage() {
     {
       num: 4,
       icon: RefreshCw,
-      title: 'Feche o ciclo',
-      description: 'Transforme impacto pontual em impacto contínuo com assinatura.',
+      title: 'Venda do adubo → pagamento',
+      description: 'Quando o adubo real é vendido, o valor entra no ciclo e paga os PROs na ordem da fila.',
       completed: status.hasSubscription,
       action: () => navigate('/planos'),
       actionLabel: 'Fechar o ciclo mensal',
@@ -118,11 +118,16 @@ export default function CicloPage() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-            Seu Caminho no Ciclo
+            Passo a Passo do Ciclo
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg">
             Transforme resíduo em impacto real — passo a passo.
           </p>
+          <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg inline-block">
+            <p className="text-sm text-foreground">
+              Você não cria PROs novos. Ao ativar, você assume posições existentes na fila global.
+            </p>
+          </div>
         </motion.div>
 
         {/* Progress Bar */}
@@ -238,9 +243,12 @@ export default function CicloPage() {
         >
           <Leaf className="w-6 h-6 mx-auto text-primary mb-3 opacity-60" />
           <p className="text-muted-foreground text-sm italic leading-relaxed">
-            Sustentabilidade não precisa ser complicada.<br />
-            Ela só precisa funcionar.
+            Nada fura a fila. O dinheiro vem da venda do adubo.<br />
+            Não de novas pessoas.
           </p>
+          <Button variant="outline" size="sm" className="mt-4" onClick={() => navigate('/fifo')}>
+            Ver meus PROs na fila <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
         </motion.div>
       </div>
 
