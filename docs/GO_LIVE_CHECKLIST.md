@@ -4,6 +4,25 @@
 
 ---
 
+## GO LIVE SHIELD — Proteções Ativas
+
+| Proteção | Descrição |
+|----------|-----------|
+| `idx_unique_provider_payment_id` | Índice UNIQUE em `financial_entries(provider_payment_id)` — impede webhook duplicado |
+| `guard_pro_creation_rate()` | Bloqueia criação de PROs se >500 em 60s |
+| `FOR UPDATE SKIP LOCKED` | `consume_pro_activations()` usa lock pessimista para evitar corrida no pool |
+| `trg_pros_set_sold_at` | Trigger único que registra `sold_at` automaticamente |
+| `trg_create_user_pros_from_confirmed_payment` | Trigger único para criação de créditos/ativações |
+| `process_sale_distribution_safe()` | Wrapper QA que valida elegibilidade antes de distribuir |
+| `system_health_check()` | RPC de monitoramento: pool, FIFO, créditos, última distribuição |
+| `env_mode = production` | Bloqueia reset sandbox na UI |
+
+**Triggers removidos (duplicados):**
+- `trg_create_user_pros_from_payment` (substituído por `trg_create_user_pros_from_confirmed_payment`)
+- `trg_set_sold_at` (substituído por `trg_pros_set_sold_at`)
+
+---
+
 ## Passo 1 — Reset Sandbox
 
 1. Acesse `/admin` → aba **Reset**
@@ -47,11 +66,6 @@ SET value = '{"mode":"production"}'::jsonb
 WHERE key = 'env_mode';
 ```
 
-Validar:
-```sql
-SELECT key, value FROM site_settings WHERE key = 'env_mode';
-```
-
 Validar UI: `/admin` → aba **Reset** deve mostrar badge **production** e botão de reset **desabilitado**.
 
 > ⚠️ Após este passo, NÃO executar reset novamente.
@@ -68,7 +82,6 @@ Validar UI: `/admin` → aba **Reset** deve mostrar badge **production** e botã
 ```sql
 SELECT count(*) FROM pros;          -- esperado: 200
 SELECT count(*) FROM fifo_queue;    -- esperado: 200
--- Sem duplicatas:
 SELECT code, count(*) FROM pros GROUP BY code HAVING count(*) > 1 LIMIT 5;
 SELECT position, count(*) FROM fifo_queue GROUP BY position HAVING count(*) > 1 LIMIT 5;
 ```
@@ -77,8 +90,6 @@ SELECT position, count(*) FROM fifo_queue GROUP BY position HAVING count(*) > 1 
 
 ## Passo 5 — Teste E2E Pagamento (PRO Avulso)
 
-### 5.1 Compra pro_avulso (R$ 1)
-
 1. Como **cliente de teste**, acesse `/planos`
 2. Clique **Comprar** no PRO Avulso
 3. Complete o pagamento no Mercado Pago
@@ -86,20 +97,10 @@ SELECT position, count(*) FROM fifo_queue GROUP BY position HAVING count(*) > 1 
 
 ```sql
 SELECT id, status, product_key, is_distributed, external_reference, attribution
-FROM financial_entries
-ORDER BY created_at DESC LIMIT 1;
+FROM financial_entries ORDER BY created_at DESC LIMIT 1;
 
 SELECT * FROM sale_distributions ORDER BY created_at DESC LIMIT 1;
-
 SELECT * FROM pro_payouts ORDER BY paid_at DESC LIMIT 5;
-```
-
-### 5.2 Compra plano_muda (R$ 50) — via create-mp-subscription
-
-```sql
-SELECT id, user_id, plan_key, status, started_at, mp_preapproval_id
-FROM subscriptions
-ORDER BY updated_at DESC LIMIT 1;
 ```
 
 ---
@@ -108,48 +109,37 @@ ORDER BY updated_at DESC LIMIT 1;
 
 Quando um pagamento com `product_key IN ('plano_semente','plano_muda','plano_arvore')` é confirmado:
 
-1. O trigger `create_user_pros_from_confirmed_payment` cria um registro em `pro_credits`:
+1. O trigger cria um registro em `pro_credits`:
 
 ```sql
 SELECT id, user_id, product_key, quantity_total, quantity_remaining, created_at
-FROM pro_credits
-ORDER BY created_at DESC LIMIT 5;
+FROM pro_credits ORDER BY created_at DESC LIMIT 5;
 ```
 
-2. A Edge Function `convert-pro-credits` (agendada ou manual) converte créditos em PROs:
+2. A Edge Function `convert-pro-credits` converte créditos em PROs:
 
 ```sql
--- Chamar manualmente para testar:
 SELECT * FROM convert_pro_credits(200);
-
--- Verificar ativações geradas:
 SELECT * FROM pro_activations ORDER BY created_at DESC LIMIT 10;
-
--- O trigger consume_pro_activations gera PROs direct automaticamente.
 SELECT count(*) FROM pros WHERE pro_type = 'direct';
 ```
 
-3. Quantidades por plano:
-   - `plano_semente` → 10 créditos
-   - `plano_muda` → 25 créditos
-   - `plano_arvore` → 50 créditos
+3. Quantidades: Semente=10, Muda=25, Árvore=50
 
-### Função `process_sale_distribution_safe`
-
-Para QA manual, use esta função wrapper que verifica se existem PROs elegíveis antes de processar:
+### Health Check
 
 ```sql
-SELECT process_sale_distribution_safe('<financial_entry_id>');
+SELECT system_health_check();
 ```
 
-Se não houver PROs com status `sold`, retorna `{ skipped: true, reason: 'no_eligible_sold' }`.
+Retorna: pool, fifo, créditos pendentes, última distribuição.
 
 ---
 
 ## Passo 7 — Teste Ponto por QR (Referral do Ponto)
 
-1. Abra `/ponto/mb` (simula scan de QR Code)
-2. Clique **Comprar 1 PRO (R$ 1)** — a compra deve carregar `collection_point_slug=mb`
+1. Abra `/ponto/mb`
+2. Clique **Comprar 1 PRO (R$ 1)**
 3. Complete o pagamento
 4. Validar:
 
@@ -160,13 +150,9 @@ WHERE attribution->>'source' = 'collection_point'
 ORDER BY created_at DESC LIMIT 5;
 ```
 
-5. No Admin → aba **QA / Go-Live** → seção "Compras atribuídas a pontos" deve listar a compra.
-
 ---
 
 ## Passo 8 — Contato e Redes Sociais
-
-No Supabase SQL Editor, configure os dados de contato:
 
 ```sql
 INSERT INTO site_settings (key, value) VALUES
@@ -175,9 +161,7 @@ INSERT INTO site_settings (key, value) VALUES
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 ```
 
-Validar:
-- `/contato` → WhatsApp e email visíveis + link Instagram @clubedoadubo
-- Rodapé → link @clubedoadubo visível
+Validar: `/contato` → WhatsApp, email e Instagram @clubedoadubo visíveis.
 
 ---
 
@@ -189,18 +173,18 @@ Validar:
 3. Cadastrar chave Pix
 
 ### Telas a validar:
-- `/dashboard` — KPIs, PROs no ciclo, sonhos, copy correto
-- `/fifo` — Fila FIFO, modal "Ver meus resíduos no ciclo", formato PRO #101 · CODIGO
-- `/ciclo` — Passo a passo alinhado com ciclo real (ativar PRO, compostagem, venda, pagamento)
+- `/dashboard` — KPIs, copy "Você já entrou no ciclo"
+- `/fifo` — PRO #101 · CODIGO, modal com posição/status
+- `/ciclo` — Passo a passo real
 - `/dreams` — Sonhos
 - `/assinatura` — Plano ativo
-- `/indicacoes` — Link de indicação, indicados
-- `/perfil` — Dados pessoais, endereço completo
+- `/indicacoes` — Link de indicação
+- `/perfil` — Dados completos
 
-### Fluxo de compra via ponto vs referral pessoal:
-1. **Via ponto**: `/ponto/mb` → Comprar → `financial_entries.attribution.source = "collection_point"`
-2. **Via referral**: `/u/CODIGO` → Comprar → `financial_entries.referral_code = "CODIGO"`
-3. Ambos devem coexistir sem conflito.
+### Fluxo ponto vs referral:
+1. **Via ponto**: `/ponto/mb` → `attribution.source = "collection_point"`
+2. **Via referral**: `/u/CODIGO` → `referral_code = "CODIGO"`
+3. Ambos coexistem sem conflito.
 
 ---
 
@@ -216,6 +200,7 @@ Validar:
 - [ ] Compra plano testada (pro_credits gerados)
 - [ ] convert_pro_credits executado (PROs criados)
 - [ ] Compra via ponto testada (attribution ok)
+- [ ] system_health_check() retorna ok
 - [ ] /contato com dados reais
 - [ ] Instagram @clubedoadubo visível
 - [ ] Mobile testado (iPhone + Android)

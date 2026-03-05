@@ -1481,6 +1481,7 @@ export type Database = {
         }[]
       }
       get_user_dashboard_summary: { Args: { p_user_id: string }; Returns: Json }
+      guard_pro_creation_rate: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1505,6 +1506,7 @@ export type Database = {
         Args: { p_financial_entry_id: string }
         Returns: Json
       }
+      system_health_check: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "staff" | "client"

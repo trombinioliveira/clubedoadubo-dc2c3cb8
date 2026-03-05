@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { 
   Activity, ExternalLink, CheckCircle2, Database, 
-  RefreshCw, Loader2, MapPin, ClipboardList, CreditCard
+  RefreshCw, Loader2, MapPin, ClipboardList, CreditCard, HeartPulse
 } from 'lucide-react';
 
 interface TableCounts {
@@ -56,6 +56,7 @@ export function QAGoLivePanel() {
   const [pointPurchases, setPointPurchases] = useState<PointAttribution[]>([]);
   const [pendingCredits, setPendingCredits] = useState<ProCredit[]>([]);
   const [lastEntry, setLastEntry] = useState<any>(null);
+  const [healthCheck, setHealthCheck] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const [checklist, setChecklist] = useState<Record<string, boolean>>({
@@ -122,6 +123,10 @@ export function QAGoLivePanel() {
       .order('created_at', { ascending: false })
       .limit(20);
     setPendingCredits((credits ?? []) as ProCredit[]);
+
+    // Health check
+    const { data: hcData } = await supabase.rpc('system_health_check');
+    setHealthCheck(hcData);
 
     setLoading(false);
   }, []);
@@ -258,6 +263,45 @@ export function QAGoLivePanel() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Health Check */}
+      {healthCheck && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <HeartPulse className="w-5 h-5" />
+              System Health
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Sistema</p>
+                <Badge variant={healthCheck.system === 'ok' ? 'default' : 'destructive'}>{healthCheck.system}</Badge>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Pool disponível</p>
+                <p className="text-lg font-bold">{healthCheck.pool_available ?? 0}</p>
+                <Badge variant={healthCheck.pool === 'ok' ? 'default' : 'destructive'}>{healthCheck.pool}</Badge>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">FIFO total</p>
+                <p className="text-lg font-bold">{healthCheck.fifo_total ?? 0}</p>
+                <Badge variant={healthCheck.fifo === 'ok' ? 'default' : 'destructive'}>{healthCheck.fifo}</Badge>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Créditos pendentes</p>
+                <p className="text-lg font-bold">{healthCheck.credits_pending ?? 0}</p>
+                <Badge variant={healthCheck.credits === 'ok' ? 'default' : 'secondary'}>{healthCheck.credits}</Badge>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Última distribuição</p>
+                <p className="text-xs">{healthCheck.last_distribution ? new Date(healthCheck.last_distribution).toLocaleString('pt-BR') : '—'}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* B) Integrity & Links */}
       <Card>
