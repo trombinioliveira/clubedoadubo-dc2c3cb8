@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_issues: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          route: string
+          severity: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          route: string
+          severity?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          route?: string
+          severity?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      audit_reviews: {
+        Row: {
+          checklist: Json | null
+          id: string
+          notes: string | null
+          route: string
+          route_name: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          checklist?: Json | null
+          id?: string
+          notes?: string | null
+          route: string
+          route_name?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          checklist?: Json | null
+          id?: string
+          notes?: string | null
+          route?: string
+          route_name?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       batches: {
         Row: {
           batch_type: Database["public"]["Enums"]["batch_type"]
