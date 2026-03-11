@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import logoImage from '@/assets/logo.webp';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/lib/auth';
 
 export const PublicHeader = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -18,29 +18,22 @@ export const PublicHeader = () => {
     { label: 'Contato', path: '/contato' },
   ];
 
+  const logoTo = user ? '/jornada' : '/';
+
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      {/* Main Header */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 sm:h-18">
-          {/* Left - Logo */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3">
-            <img 
-              src={logoImage} 
-              alt="Clube do Adubo" 
-              className="w-9 h-9 sm:w-10 sm:h-10 object-contain" 
-            />
+          {/* Logo */}
+          <Link to={logoTo} className="flex items-center gap-2 sm:gap-3">
+            <img src={logoImage} alt="Clube do Adubo" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" />
             <div className="flex flex-col">
-              <span className="font-bold text-foreground text-sm sm:text-base leading-tight">
-                Clube do Adubo
-              </span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
-                Economia Circular Urbana
-              </span>
+              <span className="font-bold text-foreground text-sm sm:text-base leading-tight">Clube do Adubo</span>
+              <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
             </div>
           </Link>
 
-          {/* Center - Menu (Desktop) */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {menuItems.map((item) => (
               <Link
@@ -53,31 +46,42 @@ export const PublicHeader = () => {
             ))}
           </nav>
 
-          {/* Right - CTAs */}
+          {/* Right CTAs */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/auth" className="hidden sm:inline-flex">
-              <Button variant="ghost" size="sm" className="text-sm">
-                Criar conta
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="default" size="sm" className="text-sm">
-                Entrar
-              </Button>
-            </Link>
-            
-            {/* Mobile menu button */}
+            {user ? (
+              <>
+                <Link to="/jornada" className="hidden sm:inline-flex">
+                  <Button variant="default" size="sm" className="text-sm">
+                    Minha jornada
+                  </Button>
+                </Link>
+                <Link to="/jornada" className="sm:hidden">
+                  <Button variant="default" size="sm" className="text-sm">
+                    Jornada
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/auth" className="hidden sm:inline-flex">
+                  <Button variant="ghost" size="sm" className="text-sm">
+                    Criar conta
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="default" size="sm" className="text-sm">
+                    Entrar
+                  </Button>
+                </Link>
+              </>
+            )}
             <Button
               variant="ghost"
               size="icon"
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
@@ -92,7 +96,7 @@ export const PublicHeader = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <nav className="container mx-auto px-4 py-3">
@@ -108,15 +112,19 @@ export const PublicHeader = () => {
                 </Link>
               ))}
               <div className="border-t border-border/50 mt-2 pt-2">
-                <Link
-                  to="/auth"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block"
-                >
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
-                    Criar conta
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to="/jornada" onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button variant="default" size="sm" className="w-full justify-start text-sm">
+                      Minha jornada
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+                      Criar conta
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </nav>

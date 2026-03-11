@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Sparkles, ListOrdered, Settings, LogOut, User, Share2, Footprints } from 'lucide-react';
+import { Settings, LogOut, User, Sparkles, Eye, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -30,12 +30,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -43,20 +38,31 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="container mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center gap-1 sm:gap-3">
-        {/* Logo */}
-        <Link 
-          to="/"
+        {/* Logo → /jornada for logged-in users */}
+        <Link
+          to="/jornada"
           className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity shrink-0"
         >
           <img src={logoImage} alt="Clube do Adubo" className="w-7 h-7 sm:w-10 sm:h-10 object-contain" />
           <span className="font-bold text-sm sm:text-lg text-foreground hidden sm:inline">Clube do Adubo</span>
         </Link>
 
-        {/* Nav links — all breakpoints, between logo and avatar */}
+        {/* Nav links */}
         <nav className="flex items-center gap-0.5 sm:gap-1 lg:gap-2 flex-1 justify-center overflow-x-auto scrollbar-none">
           {user && !isAdmin && (
             <>
-              <Link 
+              <Link
+                to="/jornada"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/jornada') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                <span>Jornada</span>
+              </Link>
+
+              <Link
                 to="/ciclo"
                 className={cn(
                   "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
@@ -66,8 +72,8 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">1</span>
                 <span>Passo a passo</span>
               </Link>
-              
-              <Link 
+
+              <Link
                 to="/dreams"
                 className={cn(
                   "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
@@ -78,7 +84,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 <span>Sonhos</span>
               </Link>
 
-              <Link 
+              <Link
                 to="/indicacoes"
                 className={cn(
                   "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
@@ -88,8 +94,8 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">3</span>
                 <span>Indicações</span>
               </Link>
-              
-              <Link 
+
+              <Link
                 to="/fifo"
                 className={cn(
                   "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
@@ -100,14 +106,14 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 <span>FIFO</span>
               </Link>
 
-              <Link 
+              <Link
                 to="/dashboard"
                 className={cn(
                   "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
                   isActive('/dashboard') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">5</span>
                 <span>PROs</span>
               </Link>
             </>
@@ -123,7 +129,7 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
           )}
         </nav>
 
-        {/* Avatar / Login — right side */}
+        {/* Avatar / user menu */}
         <div className="flex items-center shrink-0">
           {user ? (
             <DropdownMenu>
@@ -143,13 +149,19 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                 </div>
                 <DropdownMenuSeparator />
                 {!isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate('/perfil')}>
-                    <User className="w-4 h-4 mr-2" />
-                    Meu Perfil
-                    {!profile?.profile_completed_at && (
-                      <span className="ml-auto text-xs text-destructive">!</span>
-                    )}
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onClick={() => navigate('/perfil')}>
+                      <User className="w-4 h-4 mr-2" />
+                      Meu Perfil
+                      {!profile?.profile_completed_at && (
+                        <span className="ml-auto text-xs text-destructive">!</span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/assinatura')}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Assinatura
+                    </DropdownMenuItem>
+                  </>
                 )}
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate('/admin')}>
@@ -157,6 +169,15 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                     Painel Admin
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/')}>
+                  <Globe className="w-4 h-4 mr-2" />
+                  Área pública
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/transparencia')}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Painel público
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
