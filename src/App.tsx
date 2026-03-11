@@ -29,6 +29,7 @@ import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
 import CheckoutResultPage from "./pages/CheckoutResultPage";
 import CicloPage from "./pages/CicloPage";
 import AssinaturaPage from "./pages/AssinaturaPage";
+import JornadaPage from "./pages/JornadaPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -76,6 +77,14 @@ const App = () => (
             {/* Protected pages with AppLayout (logged-in header) */}
             <Route element={<AppLayout />}>
               
+              <Route path="/jornada" element={
+                <ProtectedRoute clientOnly>
+                  <PasswordChangeGuard>
+                    <JornadaPage />
+                  </PasswordChangeGuard>
+                </ProtectedRoute>
+              } />
+              
               <Route path="/perfil" element={
                 <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
@@ -105,6 +114,16 @@ const App = () => (
               } />
               
               <Route path="/dreams" element={
+                <ProtectedRoute clientOnly>
+                  <PasswordChangeGuard>
+                    <ProfileDeadlineGuard>
+                      <DreamsPage />
+                    </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/sonhos" element={
                 <ProtectedRoute clientOnly>
                   <PasswordChangeGuard>
                     <ProfileDeadlineGuard>
