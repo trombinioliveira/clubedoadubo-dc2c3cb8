@@ -320,6 +320,63 @@ export default function Auth() {
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-4 py-8">
+        {signupComplete ? (
+          <Card className="w-full max-w-md shadow-elevated border-border/50">
+            <CardContent className="pt-8 pb-6 px-6 text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Mail className="w-8 h-8 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Confira seu e-mail</h2>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Sua conta foi criada com sucesso.<br />
+                  Enviamos um link de confirmação para{' '}
+                  <span className="font-medium text-foreground">{signupEmail}</span>.<br />
+                  Depois de confirmar, você poderá entrar no Clube do Adubo.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <a
+                  href={`https://mail.google.com`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Button variant="default" className="w-full h-11 earth-gradient font-medium gap-2">
+                    <Mail className="w-4 h-4" />
+                    Abrir meu e-mail
+                  </Button>
+                </a>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    const { error } = await supabase.auth.resend({
+                      type: 'signup',
+                      email: signupEmail,
+                    });
+                    if (error) {
+                      toast.error('Não foi possível reenviar. Tente novamente em alguns minutos.');
+                    } else {
+                      toast.success('Link de confirmação reenviado!');
+                    }
+                  }}
+                >
+                  Reenviar confirmação
+                </Button>
+                <Link to="/" className="block">
+                  <Button variant="ghost" className="w-full gap-2">
+                    <ArrowLeft className="w-4 h-4" />
+                    Voltar ao início
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Não encontrou? Verifique também sua caixa de spam.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
         <Card className="w-full max-w-md shadow-elevated border-border/50">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold">Bem-vindo!</CardTitle>
