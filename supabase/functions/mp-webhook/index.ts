@@ -49,11 +49,17 @@ Deno.serve(async (req) => {
   // ── Respond immediately with 200 (MP requires fast ACK) ──────────────────
   // We process asynchronously
   const processWebhook = async () => {
-    const mpToken = Deno.env.get("MP_ACCESS_TOKEN");
+    const mpEnv = Deno.env.get("MP_ENV") || "sandbox";
+    const mpToken = mpEnv === "production"
+      ? Deno.env.get("MP_ACCESS_TOKEN_PROD") || Deno.env.get("MP_ACCESS_TOKEN")
+      : Deno.env.get("MP_ACCESS_TOKEN");
+
     if (!mpToken) {
-      console.error("[mp-webhook] MP_ACCESS_TOKEN not configured");
+      console.error(`[mp-webhook] MP_ACCESS_TOKEN not configured (env=${mpEnv})`);
       return;
     }
+
+    console.log(`[mp-webhook] env=${mpEnv}`);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -134,7 +140,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (existing && existing.status === "confirmed" && existing.is_distributed) {
-      console.log("[mp-webhook] Already processed, skipping:", paymentId);
+      console.log(`[mp-webhook] env=${mpEnv} | Already processed (idempotent), skipping: ${paymentId}`);
       return;
     }
 
@@ -345,7 +351,7 @@ Deno.serve(async (req) => {
       // For now, just log — do NOT auto-block on MP declines (user can retry)
     }
 
-    console.log("[mp-webhook] Done processing payment:", paymentId, "status:", internalStatus);
+    console.log(`[mp-webhook] env=${mpEnv} | Done: payment=${paymentId}, status=${internalStatus}`);
   };
 
   // Fire and forget — respond immediately to MP

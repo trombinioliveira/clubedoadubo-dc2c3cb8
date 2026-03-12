@@ -87,14 +87,20 @@ Deno.serve(async (req) => {
     const plan = PLANS[plan_key];
 
     // ── Mercado Pago preapproval ────────────────────────────────────────────
-    const mpToken = Deno.env.get("MP_ACCESS_TOKEN");
+    const mpEnv = Deno.env.get("MP_ENV") || "sandbox";
+    const mpToken = mpEnv === "production"
+      ? Deno.env.get("MP_ACCESS_TOKEN_PROD") || Deno.env.get("MP_ACCESS_TOKEN")
+      : Deno.env.get("MP_ACCESS_TOKEN");
+
     if (!mpToken) {
-      console.error("MP_ACCESS_TOKEN not configured");
+      console.error(`[create-mp-subscription] MP_ACCESS_TOKEN not configured (env=${mpEnv})`);
       return new Response(JSON.stringify({ error: "Payment service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    console.log(`[create-mp-subscription] env=${mpEnv}, plan=${plan_key}, user=${userId}`);
 
     const baseUrl = Deno.env.get("APP_BASE_URL") || "https://clubedoadubo.lovable.app";
 

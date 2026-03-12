@@ -53,8 +53,12 @@ No Supabase Dashboard → **Project Settings → Edge Function Secrets**:
 
 | Secret | Valor |
 |--------|-------|
-| `MP_ACCESS_TOKEN` | Token de **PRODUÇÃO** do Mercado Pago |
+| `MP_ACCESS_TOKEN` | Token de sandbox (fallback / legado) |
+| `MP_ACCESS_TOKEN_PROD` | Token de **PRODUÇÃO** do Mercado Pago |
+| `MP_ENV` | `production` (ativa chaves de produção nas Edge Functions) |
 | `APP_BASE_URL` | Domínio final (ex: `https://clubedoadubo.lovable.app`) |
+
+> **Rollback:** basta setar `MP_ENV=sandbox` (ou removê-lo) para voltar ao comportamento anterior. O suporte a sandbox é mantido.
 
 ---
 
@@ -191,15 +195,19 @@ Validar: `/contato` → WhatsApp, email e Instagram @clubedoadubo visíveis.
 ## Checklist Final
 
 - [ ] Reset executado e banco limpo
-- [ ] MP_ACCESS_TOKEN de produção configurado
+- [ ] MP_ACCESS_TOKEN_PROD configurado (produção)
+- [ ] MP_ENV = production configurado nos Secrets
 - [ ] APP_BASE_URL configurado
-- [ ] env_mode = production
+- [ ] env_mode = production (site_settings)
 - [ ] Reset bloqueado na UI
 - [ ] Seed de 200 PROs gerado
-- [ ] Compra pro_avulso testada
+- [ ] Compra pro_avulso testada (checkout abre init_point de PRODUÇÃO)
 - [ ] Compra plano testada (pro_credits gerados)
 - [ ] convert_pro_credits executado (PROs criados)
 - [ ] Compra via ponto testada (attribution ok)
+- [ ] Webhook de produção recebe e processa eventos
+- [ ] financial_entries criadas com external_reference/product_key/attribution
+- [ ] Nenhuma referência a sandbox_init_point no front
 - [ ] system_health_check() retorna ok
 - [ ] /contato com dados reais
 - [ ] Instagram @clubedoadubo visível
