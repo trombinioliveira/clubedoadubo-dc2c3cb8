@@ -608,6 +608,7 @@ export default function Auth() {
             </Tabs>
           </CardContent>
         </Card>
+        )}
       </main>
 
       {/* Forgot Password Modal */}

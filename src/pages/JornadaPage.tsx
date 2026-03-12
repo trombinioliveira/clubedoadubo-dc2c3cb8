@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Heart, Eye, Globe } from 'lucide-react';
+import { Sparkles, Heart, Eye, Globe, PartyPopper, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const JornadaPage = () => {
   const { user, profile } = useAuth();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const key = `welcome_shown_${user.id}`;
+    const alreadyShown = localStorage.getItem(key);
+    if (!alreadyShown) {
+      setShowWelcome(true);
+      localStorage.setItem(key, 'true');
+    }
+  }, [user]);
 
   const { data: prosCount = 0 } = useQuery({
     queryKey: ['jornada-pros', user?.id],
@@ -41,6 +52,49 @@ const JornadaPage = () => {
   return (
     <div className="container mx-auto px-4 py-8 sm:py-12">
       <div className="max-w-2xl mx-auto space-y-8">
+
+        {/* Welcome banner — shown only once */}
+        {showWelcome && (
+          <div className="relative rounded-xl border border-primary/20 bg-primary/5 p-5 sm:p-6">
+            <button
+              onClick={() => setShowWelcome(false)}
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Fechar"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <PartyPopper className="w-5 h-5 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-lg font-bold text-foreground">
+                  Bem-vindo ao Clube do Adubo
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Seu e-mail foi confirmado com sucesso.<br />
+                  Agora você já pode acompanhar sua jornada, conhecer os planos e dar o próximo passo no ciclo.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Link to="/planos">
+                    <Button size="sm" className="earth-gradient font-medium gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Conhecer os planos
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowWelcome(false)}
+                  >
+                    Ver minha jornada
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Minha jornada
