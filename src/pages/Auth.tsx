@@ -60,7 +60,7 @@ function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalProps) {
     setIsSubmitting(true);
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/alterar-senha`,
+        redirectTo: `${window.location.origin}/redefinir-senha`,
       });
 
       if (resetError) {
