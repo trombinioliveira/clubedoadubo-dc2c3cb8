@@ -395,6 +395,12 @@ export function QAGoLivePanel() {
               { key: 'admin_notifications', label: 'Notificações' },
               { key: 'admin_reset_blocked', label: 'Reset bloqueado em production' },
             ]},
+            { header: 'Mercado Pago (Produção)', items: [
+              { key: 'mp_env_production', label: 'MP_ENV = production' },
+              { key: 'mp_token_prod_set', label: 'MP_ACCESS_TOKEN_PROD configurado' },
+              { key: 'mp_webhook_prod', label: 'Webhook prod recebendo eventos' },
+              { key: 'mp_checkout_init_point', label: 'Checkout retorna init_point (prod)' },
+            ]},
           ].map((group) => (
             <div key={group.header}>
               <p className="text-sm font-semibold mb-2">{group.header}</p>

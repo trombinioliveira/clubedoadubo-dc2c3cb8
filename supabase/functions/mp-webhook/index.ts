@@ -351,7 +351,7 @@ Deno.serve(async (req) => {
       // For now, just log — do NOT auto-block on MP declines (user can retry)
     }
 
-    console.log("[mp-webhook] Done processing payment:", paymentId, "status:", internalStatus);
+    console.log(`[mp-webhook] env=${mpEnv} | Done: payment=${paymentId}, status=${internalStatus}`);
   };
 
   // Fire and forget — respond immediately to MP
