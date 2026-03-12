@@ -170,6 +170,11 @@ export default function Auth() {
 
   useEffect(() => {
     if (user && !isLoading) {
+      // Don't redirect to dashboard if user arrived via password recovery link
+      if (getIsPasswordRecovery()) {
+        navigate('/redefinir-senha');
+        return;
+      }
       navigate(isAdmin ? '/admin' : '/dashboard');
     }
   }, [user, isLoading, isAdmin, navigate]);
