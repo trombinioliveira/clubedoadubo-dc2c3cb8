@@ -7,7 +7,7 @@ type AppRole = 'admin' | 'staff' | 'client';
 // Flag to track password recovery flow globally
 let _isPasswordRecovery = false;
 export function getIsPasswordRecovery() { return _isPasswordRecovery; }
-export function clearPasswordRecovery() { _isPasswordRecovery = false; }
+export function clearPasswordRecovery() { _isPasswordRecovery = false; sessionStorage.removeItem('password_recovery'); }
 
 interface Profile {
   id: string;
