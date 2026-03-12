@@ -49,11 +49,17 @@ Deno.serve(async (req) => {
   // ── Respond immediately with 200 (MP requires fast ACK) ──────────────────
   // We process asynchronously
   const processWebhook = async () => {
-    const mpToken = Deno.env.get("MP_ACCESS_TOKEN");
+    const mpEnv = Deno.env.get("MP_ENV") || "sandbox";
+    const mpToken = mpEnv === "production"
+      ? Deno.env.get("MP_ACCESS_TOKEN_PROD") || Deno.env.get("MP_ACCESS_TOKEN")
+      : Deno.env.get("MP_ACCESS_TOKEN");
+
     if (!mpToken) {
-      console.error("[mp-webhook] MP_ACCESS_TOKEN not configured");
+      console.error(`[mp-webhook] MP_ACCESS_TOKEN not configured (env=${mpEnv})`);
       return;
     }
+
+    console.log(`[mp-webhook] env=${mpEnv}`);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,

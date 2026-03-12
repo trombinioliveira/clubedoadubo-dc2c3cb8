@@ -223,14 +223,20 @@ Deno.serve(async (req) => {
     const baseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "https://clubedoadubo.lovable.app";
 
     // ── Mercado Pago API ───────────────────────────────────────────────────
-    const mpToken = Deno.env.get("MP_ACCESS_TOKEN");
+    const mpEnv = Deno.env.get("MP_ENV") || "sandbox";
+    const mpToken = mpEnv === "production"
+      ? Deno.env.get("MP_ACCESS_TOKEN_PROD") || Deno.env.get("MP_ACCESS_TOKEN")
+      : Deno.env.get("MP_ACCESS_TOKEN");
+
     if (!mpToken) {
-      console.error("MP_ACCESS_TOKEN not configured");
+      console.error(`[create-mp-preference] MP_ACCESS_TOKEN not configured (env=${mpEnv})`);
       return new Response(JSON.stringify({ error: "Payment service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    console.log(`[create-mp-preference] env=${mpEnv}, product=${product_key}, qty=${quantity}`);
 
     const webhookUrl = `${supabaseUrl}/functions/v1/mp-webhook`;
 
