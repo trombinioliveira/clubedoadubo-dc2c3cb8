@@ -77,6 +77,10 @@ export function QAGoLivePanel() {
     admin_reset_blocked: false,
     plan_credits: false,
     plan_conversion: false,
+    mp_env_production: false,
+    mp_token_prod_set: false,
+    mp_webhook_prod: false,
+    mp_checkout_init_point: false,
   });
 
   const fetchAll = useCallback(async () => {
