@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (existing && existing.status === "confirmed" && existing.is_distributed) {
-      console.log("[mp-webhook] Already processed, skipping:", paymentId);
+      console.log(`[mp-webhook] env=${mpEnv} | Already processed (idempotent), skipping: ${paymentId}`);
       return;
     }
 
