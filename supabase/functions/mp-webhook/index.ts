@@ -21,6 +21,23 @@ async function fetchMPPayment(paymentId: string, token: string) {
   return res.json();
 }
 
+// ── Helper to enqueue email notification ─────────────────────────────────────
+async function enqueueEmail(
+  supabase: ReturnType<typeof createClient>,
+  user_id: string,
+  template: string,
+  payload: Record<string, unknown>,
+  idempotency_key: string
+) {
+  try {
+    await supabase.functions.invoke("enqueue-notification", {
+      body: { user_id, template, payload, idempotency_key },
+    });
+  } catch (err) {
+    console.warn(`[mp-webhook] enqueue ${template} error:`, err);
+  }
+}
+
 Deno.serve(async (req) => {
   // Always consume body to prevent resource leaks
   if (req.method === "OPTIONS") {
@@ -47,7 +64,6 @@ Deno.serve(async (req) => {
   }
 
   // ── Respond immediately with 200 (MP requires fast ACK) ──────────────────
-  // We process asynchronously
   const processWebhook = async () => {
     const mpEnv = Deno.env.get("MP_ENV") || "sandbox";
     const mpToken = mpEnv === "production"
@@ -156,7 +172,6 @@ Deno.serve(async (req) => {
     let financialEntryId: string | null = null;
 
     if (existing) {
-      // Update existing pending entry
       const { data: updated, error: updErr } = await supabase
         .from("financial_entries")
         .update({
@@ -176,7 +191,6 @@ Deno.serve(async (req) => {
       }
       financialEntryId = updated?.id ?? null;
     } else {
-      // Insert new entry (no pre-registration existed)
       const { data: inserted, error: insErr } = await supabase
         .from("financial_entries")
         .insert({
@@ -208,7 +222,7 @@ Deno.serve(async (req) => {
       return;
     }
 
-    // ── Trigger distribution only if approved ────────────────────────────
+    // ── Handle CONFIRMED payments ────────────────────────────────────────
     if (internalStatus === "confirmed") {
       console.log("[mp-webhook] Triggering distribution for:", financialEntryId);
       const { data: distResult, error: distErr } = await supabase.rpc(
@@ -222,20 +236,35 @@ Deno.serve(async (req) => {
         console.log("[mp-webhook] Distribution result:", distResult);
       }
 
-      // ── Enqueue purchase_confirmed notification ───────────────────────
+      // ── Email: pagamento aprovado ─────────────────────────────────────
       if (user_id) {
-        try {
-          await supabase.functions.invoke("enqueue-notification", {
-            body: {
-              user_id,
-              template: "purchase_confirmed",
-              payload: { amount, product_key, product_name: product_key },
-              idempotency_key: `purchase_confirmed:${paymentId}`,
-            },
-          });
-        } catch (notifErr) {
-          console.warn("[mp-webhook] Notification enqueue error:", notifErr);
+        await enqueueEmail(supabase, user_id, "purchase_confirmed", {
+          amount, product_key, product_name: product_key,
+        }, `purchase_confirmed:${paymentId}`);
+
+        // Check if this is the user's first PRO ever → first_cycle_entry email
+        const { count } = await supabase
+          .from("pros")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user_id);
+
+        // Will be 0 before the trigger creates them, or 1 if just created
+        if (count !== null && count <= 1) {
+          await enqueueEmail(supabase, user_id, "first_cycle_entry", {},
+            `first_cycle_entry:${user_id}`);
         }
+      }
+
+      // ── Subscription confirmed email ──────────────────────────────────
+      const SUBSCRIPTION_PREFIXES = ["plano_", "assinatura_"];
+      const isSubscriptionProduct = product_key && SUBSCRIPTION_PREFIXES.some(
+        (prefix) => product_key.startsWith(prefix)
+      );
+
+      if (isSubscriptionProduct && user_id) {
+        await enqueueEmail(supabase, user_id, "subscription_confirmed", {
+          plan_key: product_key,
+        }, `subscription_confirmed:${paymentId}`);
       }
 
       // ── Enqueue pro_paid notifications for affected users ─────────────
@@ -251,21 +280,16 @@ Deno.serve(async (req) => {
             if (payouts) {
               const userIds = [...new Set(payouts.map((p: any) => p.pros?.user_id).filter(Boolean))];
               for (const uid of userIds) {
-                await supabase.functions.invoke("enqueue-notification", {
-                  body: {
-                    user_id: uid,
-                    template: "pro_paid",
-                    payload: { pros_paid: dr.pros_paid, amount: dr.amount_used },
-                    idempotency_key: `pro_paid:${dr.sale_distribution_id}:${uid}`,
-                  },
-                });
+                await enqueueEmail(supabase, uid, "pro_paid", {
+                  pros_paid: dr.pros_paid, amount: dr.amount_used,
+                }, `pro_paid:${dr.sale_distribution_id}:${uid}`);
               }
             }
           } catch (notifErr) {
             console.warn("[mp-webhook] Pro paid notification error:", notifErr);
           }
 
-          // ── Enqueue fifo_moved for users with active PROs ─────────────
+          // ── Enqueue fifo_moved ────────────────────────────────────────
           try {
             const today = new Date().toISOString().slice(0, 10);
             const { data: activeUsers } = await supabase
@@ -277,14 +301,8 @@ Deno.serve(async (req) => {
             if (activeUsers) {
               const uniqueUsers = [...new Set(activeUsers.map((a: any) => a.pros?.user_id).filter(Boolean))];
               for (const uid of uniqueUsers) {
-                await supabase.functions.invoke("enqueue-notification", {
-                  body: {
-                    user_id: uid,
-                    template: "fifo_moved",
-                    payload: {},
-                    idempotency_key: `fifo_moved:${today}:${uid}`,
-                  },
-                }).catch(() => {}); // anti-spam handled by enqueue
+                await enqueueEmail(supabase, uid, "fifo_moved", {},
+                  `fifo_moved:${today}:${uid}`);
               }
             }
           } catch (notifErr) {
@@ -293,25 +311,23 @@ Deno.serve(async (req) => {
         }
       }
 
-      // ── Create / link user account if user_id provided ─────────────────
+      // ── Activate profile + upsert subscription ────────────────────────
       if (user_id) {
         try {
           await supabase
             .from("profiles")
             .update({ account_status: "active" })
             .eq("user_id", user_id);
-          console.log("[mp-webhook] Profile activated for user:", user_id);
         } catch (profileErr) {
           console.warn("[mp-webhook] Profile update error:", profileErr);
         }
 
-        // ── Upsert subscription for plan/subscription products ────────────
-        const SUBSCRIPTION_PREFIXES = ["plano_", "assinatura_", "anual_"];
-        const isSubscriptionProduct = product_key && SUBSCRIPTION_PREFIXES.some(
+        const PLAN_PREFIXES = ["plano_", "assinatura_", "anual_"];
+        const isPlanProduct = product_key && PLAN_PREFIXES.some(
           (prefix) => product_key.startsWith(prefix)
         );
 
-        if (isSubscriptionProduct && financialEntryId) {
+        if (isPlanProduct && financialEntryId) {
           try {
             const { error: subErr } = await supabase
               .from("subscriptions")
@@ -327,8 +343,6 @@ Deno.serve(async (req) => {
               );
             if (subErr) {
               console.error("[mp-webhook] Subscription upsert error:", subErr.message);
-            } else {
-              console.log("[mp-webhook] Subscription upserted for user:", user_id, "plan:", product_key);
             }
           } catch (subCatchErr) {
             console.warn("[mp-webhook] Subscription upsert catch:", subCatchErr);
@@ -344,11 +358,29 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ── Handle declined payments ─────────────────────────────────────────
+    // ── Handle PENDING payments ──────────────────────────────────────────
+    if (internalStatus === "pending" && user_id) {
+      await enqueueEmail(supabase, user_id, "payment_pending", {
+        amount, product_key,
+      }, `payment_pending:${paymentId}`);
+
+      // Trigger send immediately
+      try {
+        await supabase.functions.invoke("send-notifications", { method: "POST" });
+      } catch {}
+    }
+
+    // ── Handle DECLINED payments ─────────────────────────────────────────
     if (internalStatus === "declined" && user_id) {
       console.log("[mp-webhook] Payment declined for user:", user_id);
-      // Optional: block account if required by business rules
-      // For now, just log — do NOT auto-block on MP declines (user can retry)
+      await enqueueEmail(supabase, user_id, "payment_failed", {
+        amount, product_key,
+      }, `payment_failed:${paymentId}`);
+
+      // Trigger send immediately
+      try {
+        await supabase.functions.invoke("send-notifications", { method: "POST" });
+      } catch {}
     }
 
     console.log(`[mp-webhook] env=${mpEnv} | Done: payment=${paymentId}, status=${internalStatus}`);
