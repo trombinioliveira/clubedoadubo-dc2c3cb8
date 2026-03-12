@@ -4,6 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 type AppRole = 'admin' | 'staff' | 'client';
 
+// Flag to track password recovery flow globally
+let _isPasswordRecovery = false;
+export function getIsPasswordRecovery() { return _isPasswordRecovery; }
+export function clearPasswordRecovery() { _isPasswordRecovery = false; }
+
 interface Profile {
   id: string;
   user_id: string;
