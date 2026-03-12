@@ -279,7 +279,8 @@ export default function Auth() {
       if (whatsapp) {
         localStorage.setItem('pending_whatsapp', whatsapp);
       }
-      toast.success('Cadastro realizado! Verifique seu email para confirmar.');
+      setSignupEmail(email.trim());
+      setSignupComplete(true);
     }
     
     setIsSubmitting(false);
