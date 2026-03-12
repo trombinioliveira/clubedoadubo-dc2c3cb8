@@ -51,7 +51,8 @@ const App = () => (
             {/* Auth pages - standalone */}
             <Route path="/auth" element={<Auth />} />
             <Route path="/alterar-senha" element={<ChangePasswordPage />} />
-            
+            <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
