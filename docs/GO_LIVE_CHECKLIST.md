@@ -53,8 +53,12 @@ No Supabase Dashboard → **Project Settings → Edge Function Secrets**:
 
 | Secret | Valor |
 |--------|-------|
-| `MP_ACCESS_TOKEN` | Token de **PRODUÇÃO** do Mercado Pago |
+| `MP_ACCESS_TOKEN` | Token de sandbox (fallback / legado) |
+| `MP_ACCESS_TOKEN_PROD` | Token de **PRODUÇÃO** do Mercado Pago |
+| `MP_ENV` | `production` (ativa chaves de produção nas Edge Functions) |
 | `APP_BASE_URL` | Domínio final (ex: `https://clubedoadubo.lovable.app`) |
+
+> **Rollback:** basta setar `MP_ENV=sandbox` (ou removê-lo) para voltar ao comportamento anterior. O suporte a sandbox é mantido.
 
 ---
 
