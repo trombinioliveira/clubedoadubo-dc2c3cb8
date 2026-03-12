@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, getIsPasswordRecovery } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,7 +60,7 @@ function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalProps) {
     setIsSubmitting(true);
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/alterar-senha`,
+        redirectTo: `${window.location.origin}/redefinir-senha`,
       });
 
       if (resetError) {
@@ -170,6 +170,11 @@ export default function Auth() {
 
   useEffect(() => {
     if (user && !isLoading) {
+      // Don't redirect to dashboard if user arrived via password recovery link
+      if (getIsPasswordRecovery()) {
+        navigate('/redefinir-senha');
+        return;
+      }
       navigate(isAdmin ? '/admin' : '/dashboard');
     }
   }, [user, isLoading, isAdmin, navigate]);

@@ -20,6 +20,7 @@ import TransparenciaPage from "./pages/TransparenciaPage";
 import ContatoPage from "./pages/ContatoPage";
 import EconomiaCircularPage from "./pages/EconomiaCircularPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import CollectionPointPage from "./pages/CollectionPointPage";
 import TermosPage from "./pages/TermosPage";
 import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
@@ -51,7 +52,8 @@ const App = () => (
             {/* Auth pages - standalone */}
             <Route path="/auth" element={<Auth />} />
             <Route path="/alterar-senha" element={<ChangePasswordPage />} />
-            
+            <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />

@@ -4,6 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 type AppRole = 'admin' | 'staff' | 'client';
 
+// Flag to track password recovery flow globally
+let _isPasswordRecovery = false;
+export function getIsPasswordRecovery() { return _isPasswordRecovery; }
+export function clearPasswordRecovery() { _isPasswordRecovery = false; }
+
 interface Profile {
   id: string;
   user_id: string;
@@ -93,6 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Intercept PASSWORD_RECOVERY: set flag so Auth.tsx won't redirect to dashboard
+        if (event === 'PASSWORD_RECOVERY') {
+          _isPasswordRecovery = true;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
         
