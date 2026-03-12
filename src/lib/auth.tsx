@@ -7,7 +7,7 @@ type AppRole = 'admin' | 'staff' | 'client';
 // Flag to track password recovery flow globally
 let _isPasswordRecovery = false;
 export function getIsPasswordRecovery() { return _isPasswordRecovery; }
-export function clearPasswordRecovery() { _isPasswordRecovery = false; }
+export function clearPasswordRecovery() { _isPasswordRecovery = false; sessionStorage.removeItem('password_recovery'); }
 
 interface Profile {
   id: string;
@@ -98,9 +98,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Intercept PASSWORD_RECOVERY: set flag so Auth.tsx won't redirect to dashboard
+        // Intercept PASSWORD_RECOVERY: force redirect to reset password page
         if (event === 'PASSWORD_RECOVERY') {
           _isPasswordRecovery = true;
+          sessionStorage.setItem('password_recovery', '1');
+          // Force navigate regardless of current page
+          if (window.location.pathname !== '/redefinir-senha') {
+            window.location.replace('/redefinir-senha');
+            return;
+          }
         }
 
         setSession(session);

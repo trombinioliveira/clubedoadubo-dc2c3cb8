@@ -34,38 +34,40 @@ export default function ResetPasswordPage() {
     // Listen for PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
+        sessionStorage.setItem('password_recovery', '1');
         setMode('ready');
       }
     });
 
     const detectMode = async () => {
-      // If we already have the recovery flag from AuthProvider
+      // Check sessionStorage flag (persists across redirect)
+      if (sessionStorage.getItem('password_recovery') === '1') {
+        setMode('ready');
+        return;
+      }
+
+      // Check global flag from AuthProvider
       if (getIsPasswordRecovery()) {
         setMode('ready');
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
+      // Check URL hash for recovery tokens
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery') || hash.includes('access_token')) {
+        // Tokens present — wait briefly for PASSWORD_RECOVERY event
+        setMode('loading');
+        return;
+      }
 
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        // Check URL hash for recovery tokens
-        const hash = window.location.hash;
-        if (hash.includes('type=recovery') || hash.includes('access_token')) {
-          // Wait for PASSWORD_RECOVERY event
-          setMode('loading');
-          return;
-        }
         setMode('no_access');
         return;
       }
 
-      // If session exists and we got here, check hash
-      const hash = window.location.hash;
-      if (hash.includes('type=recovery') || hash.includes('access_token') || getIsPasswordRecovery()) {
-        setMode('ready');
-      } else {
-        setMode('no_access');
-      }
+      // Session exists but no recovery indicators
+      setMode('no_access');
     };
 
     detectMode();
