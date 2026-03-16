@@ -91,7 +91,8 @@ export async function fetchPublicFifo(
   page = 0,
   pageSize = 50,
   searchCode = '',
-  limitTo200 = true
+  limitTo200 = true,
+  statusFilter?: string
 ): Promise<{ data: PublicFifoEntry[]; count: number }> {
   const maxRows = limitTo200 ? 200 : 5000;
   let query = supabase
@@ -102,6 +103,9 @@ export async function fetchPublicFifo(
 
   if (searchCode) {
     query = query.ilike('pro_code', `%${searchCode}%`);
+  }
+  if (statusFilter) {
+    query = query.eq('status', statusFilter);
   }
 
   const { data, error, count } = await query;
