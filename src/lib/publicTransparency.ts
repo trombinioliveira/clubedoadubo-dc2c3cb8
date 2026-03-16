@@ -191,6 +191,32 @@ export async function fetchMonthlyReport() {
   return { salesAmount, prosPaid, kgCollected, kgProcessed, prosEmitted };
 }
 
+export interface CycleStageCounts {
+  coleta: number;
+  processamento: number;
+  producao: number;
+  venda: number;
+  pago: number;
+}
+
+export async function fetchCycleStagesCounts(): Promise<CycleStageCounts> {
+  const { data, error } = await supabase
+    .from('public_fifo_queue')
+    .select('status');
+  if (error) throw error;
+  const counts: CycleStageCounts = { coleta: 0, processamento: 0, producao: 0, venda: 0, pago: 0 };
+  for (const row of data || []) {
+    switch (row.status) {
+      case 'pending': counts.coleta++; break;
+      case 'processing': counts.processamento++; break;
+      case 'ready': counts.producao++; break;
+      case 'sold': counts.venda++; break;
+      case 'paid': counts.pago++; break;
+    }
+  }
+  return counts;
+}
+
 export async function fetchPublicDistributions(limit = 6): Promise<PublicDistributionEntry[]> {
   const { data, error } = await (supabase as any)
     .from('public_sale_distributions')
