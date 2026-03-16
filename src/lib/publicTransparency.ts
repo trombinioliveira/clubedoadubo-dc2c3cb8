@@ -91,7 +91,8 @@ export async function fetchPublicFifo(
   page = 0,
   pageSize = 50,
   searchCode = '',
-  limitTo200 = true
+  limitTo200 = true,
+  statusFilter?: string
 ): Promise<{ data: PublicFifoEntry[]; count: number }> {
   const maxRows = limitTo200 ? 200 : 5000;
   let query = supabase
@@ -102,6 +103,9 @@ export async function fetchPublicFifo(
 
   if (searchCode) {
     query = query.ilike('pro_code', `%${searchCode}%`);
+  }
+  if (statusFilter) {
+    query = query.eq('status', statusFilter as any);
   }
 
   const { data, error, count } = await query;
@@ -199,22 +203,54 @@ export interface CycleStageCounts {
   pago: number;
 }
 
-export async function fetchCycleStagesCounts(): Promise<CycleStageCounts> {
-  const { data, error } = await supabase
-    .from('public_fifo_queue')
-    .select('status');
-  if (error) throw error;
+export interface CycleStageDetail {
+  counts: CycleStageCounts;
+  total: number;
+  samples: Record<keyof CycleStageCounts, string[]>;
+}
+
+const STATUS_TO_STAGE: Record<string, keyof CycleStageCounts> = {
+  pending: 'coleta',
+  processing: 'processamento',
+  ready: 'producao',
+  sold: 'venda',
+  paid: 'pago',
+};
+
+export async function fetchCycleStagesDetail(): Promise<CycleStageDetail> {
+  const statuses = ['pending', 'processing', 'ready', 'sold', 'paid'] as const;
+
+  // Parallel: count per status + 3 sample codes per status
+  const results = await Promise.all(
+    statuses.flatMap((st) => [
+      supabase
+        .from('public_fifo_queue')
+        .select('queue_id', { count: 'exact', head: true })
+        .eq('status', st),
+      supabase
+        .from('public_fifo_queue')
+        .select('pro_code')
+        .eq('status', st)
+        .order('position', { ascending: true })
+        .limit(3),
+    ])
+  );
+
   const counts: CycleStageCounts = { coleta: 0, processamento: 0, producao: 0, venda: 0, pago: 0 };
-  for (const row of data || []) {
-    switch (row.status) {
-      case 'pending': counts.coleta++; break;
-      case 'processing': counts.processamento++; break;
-      case 'ready': counts.producao++; break;
-      case 'sold': counts.venda++; break;
-      case 'paid': counts.pago++; break;
-    }
-  }
-  return counts;
+  const samples: Record<keyof CycleStageCounts, string[]> = {
+    coleta: [], processamento: [], producao: [], venda: [], pago: [],
+  };
+
+  statuses.forEach((st, i) => {
+    const stage = STATUS_TO_STAGE[st];
+    const countRes = results[i * 2];
+    const sampleRes = results[i * 2 + 1];
+    counts[stage] = countRes.count ?? 0;
+    samples[stage] = (sampleRes.data || []).map((r: any) => r.pro_code as string);
+  });
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  return { counts, total, samples };
 }
 
 export async function fetchPublicDistributions(limit = 6): Promise<PublicDistributionEntry[]> {
