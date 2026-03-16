@@ -105,7 +105,7 @@ export async function fetchPublicFifo(
     query = query.ilike('pro_code', `%${searchCode}%`);
   }
   if (statusFilter) {
-    query = query.eq('status', statusFilter);
+    query = query.eq('status', statusFilter as any);
   }
 
   const { data, error, count } = await query;
