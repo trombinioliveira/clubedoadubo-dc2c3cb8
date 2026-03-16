@@ -27,6 +27,7 @@ import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
 import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
 import NaturezaProPage from "./pages/NaturezaProPage";
 import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
+import PublicFilaPage from "./pages/PublicFilaPage";
 import CheckoutResultPage from "./pages/CheckoutResultPage";
 import CicloPage from "./pages/CicloPage";
 import AssinaturaPage from "./pages/AssinaturaPage";
