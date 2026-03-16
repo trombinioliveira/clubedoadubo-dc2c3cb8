@@ -5,24 +5,20 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  RefreshCw, Leaf, Package, TrendingUp, DollarSign, MapPin, Clock,
-  ArrowRight, Ban, Search, ChevronLeft, ChevronRight, Shield,
-  Recycle, BarChart3, ListOrdered, AlertCircle, Loader2, X, Receipt, Users2
+  RefreshCw, Leaf, TrendingUp, DollarSign, MapPin, Clock,
+  ArrowRight, Ban, Shield, Recycle, ListOrdered, AlertCircle,
+  X, Receipt, Sprout, ExternalLink
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { HelpTooltip } from '@/components/shared/HelpTooltip';
 
 import {
-  fetchPublicKPIs, fetchPublicFifo, fetchPublicSales,
-  fetchPublicCollectionPoints, fetchSiteSettingsPublic, fetchMonthlyReport,
-  type PublicFifoEntry, type PublicSaleEntry, type PublicCollectionPoint,
+  fetchPublicKPIs, fetchPublicSales,
+  fetchPublicCollectionPoints, fetchSiteSettingsPublic,
+  type PublicSaleEntry, type PublicCollectionPoint,
   type PublicDistributionEntry, fetchPublicDistributions,
 } from '@/lib/publicTransparency';
 
@@ -40,36 +36,20 @@ function fmtDate(iso: string | null | undefined) {
   if (!iso) return '—';
   return format(new Date(iso), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
 }
-function fmtDateShort(iso: string) {
-  return format(new Date(iso), 'dd/MM/yyyy', { locale: ptBR });
-}
-
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending:    { label: 'Aguardando',      color: 'bg-amber-500/15 text-amber-700 border-amber-400/30' },
-  processing: { label: 'Processando',    color: 'bg-blue-500/15 text-blue-700 border-blue-400/30' },
-  ready:      { label: 'Produzido',       color: 'bg-primary/15 text-primary border-primary/30' },
-  sold:       { label: 'Vendido',         color: 'bg-emerald-500/15 text-emerald-700 border-emerald-400/30' },
-  paid:       { label: 'Pago',            color: 'bg-green-600/15 text-green-700 border-green-500/30' },
-};
-
-const maskCode = (code: string) =>
-  code.length > 4 ? `...${code.slice(-4)}` : code;
-
-// ─── Sub-components ─────────────────────────────────────────────────────────
 
 function ModuleDisabled({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 py-6 text-muted-foreground text-sm justify-center">
       <AlertCircle className="w-4 h-4" />
-      <span>{label} desativado temporariamente.</span>
+      <span>{label} indisponível temporariamente.</span>
     </div>
   );
 }
 
 function KPISkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {Array.from({ length: 8 }).map((_, i) => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {Array.from({ length: 5 }).map((_, i) => (
         <Card key={i}><CardContent className="p-4 space-y-2">
           <Skeleton className="h-4 w-24" /><Skeleton className="h-8 w-16" />
         </CardContent></Card>
@@ -78,17 +58,14 @@ function KPISkeleton() {
   );
 }
 
-function KPICard({ icon: Icon, label, value, sub, tooltip }: {
-  icon: React.ElementType; label: string; value: string; sub?: string; tooltip?: string;
+function KPICard({ icon: Icon, label, value, sub }: {
+  icon: React.ElementType; label: string; value: string; sub?: string;
 }) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Icon className="w-4 h-4 text-primary" />
-          </div>
-          {tooltip && <HelpTooltip content={tooltip} />}
+        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
+          <Icon className="w-4 h-4 text-primary" />
         </div>
         <p className="text-xs text-muted-foreground mb-1">{label}</p>
         <p className="text-xl font-bold text-foreground">{value}</p>
@@ -98,30 +75,10 @@ function KPICard({ icon: Icon, label, value, sub, tooltip }: {
   );
 }
 
-function PipelineStep({ icon: Icon, title, value, sub, active }: {
-  icon: React.ElementType; title: string; value: string; sub?: string; active?: boolean;
-}) {
-  return (
-    <div className={`flex-1 p-4 rounded-xl border-2 text-center transition-all ${active ? 'border-primary bg-primary/5' : 'border-border bg-muted/30'}`}>
-      <div className="w-10 h-10 rounded-xl bg-primary/10 mx-auto mb-2 flex items-center justify-center">
-        <Icon className={`w-5 h-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-      </div>
-      <p className="text-xs text-muted-foreground mb-1">{title}</p>
-      <p className="text-lg font-bold text-foreground">{value}</p>
-      {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
-    </div>
-  );
-}
-
 // ─── Main Page ───────────────────────────────────────────────────────────────
-
-const FIFO_PAGE_SIZE = 50;
 
 export default function PublicTransparencyDashboard() {
   const [updatedAt, setUpdatedAt] = useState<Date>(new Date());
-  const [fifoPage, setFifoPage] = useState(0);
-  const [fifoSearch, setFifoSearch] = useState('');
-  const [limitTo200, setLimitTo200] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const refetch = useCallback(() => {
@@ -129,13 +86,11 @@ export default function PublicTransparencyDashboard() {
     setUpdatedAt(new Date());
   }, []);
 
-  // ─ Site settings ─
   const { data: settings } = useQuery({
     queryKey: ['public-transparency-settings', refreshKey],
     queryFn: fetchSiteSettingsPublic,
   });
 
-  // ─ KPIs ─
   const { data: kpis, isLoading: kpisLoading, error: kpisError } = useQuery({
     queryKey: ['public-kpis', refreshKey],
     queryFn: fetchPublicKPIs,
@@ -143,23 +98,13 @@ export default function PublicTransparencyDashboard() {
     staleTime: 60_000,
   });
 
-  // ─ FIFO ─
-  const { data: fifoData, isLoading: fifoLoading } = useQuery({
-    queryKey: ['public-fifo', fifoPage, fifoSearch, limitTo200, refreshKey],
-    queryFn: () => fetchPublicFifo(fifoPage, FIFO_PAGE_SIZE, fifoSearch, limitTo200),
-    enabled: settings?.public_fifo_enabled !== false,
-    staleTime: 30_000,
-  });
-
-  // ─ Sales ─
   const { data: sales = [], isLoading: salesLoading } = useQuery({
     queryKey: ['public-sales', refreshKey],
-    queryFn: () => fetchPublicSales(8),
+    queryFn: () => fetchPublicSales(6),
     enabled: settings?.public_sales_enabled !== false,
     staleTime: 60_000,
   });
 
-  // ─ Collection Points ─
   const { data: points = [], isLoading: pointsLoading } = useQuery({
     queryKey: ['public-collection-points', refreshKey],
     queryFn: fetchPublicCollectionPoints,
@@ -167,29 +112,19 @@ export default function PublicTransparencyDashboard() {
     staleTime: 120_000,
   });
 
-  // ─ Monthly report ─
-  const { data: monthly, isLoading: monthlyLoading } = useQuery({
-    queryKey: ['public-monthly', refreshKey],
-    queryFn: fetchMonthlyReport,
-    staleTime: 120_000,
-  });
-
-  // ─ Distributions ─
   const { data: distributions = [], isLoading: distributionsLoading } = useQuery({
     queryKey: ['public-distributions', refreshKey],
-    queryFn: () => fetchPublicDistributions(8),
+    queryFn: () => fetchPublicDistributions(6),
     staleTime: 60_000,
   });
-
-  const totalFifoPages = fifoData ? Math.ceil(Math.min(fifoData.count, limitTo200 ? 200 : 5000) / FIFO_PAGE_SIZE) : 1;
 
   if (settings?.public_transparency_enabled === false) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
         <AlertCircle className="w-12 h-12 text-muted-foreground" />
         <h1 className="text-2xl font-bold">Painel temporariamente indisponível</h1>
-        <p className="text-muted-foreground">O painel público está desativado temporariamente pelos administradores.</p>
-        <Link to="/transparencia"><Button variant="outline">Ver Transparência</Button></Link>
+        <p className="text-muted-foreground">O painel público está indisponível no momento.</p>
+        <Link to="/transparencia"><Button variant="outline">Entender como funciona</Button></Link>
       </div>
     );
   }
@@ -197,51 +132,49 @@ export default function PublicTransparencyDashboard() {
   return (
     <>
       <Helmet>
-        <title>Painel Público | Transparência - Clube do Adubo</title>
-        <meta name="description" content="Dados reais do ciclo do resíduo ao pagamento, com fila FIFO pública e métricas de impacto do Clube do Adubo." />
-        <link rel="canonical" href="https://clubedoadubo.lovable.app/painel-publico" />
-        <meta property="og:title" content="Painel Público de Transparência | Clube do Adubo" />
-        <meta property="og:description" content="Dados reais do ciclo do resíduo ao pagamento, com fila FIFO pública." />
+        <title>Painel Público — Acompanhe o Ciclo | Clube do Adubo</title>
+        <meta name="description" content="Acompanhe o ciclo do Clube do Adubo em tempo real: resíduos transformados, adubo produzido, fila pública e vendas reais." />
+        <link rel="canonical" href="https://clubedoadubo.com.br/painel-publico" />
+        <meta property="og:title" content="Painel Público — Acompanhe o Ciclo | Clube do Adubo" />
+        <meta property="og:description" content="Dados reais do ciclo de economia circular, abertos para qualquer pessoa." />
         <meta property="og:type" content="website" />
       </Helmet>
 
-      {/* ── HERO ── */}
-      <section className="py-14 md:py-20 bg-gradient-to-b from-primary/8 via-primary/4 to-transparent">
+      {/* ═══ CAMADA 1 — LEITURA RÁPIDA ═══ */}
+      <section className="py-12 md:py-20 bg-gradient-to-b from-primary/8 via-primary/4 to-transparent">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-semibold mb-5">
-            <Shield className="w-4 h-4" />
-            Auditável em tempo real
+            <Recycle className="w-4 h-4" />
+            Acompanhamento público
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Painel Público de Transparência
+            O ciclo está acontecendo
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg mb-6">
-            Dados reais do ciclo, do resíduo ao pagamento.
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg mb-3">
+            Aqui qualquer pessoa pode ver dados reais do sistema. Resíduos coletados, adubo produzido, vendas e pagamentos — tudo visível.
           </p>
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {['Sem atalhos', 'Fila FIFO', 'Venda real', 'Dados diretos do banco'].map(chip => (
-              <span key={chip} className="px-3 py-1 bg-background border rounded-full text-xs text-muted-foreground font-medium">
-                ♻️ {chip}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link to="/economia-circular">
-              <Button variant="outline" size="sm">
-                Entender o ciclo <ArrowRight className="w-3 h-3 ml-1" />
+          <p className="text-sm text-muted-foreground mb-8">
+            A operação viva acontece em <strong className="text-foreground">Cambury</strong>, no litoral norte de São Paulo.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3 mb-6">
+            <Link to="/transparencia">
+              <Button variant="outline" size="sm" className="gap-2 text-xs">
+                <Shield className="w-3 h-3" />
+                Entender como funciona
               </Button>
             </Link>
             <Button
               variant="ghost"
               size="sm"
               onClick={refetch}
-              className="gap-2 text-muted-foreground"
+              className="gap-2 text-muted-foreground text-xs"
             >
               <RefreshCw className="w-3 h-3" />
               Atualizar dados
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-4">
+          <p className="text-xs text-muted-foreground">
             Atualizado em: {format(updatedAt, "HH:mm 'de' dd/MM/yyyy", { locale: ptBR })}
           </p>
         </div>
@@ -249,283 +182,245 @@ export default function PublicTransparencyDashboard() {
 
       <div className="container mx-auto px-4 pb-16 space-y-12">
 
-        {/* ── KPIs ── */}
+        {/* ═══ KPIs — Indicadores Essenciais ═══ */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-primary" /> Indicadores do Ciclo
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Dados extraídos diretamente do banco do Clube do Adubo</p>
-            </div>
-          </div>
+          <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+            <Leaf className="w-5 h-5 text-primary" /> Onde o ciclo está agora
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Números reais extraídos do sistema em tempo real.
+          </p>
 
           {settings?.public_kpis_enabled === false ? (
-            <ModuleDisabled label="Módulo de KPIs" />
+            <ModuleDisabled label="Indicadores" />
           ) : kpisLoading ? (
             <KPISkeleton />
           ) : kpisError ? (
-            <div className="text-center text-destructive py-8 text-sm">Erro ao carregar indicadores.</div>
+            <div className="text-center text-destructive py-8 text-sm">Não foi possível carregar os indicadores. Tente novamente.</div>
           ) : kpis ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <KPICard
                 icon={Leaf}
-                label="Resíduo coletado"
+                label="Resíduos transformados"
                 value={fmtKg(kpis.weightCollectedGrams)}
-                sub={`${kpis.totalWeighings} pesagens`}
-                tooltip="Total de resíduo orgânico coletado nos pontos de coleta, em kg."
+                sub={`${kpis.totalWeighings} coletas realizadas`}
               />
               <KPICard
-                icon={Package}
-                label="PROs emitidos"
-                value={kpis.totalPros.toLocaleString('pt-BR')}
-                sub="1 PRO = 100 g de resíduo"
-                tooltip="Total de unidades de participação ambiental (PROs) emitidas no sistema."
+                icon={Sprout}
+                label="Adubo devolvido ao ciclo"
+                value={fmtKg(kpis.weightDoneGrams)}
+                sub={`${kpis.batchesDone} lote${kpis.batchesDone !== 1 ? 's' : ''} pronto${kpis.batchesDone !== 1 ? 's' : ''}`}
               />
               <KPICard
                 icon={ListOrdered}
-                label="PROs na fila"
+                label="Participações aguardando"
                 value={kpis.pendingPros.toLocaleString('pt-BR')}
-                sub="aguardando pagamento"
-                tooltip="PROs ainda não pagos — aguardando venda real de adubo para avançar."
+                sub="na fila do ciclo"
               />
               <KPICard
                 icon={TrendingUp}
-                label="PROs pagos"
+                label="Participações concluídas"
                 value={kpis.paidPros.toLocaleString('pt-BR')}
-                sub={fmtBRL(kpis.totalDistributed) + ' distribuídos'}
-                tooltip="PROs que já receberam R$ 2,00 via venda real de adubo."
-              />
-              <KPICard
-                icon={Recycle}
-                label="Adubo produzido"
-                value={fmtKg(kpis.weightDoneGrams)}
-                sub={`${kpis.batchesDone} lote(s) concluído(s)`}
-                tooltip="Estimativa de adubo produzido com base no peso dos lotes finalizados."
-              />
-              <KPICard
-                icon={DollarSign}
-                label="Vendas registradas"
-                value={fmtBRL(kpis.totalSalesAmount)}
-                sub={`${kpis.totalSales} entrada(s)`}
-                tooltip="Total de receitas de venda de adubo registradas no sistema."
+                sub={fmtBRL(kpis.totalDistributed) + ' devolvidos'}
               />
               <KPICard
                 icon={MapPin}
-                label="Pontos de coleta ativos"
+                label="Pontos ativos"
                 value={kpis.activeCollectionPoints.toLocaleString('pt-BR')}
-                tooltip="Locais ativos onde o resíduo pode ser entregue."
-              />
-              <KPICard
-                icon={Clock}
-                label="Última venda"
-                value={kpis.lastSale ? fmtBRL(kpis.lastSale.amount) : '—'}
-                sub={kpis.lastSale ? fmtDateShort(kpis.lastSale.received_at) : 'Nenhuma ainda'}
-                tooltip="Valor e data da última venda de adubo registrada."
+                sub="recebendo resíduos"
               />
             </div>
           ) : null}
         </section>
 
-        {/* ── PIPELINE ── */}
+        {/* ═══ CAMADA 2 — CONTEXTO TERRITORIAL ═══ */}
         <section>
-          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-            <Recycle className="w-5 h-5 text-primary" /> Pipeline do Ciclo
-          </h2>
-          {kpisLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
-            </div>
-          ) : kpis ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              <PipelineStep icon={Leaf} title="Coleta" value={fmtKg(kpis.weightCollectedGrams)} sub={`${kpis.totalWeighings} pesagens`} active />
-              <PipelineStep icon={Package} title="PROs emitidos" value={kpis.totalPros.toLocaleString('pt-BR')} sub="unidades" active />
-              <PipelineStep icon={Loader2} title="Em processamento" value={kpis.batchesProcessing.toString()} sub={fmtKg(kpis.weightProcessingGrams)} active={kpis.batchesProcessing > 0} />
-              <PipelineStep icon={Recycle} title="Produzido" value={fmtKg(kpis.weightDoneGrams)} sub={`${kpis.batchesDone} lote(s)`} active={kpis.batchesDone > 0} />
-              <PipelineStep icon={DollarSign} title="Vendas" value={fmtBRL(kpis.totalSalesAmount)} sub={`${kpis.totalSales} entrada(s)`} active={kpis.totalSales > 0} />
-              <PipelineStep icon={TrendingUp} title="Pagamentos" value={fmtBRL(kpis.totalDistributed)} sub={`${kpis.paidPros} PROs pagos`} active={kpis.paidPros > 0} />
-            </div>
-          ) : null}
-
-          <div className="mt-4 p-3 bg-muted/40 rounded-lg border text-xs text-muted-foreground flex items-start gap-2">
-            <Shield className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
-            <span>
-              Fonte: Vendas registradas via checkout (Nexano) e processamento físico real.{' '}
-              Sem venda real, não há pagamento. Sem pagamento, não há avanço.
-            </span>
-          </div>
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-5 md:p-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground mb-1">Operação viva em Cambury</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    O ciclo do Clube do Adubo está ativo em Cambury, São Sebastião — litoral norte de São Paulo.
+                    Os dados acima refletem a operação real nesse território. A estrutura foi pensada para crescer e alcançar novos pontos e regiões.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
-        {/* ── FIFO QUEUE ── */}
+        {/* ═══ FILA — Preview ═══ */}
         <section>
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <div>
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <ListOrdered className="w-5 h-5 text-primary" /> Fila FIFO Pública
-                <HelpTooltip content="A fila FIFO é única, global e imutável. O PRO que entrou primeiro sai primeiro. Nenhum dinheiro pode alterar a posição." />
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Sem dados pessoais — apenas posição e código do PRO</p>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Switch id="limit200" checked={limitTo200} onCheckedChange={(v) => { setLimitTo200(v); setFifoPage(0); }} />
-                <Label htmlFor="limit200" className="text-xs">Últimos 200</Label>
+          <Card>
+            <CardHeader>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ListOrdered className="w-5 h-5 text-primary" />
+                    Fila pública do ciclo
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    A ordem do ciclo é pública. Qualquer pessoa pode consultar a fila e verificar as posições.
+                  </CardDescription>
+                </div>
               </div>
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar código PRO…"
-                  className="pl-8 h-9 text-sm w-44"
-                  value={fifoSearch}
-                  onChange={(e) => { setFifoSearch(e.target.value); setFifoPage(0); }}
-                />
-                {fifoSearch && (
-                  <button onClick={() => setFifoSearch('')} className="absolute right-2 top-2.5">
-                    <X className="w-3.5 h-3.5 text-muted-foreground" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {settings?.public_fifo_enabled === false ? (
-            <ModuleDisabled label="Fila FIFO pública" />
-          ) : fifoLoading ? (
-            <Card><CardContent className="p-4 space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
-            </CardContent></Card>
-          ) : (
-            <Card>
-              <CardContent className="p-0 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b bg-muted/30">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Posição</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Código PRO</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Status</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Entrada na fila</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Pago em</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fifoData?.data.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-10 text-muted-foreground text-sm">
-                        {fifoSearch ? 'Nenhum PRO encontrado com esse código.' : 'A fila ainda está vazia.'}
-                      </td></tr>
-                    ) : fifoData?.data.map((row: PublicFifoEntry) => {
-                      const st = STATUS_LABELS[row.status] ?? { label: row.status, color: 'bg-muted text-muted-foreground' };
-                      return (
-                        <tr key={row.queue_id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                          <td className="px-4 py-3 font-mono font-bold text-primary">#{row.position}</td>
-                          <td className="px-4 py-3 font-mono text-xs">{maskCode(row.pro_code)}</td>
-                          <td className="px-4 py-3">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${st.color}`}>
-                              {st.label}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDateShort(row.created_at)}</td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground">{row.paid_at ? fmtDateShort(row.paid_at) : '—'}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </CardContent>
-              {/* Pagination */}
-              {totalFifoPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t">
-                  <span className="text-xs text-muted-foreground">
-                    Página {fifoPage + 1} de {totalFifoPages} • {fifoData?.count?.toLocaleString('pt-BR')} entradas
-                  </span>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => setFifoPage(p => Math.max(0, p - 1))} disabled={fifoPage === 0}>
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setFifoPage(p => Math.min(totalFifoPages - 1, p + 1))} disabled={fifoPage >= totalFifoPages - 1}>
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
+            </CardHeader>
+            <CardContent>
+              {kpis && (
+                <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div className="bg-muted/40 rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-foreground">{kpis.pendingPros.toLocaleString('pt-BR')}</p>
+                    <p className="text-xs text-muted-foreground">aguardando na fila</p>
+                  </div>
+                  <div className="bg-muted/40 rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-foreground">{kpis.paidPros.toLocaleString('pt-BR')}</p>
+                    <p className="text-xs text-muted-foreground">já concluídos</p>
                   </div>
                 </div>
               )}
-            </Card>
-          )}
+              <Link to="/painel-publico/fila">
+                <Button className="w-full gap-2">
+                  <ListOrdered className="w-4 h-4" />
+                  Consultar fila completa
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </section>
 
-        {/* ── SALES ── */}
+        {/* ═══ CAMADA 3 — DADOS DETALHADOS ═══ */}
+
+        {/* Vendas */}
         <section>
-          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-primary" /> Vendas e Distribuição
-            <HelpTooltip content="Cada venda de adubo real move o ciclo: R$ 2,00 ao PRO da vez + R$ 1,00 para avançar a fila." />
+          <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-primary" /> Últimas vendas de adubo
           </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Cada venda avança a fila e paga quem está na vez.
+          </p>
 
           {settings?.public_sales_enabled === false ? (
-            <ModuleDisabled label="Módulo de vendas" />
+            <ModuleDisabled label="Vendas" />
           ) : salesLoading ? (
-            <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}</div>
+            <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}</div>
           ) : sales.length === 0 ? (
             <Card><CardContent className="py-10 text-center text-muted-foreground text-sm">
-              Ainda não há vendas registradas no sistema.
+              Ainda não há vendas registradas.
             </CardContent></Card>
           ) : (
             <div className="space-y-3">
               {sales.map((sale: PublicSaleEntry) => (
                 <Card key={sale.id} className="hover:shadow-sm transition-shadow">
-                  <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <DollarSign className="w-4 h-4 text-primary" />
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <DollarSign className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{fmtBRL(sale.amount)}</p>
+                          <p className="text-xs text-muted-foreground">{fmtDate(sale.received_at)}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-sm">{fmtBRL(sale.amount)}</p>
-                        <p className="text-xs text-muted-foreground">{fmtDate(sale.received_at)}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {sale.description && (
+                          <span className="text-xs text-muted-foreground">{sale.description}</span>
+                        )}
+                        {sale.is_distributed && (
+                          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
+                            ✓ Distribuída
+                          </Badge>
+                        )}
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      {sale.description && (
-                        <span className="text-xs text-muted-foreground">{sale.description}</span>
-                      )}
-                      {sale.is_distributed && (
-                        <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
-                          ✓ Distribuída
-                        </Badge>
-                      )}
                     </div>
                   </CardContent>
-                  <div className="px-4 pb-3">
-                    <p className="text-xs text-muted-foreground bg-muted/40 rounded px-2 py-1 border-l-2 border-primary/40">
-                      💡 Esta venda avança a fila e paga quem está na vez.
-                    </p>
-                  </div>
                 </Card>
               ))}
             </div>
           )}
         </section>
 
-        {/* ── COLLECTION POINTS ── */}
+        {/* Distribuições */}
         <section>
-          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-primary" /> Pontos de Coleta Ativos
+          <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+            <Receipt className="w-5 h-5 text-primary" /> Como cada venda foi dividida
           </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            A cada venda confirmada, o sistema divide automaticamente: parte para quem está na fila, parte para a operação.
+          </p>
+
+          {distributionsLoading ? (
+            <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}</div>
+          ) : distributions.length === 0 ? (
+            <Card><CardContent className="py-10 text-center text-muted-foreground text-sm">
+              Nenhuma distribuição registrada ainda.
+            </CardContent></Card>
+          ) : (
+            <div className="space-y-3">
+              {distributions.map((dist: PublicDistributionEntry) => (
+                <Card key={dist.id} className="hover:shadow-sm transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Receipt className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{fmtBRL(Number(dist.gross_amount))}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {dist.sale_received_at ? fmtDate(dist.sale_received_at) : fmtDate(dist.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {dist.pros_paid_count} participação{dist.pros_paid_count !== 1 ? 'ões' : ''} paga{dist.pros_paid_count !== 1 ? 's' : ''}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                        {fmtBRL(Number(dist.amount_to_fifo))} para a fila
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                        {fmtBRL(Number(dist.amount_to_operations))} para operação
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Pontos de Coleta */}
+        <section>
+          <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-primary" /> Pontos de coleta ativos
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Locais onde o resíduo orgânico é recebido para iniciar o ciclo.
+          </p>
 
           {settings?.public_collection_points_enabled === false ? (
-            <ModuleDisabled label="Módulo de pontos de coleta" />
+            <ModuleDisabled label="Pontos de coleta" />
           ) : pointsLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
+            <div className="grid md:grid-cols-2 gap-4">
+              {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
             </div>
           ) : points.length === 0 ? (
             <Card><CardContent className="py-10 text-center text-muted-foreground text-sm">
               Nenhum ponto de coleta ativo no momento.
             </CardContent></Card>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               {points.map((pt: PublicCollectionPoint) => (
                 <Card key={pt.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-semibold text-sm leading-tight">{pt.name}</p>
+                        <p className="font-semibold text-sm">{pt.name}</p>
                         <p className="text-xs text-muted-foreground">{pt.city}, {pt.state}</p>
                       </div>
                       <div className="w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0 flex items-center justify-center">
@@ -538,19 +433,11 @@ export default function PublicTransparencyDashboard() {
                         <Clock className="w-3 h-3" /> {pt.opening_hours}
                       </p>
                     )}
-                    {pt.description && <p className="text-xs text-muted-foreground">{pt.description}</p>}
-                    <div className="flex items-center gap-2 pt-1 flex-wrap">
-                      {pt.whatsapp && (
-                        <a href={`https://wa.me/${pt.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
-                          <Button size="sm" variant="outline" className="h-7 text-xs">WhatsApp</Button>
-                        </a>
-                      )}
-                      {pt.has_public_page && pt.slug && (
-                        <Link to={`/ponto/${pt.slug}`}>
-                          <Button size="sm" variant="ghost" className="h-7 text-xs">Ver página <ArrowRight className="w-3 h-3 ml-1" /></Button>
-                        </Link>
-                      )}
-                    </div>
+                    {pt.has_public_page && pt.slug && (
+                      <Link to={`/ponto/${pt.slug}`}>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs mt-1 px-2">Ver página do ponto <ArrowRight className="w-3 h-3 ml-1" /></Button>
+                      </Link>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -558,106 +445,13 @@ export default function PublicTransparencyDashboard() {
           )}
         </section>
 
-        {/* ── MONTHLY REPORT ── */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-primary" /> Resumo do Mês Atual
-            </h2>
-            <Button variant="outline" size="sm" disabled className="text-xs gap-1">
-              Baixar PDF <span className="text-muted-foreground">(em breve)</span>
-            </Button>
-          </div>
-          {monthlyLoading ? (
-            <Skeleton className="h-32 w-full rounded-xl" />
-          ) : monthly ? (
-            <Card>
-              <CardContent className="p-0 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b bg-muted/30">
-                    <tr>
-                      {['Vendas (R$)', 'Kg Coletados', 'Kg Processados', 'PROs Emitidos', 'PROs Pagos'].map(h => (
-                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="px-4 py-4 font-semibold">{fmtBRL(monthly.salesAmount)}</td>
-                      <td className="px-4 py-4">{monthly.kgCollected.toFixed(1)} kg</td>
-                      <td className="px-4 py-4">{monthly.kgProcessed.toFixed(1)} kg</td>
-                      <td className="px-4 py-4 font-mono">{monthly.prosEmitted.toLocaleString('pt-BR')}</td>
-                      <td className="px-4 py-4 font-mono">{monthly.prosPaid.toLocaleString('pt-BR')}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-          ) : null}
-        </section>
-
-        {/* ── ÚLTIMAS DISTRIBUIÇÕES ── */}
-        <section>
-          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-primary" /> Últimas Distribuições Auditáveis
-            <HelpTooltip content="Cada distribuição é gerada automaticamente por uma venda real. Mostra quantos PROs foram pagos e o avanço real na fila." />
-          </h2>
-          <p className="text-xs text-muted-foreground mb-4">
-            Dados extraídos diretamente do banco do Clube do Adubo — sem PII, sem manipulação.
-          </p>
-
-          {distributionsLoading ? (
-            <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}</div>
-          ) : distributions.length === 0 ? (
-            <Card><CardContent className="py-10 text-center text-muted-foreground text-sm">
-              Nenhuma distribuição registrada ainda. As distribuições ocorrem automaticamente após cada venda confirmada.
-            </CardContent></Card>
-          ) : (
-            <div className="space-y-3">
-              {distributions.map((dist: PublicDistributionEntry) => (
-                <Card key={dist.id} className="hover:shadow-sm transition-shadow">
-                  <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Receipt className="w-4 h-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">{fmtBRL(Number(dist.gross_amount))}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {dist.sale_received_at ? fmtDate(dist.sale_received_at) : fmtDate(dist.created_at)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        <Users2 className="w-3.5 h-3.5" />
-                        {dist.pros_paid_count} PRO{dist.pros_paid_count !== 1 ? 's' : ''} pagos
-                      </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 text-xs font-medium">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                        +{dist.fifo_positions_advanced} posições avançadas
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {fmtBRL(Number(dist.amount_to_fifo))} para fila • {fmtBRL(Number(dist.amount_to_operations))} para operações
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* ── O QUE NÃO EXISTE AQUI ── */}
+        {/* O que não existe aqui */}
         <section>
           <Card className="border-destructive/20 bg-destructive/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-destructive text-base">
                 <Ban className="w-5 h-5" /> O que não existe aqui
               </CardTitle>
-              <CardDescription>
-                Afirmações que nenhum participante pode fazer sobre o Clube do Adubo:
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -674,13 +468,34 @@ export default function PublicTransparencyDashboard() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-4 pt-4 border-t border-destructive/20">
-                <p className="text-sm font-semibold text-foreground text-center">
-                  "O valor só existe quando há venda real de adubo."
-                </p>
-              </div>
             </CardContent>
           </Card>
+        </section>
+
+        {/* CTA Final — Positivo */}
+        <section className="text-center py-8">
+          <div className="max-w-lg mx-auto">
+            <Recycle className="w-10 h-10 text-primary mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-foreground mb-2">
+              O ciclo está vivo. Você pode participar.
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Conheça os planos, entenda melhor como funciona, ou consulte a fila pública do ciclo.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link to="/planos">
+                <Button className="gap-2">
+                  Conhecer os planos <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link to="/transparencia">
+                <Button variant="outline" className="gap-2">
+                  <Shield className="w-4 h-4" />
+                  Entender como funciona
+                </Button>
+              </Link>
+            </div>
+          </div>
         </section>
 
       </div>
