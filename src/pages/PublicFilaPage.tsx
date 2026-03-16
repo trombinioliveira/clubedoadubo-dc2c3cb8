@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   ListOrdered, Search, ChevronLeft, ChevronRight, Shield, ArrowRight,
-  X, AlertCircle, Recycle, ArrowLeft, Loader2
+  X, AlertCircle, ArrowLeft, MapPin, Factory, Wheat, Package, CircleDollarSign
 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { fetchPublicFifo, fetchPublicKPIs, type PublicFifoEntry } from '@/lib/publicTransparency';
+import { fetchPublicFifo, fetchPublicKPIs, fetchCycleStagesCounts, type PublicFifoEntry, type CycleStageCounts } from '@/lib/publicTransparency';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -35,7 +35,85 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 const maskCode = (code: string) =>
   code.length > 4 ? `...${code.slice(-4)}` : code;
 
+function pluralize(n: number, singular: string, plural: string) {
+  return n === 1 ? singular : plural;
+}
+
 const FIFO_PAGE_SIZE = 50;
+
+// ─── Cycle Stages ───────────────────────────────────────────────────────────
+
+const CYCLE_STAGES = [
+  { key: 'coleta' as const,        icon: MapPin,            label: 'Coleta',         emoji: '📍', description: 'Resíduo coletado' },
+  { key: 'processamento' as const, icon: Factory,           label: 'Processamento',  emoji: '🏭', description: 'Em compostagem' },
+  { key: 'producao' as const,      icon: Wheat,             label: 'Produção',       emoji: '🌾', description: 'Adubo produzido' },
+  { key: 'venda' as const,         icon: Package,           label: 'Venda',          emoji: '📦', description: 'Adubo vendido' },
+  { key: 'pago' as const,          icon: CircleDollarSign,  label: 'Concluído',      emoji: '💰', description: 'Ciclo completo' },
+];
+
+function CycleStagesBlock({ counts, isLoading }: { counts?: CycleStageCounts; isLoading: boolean }) {
+  const isMobile = useIsMobile();
+  const total = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : 0;
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-5">
+          <Skeleton className="h-5 w-48 mb-4" />
+          <div className="grid grid-cols-5 gap-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-lg" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-primary/20">
+      <CardContent className="p-5">
+        <h2 className="font-bold text-foreground text-sm mb-1">Etapas do ciclo agora</h2>
+        <p className="text-xs text-muted-foreground mb-4">
+          Veja em que fase as participações estão neste momento.
+        </p>
+
+        <div className={`grid gap-2 ${isMobile ? 'grid-cols-3' : 'grid-cols-5'}`}>
+          {CYCLE_STAGES.map((stage, idx) => {
+            const count = counts?.[stage.key] ?? 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return (
+              <div
+                key={stage.key}
+                className="relative flex flex-col items-center text-center p-3 rounded-lg bg-muted/40 border border-border/50 hover:border-primary/30 transition-colors"
+              >
+                <span className="text-xl mb-1">{stage.emoji}</span>
+                <span className="text-[11px] font-semibold text-foreground leading-tight">{stage.label}</span>
+                <span className="text-lg font-bold text-primary mt-1">{count.toLocaleString('pt-BR')}</span>
+                <span className="text-[10px] text-muted-foreground">{stage.description}</span>
+                {total > 0 && (
+                  <div className="w-full mt-2">
+                    <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-primary/60 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {total > 0 && (
+          <p className="text-[11px] text-muted-foreground mt-3 text-center">
+            {total.toLocaleString('pt-BR')} {pluralize(total, 'participação', 'participações')} no ciclo
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function PublicFilaPage() {
   const isMobile = useIsMobile();
@@ -45,6 +123,12 @@ export default function PublicFilaPage() {
   const { data: kpis } = useQuery({
     queryKey: ['public-kpis-fila'],
     queryFn: fetchPublicKPIs,
+    staleTime: 60_000,
+  });
+
+  const { data: stageCounts, isLoading: stagesLoading } = useQuery({
+    queryKey: ['public-cycle-stages'],
+    queryFn: fetchCycleStagesCounts,
     staleTime: 60_000,
   });
 
@@ -117,17 +201,20 @@ export default function PublicFilaPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-xl md:text-2xl font-bold text-foreground">{kpis.pendingPros.toLocaleString('pt-BR')}</p>
-                <p className="text-xs text-muted-foreground mt-1">aguardando</p>
+                <p className="text-xs text-muted-foreground mt-1">{pluralize(kpis.pendingPros, 'aguardando', 'aguardando')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-xl md:text-2xl font-bold text-primary">{kpis.paidPros.toLocaleString('pt-BR')}</p>
-                <p className="text-xs text-muted-foreground mt-1">concluídos</p>
+                <p className="text-xs text-muted-foreground mt-1">{pluralize(kpis.paidPros, 'concluído', 'concluídos')}</p>
               </CardContent>
             </Card>
           </div>
         )}
+
+        {/* ═══ BLOCO 3.5 — Etapas do Ciclo (NOVO) ═══ */}
+        <CycleStagesBlock counts={stageCounts} isLoading={stagesLoading} />
 
         {/* ═══ BLOCO 4 — Busca ═══ */}
         <div className="relative max-w-md">
@@ -238,7 +325,7 @@ export default function PublicFilaPage() {
           {totalFifoPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <span className="text-xs text-muted-foreground">
-                Página {fifoPage + 1} de {totalFifoPages} • {fifoData?.count?.toLocaleString('pt-BR')} posições
+                Página {fifoPage + 1} de {totalFifoPages} • {fifoData?.count?.toLocaleString('pt-BR')} {pluralize(fifoData?.count ?? 0, 'posição', 'posições')}
               </span>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setFifoPage(p => Math.max(0, p - 1))} disabled={fifoPage === 0}>
