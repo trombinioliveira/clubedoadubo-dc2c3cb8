@@ -27,6 +27,7 @@ import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
 import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
 import NaturezaProPage from "./pages/NaturezaProPage";
 import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
+import PublicFilaPage from "./pages/PublicFilaPage";
 import CheckoutResultPage from "./pages/CheckoutResultPage";
 import CicloPage from "./pages/CicloPage";
 import AssinaturaPage from "./pages/AssinaturaPage";
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/politica-de-riscos" element={<PoliticaRiscosPage />} />
               <Route path="/natureza-do-pro" element={<NaturezaProPage />} />
               <Route path="/painel-publico" element={<PublicTransparencyDashboard />} />
+              <Route path="/painel-publico/fila" element={<PublicFilaPage />} />
               <Route path="/compra/sucesso" element={<CheckoutResultPage status="sucesso" />} />
               <Route path="/compra/pendente" element={<CheckoutResultPage status="pendente" />} />
               <Route path="/compra/erro" element={<CheckoutResultPage status="erro" />} />
