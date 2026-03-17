@@ -141,7 +141,7 @@ export const PricingSection = ({ onGetStarted }: PricingSectionProps) => {
   const [showMore, setShowMore] = useState(false);
 
   return (
-    <section id="planos" className="py-10 md:py-16 bg-muted/30">
+    <section id="inicio" className="py-10 md:py-16 bg-muted/30">
       <div className="container mx-auto px-4 space-y-14 md:space-y-20">
 
         {/* ═══ BLOCO 1 — ABERTURA ═══ */}
