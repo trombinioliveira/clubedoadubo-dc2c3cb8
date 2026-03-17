@@ -308,7 +308,7 @@ const TransparenciaPage = () => {
                 Ver o Painel Público
               </Button>
             </Link>
-            <Link to="/planos">
+            <Link to="/planos#inicio">
               <Button variant="outline" size="lg" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary gap-2">
                 Participar do ciclo <ArrowRight className="w-4 h-4" />
               </Button>

@@ -13,7 +13,7 @@ const LandingCompra = () => {
       const id = hash.replace('#', '');
       // Small delay to ensure DOM is rendered
       const timer = setTimeout(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 150);
       return () => clearTimeout(timer);
     }
