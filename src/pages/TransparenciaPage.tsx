@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, ArrowRight, Recycle, ListOrdered, Ban, CheckCircle, ExternalLink, Sprout, Users, Globe, Waves } from 'lucide-react';
+import { Shield, ArrowRight, Recycle, ListOrdered, CheckCircle, ExternalLink, Sprout, Users, Globe, Waves, Leaf } from 'lucide-react';
 import { LeafIcon, CompostIcon, FertilizerIcon, MoneyIcon } from '@/components/icons/CycleIcons';
 import {
   Accordion,
@@ -11,6 +12,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { fetchPublicKPIs } from '@/lib/publicTransparency';
+
+function fmtKg(grams: number) {
+  const kg = grams / 1000;
+  if (kg >= 1000) return `${(kg / 1000).toFixed(2)} t`;
+  return `${kg.toFixed(1)} kg`;
+}
 
 const TransparenciaPage = () => {
   const { hash } = useLocation();
@@ -24,6 +32,12 @@ const TransparenciaPage = () => {
       return () => clearTimeout(timer);
     }
   }, [hash]);
+
+  const { data: kpis } = useQuery({
+    queryKey: ['public-kpis-transparencia'],
+    queryFn: fetchPublicKPIs,
+    staleTime: 120_000,
+  });
 
   return (
     <>
@@ -136,30 +150,8 @@ const TransparenciaPage = () => {
         </div>
       </section>
 
-      {/* O que NÃO existe aqui */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-5 md:p-6">
-              <div className="flex items-start gap-3">
-                <Ban className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="font-bold text-destructive mb-3">O que NÃO existe aqui</h3>
-                  <ul className="text-sm text-muted-foreground space-y-2">
-                    <li>• Não há pagamento para acelerar a fila</li>
-                    <li>• Não há hierarquias ou níveis de privilégio</li>
-                    <li>• Não há promessas de prazo ou rendimento</li>
-                    <li>• Não há ganho baseado na entrada de novos participantes</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Ramificações e Expansão */}
-      <section className="py-12 md:py-16 bg-muted/30">
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-8">
@@ -203,33 +195,53 @@ const TransparenciaPage = () => {
             </div>
 
             <p className="text-center text-muted-foreground mt-6 text-sm max-w-lg mx-auto">
-              Hoje, a operação viva acontece em Cambury, no litoral norte de São Paulo. Mas a estrutura foi feita para ir além — levando o ciclo para novas comunidades e regiões.
+              Hoje, a operação viva acontece em Camburi, no litoral norte de São Paulo. Mas a estrutura foi feita para ir além — levando o ciclo para novas comunidades e regiões.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Como calculamos CO₂e */}
-      <section id="como-calculamos" className="py-12 md:py-16 scroll-mt-24">
+      {/* Impacto ambiental — CO₂e conectado ao ciclo */}
+      <section id="como-calculamos" className="py-12 md:py-16 bg-muted/30 scroll-mt-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-3">
-              Como calculamos o CO₂e
-            </h2>
-            <p className="text-center text-muted-foreground text-sm mb-6">
-              Estimativas conservadoras baseadas em dados reais do sistema e metodologias reconhecidas.
-            </p>
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Leaf className="w-7 h-7 text-primary" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                Impacto ambiental do ciclo
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                Quando resíduos orgânicos deixam de ir para o lixão e viram adubo, o impacto no clima é real e mensurável.
+              </p>
+            </div>
 
-            <Card className="mb-6">
-              <CardContent className="p-5">
-                <h3 className="font-semibold text-foreground mb-3 text-sm">Em resumo</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Para cada 1 tonelada de resíduo orgânico desviada do lixão e tratada por vermicompostagem,
-                  estimamos cerca de <strong>0,49 tonelada de CO₂ equivalente evitada</strong>.
-                  Esse cálculo usa parâmetros do IPCC e do programa ProteGEEr, de forma conservadora.
-                </p>
-              </CardContent>
-            </Card>
+            {/* Resumo conectado aos dados reais */}
+            {kpis && kpis.weightCollectedGrams > 0 && (
+              <Card className="mb-6 border-primary/20 bg-primary/5">
+                <CardContent className="p-5 text-center">
+                  <p className="text-sm text-muted-foreground mb-2">Com base nos resíduos já processados pelo sistema:</p>
+                  <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">{fmtKg(kpis.weightCollectedGrams)}</p>
+                      <p className="text-xs text-muted-foreground">de resíduos desviados do lixão</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-primary">
+                        ~{((kpis.weightCollectedGrams / 1000) * 0.49).toFixed(1)} kg
+                      </p>
+                      <p className="text-xs text-muted-foreground">de CO₂e estimado evitado</p>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-3">
+                    Estimativa conservadora: 0,49 t de CO₂e evitado por tonelada de resíduo processado via compostagem.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            <h3 className="font-bold text-foreground text-sm mb-3">Perguntas frequentes sobre o cálculo</h3>
 
             <Accordion type="single" collapsible className="space-y-2">
               <AccordionItem value="co2e-1" className="bg-card border border-border rounded-xl px-4">
@@ -270,7 +282,7 @@ const TransparenciaPage = () => {
       </section>
 
       {/* Frase-âncora */}
-      <section className="py-10 md:py-14 bg-muted/30">
+      <section className="py-10 md:py-14">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-lg md:text-xl font-bold text-foreground leading-relaxed">
