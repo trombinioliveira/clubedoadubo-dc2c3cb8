@@ -4,7 +4,7 @@ import logoImage from '@/assets/logo.webp';
 
 export const PublicFooter = () => {
   return (
-    <footer className="border-t border-border bg-card/30">
+    <footer className="border-t border-border bg-card/30 mt-auto">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-10 sm:py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
@@ -33,7 +33,7 @@ export const PublicFooter = () => {
           {/* Column 2 - Participation */}
           <div>
             <Link 
-              to="/planos" 
+              to="/planos#inicio" 
               className="font-semibold text-foreground text-sm hover:text-primary transition-colors"
             >
               Planos
@@ -52,7 +52,7 @@ export const PublicFooter = () => {
               Transparência
             </Link>
             <p className="text-xs text-muted-foreground mt-1">
-              Acompanhe o resíduo, o ciclo e os dados
+              Entenda a lógica pública do sistema
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export const PublicFooter = () => {
             <span>•</span>
             <Link to="/economia-circular" className="hover:text-foreground transition-colors">O que é economia circular</Link>
             <span>•</span>
-            <Link to="/painel-publico#inicio" className="hover:text-foreground transition-colors font-medium text-primary/80">📊 Painel de Transparência</Link>
+            <Link to="/painel-publico#inicio" className="hover:text-foreground transition-colors font-medium text-primary/80">📊 Painel Público</Link>
           </div>
         </div>
       </div>

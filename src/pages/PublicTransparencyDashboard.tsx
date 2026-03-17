@@ -41,6 +41,52 @@ function pluralize(n: number, singular: string, plural: string) {
   return n === 1 ? singular : plural;
 }
 
+/** Sanitize internal/test descriptions for public display */
+function sanitizeDescription(desc: string | null | undefined): string | null {
+  if (!desc) return null;
+  const lower = desc.toLowerCase();
+  // Hide QA/test/internal descriptions
+  if (
+    lower.includes('teste') ||
+    lower.includes('test') ||
+    lower.includes('qa') ||
+    lower.includes('stress') ||
+    lower.includes('simulad') ||
+    lower.includes('passo ') ||
+    lower.includes('debug') ||
+    lower.includes('sandbox') ||
+    lower.includes('manual teste')
+  ) {
+    return null; // Will be replaced with a clean public label
+  }
+  return desc;
+}
+
+/** Generate a clean public label for a sale */
+function publicSaleLabel(sale: PublicSaleEntry): string {
+  const clean = sanitizeDescription(sale.description);
+  if (clean) return clean;
+  // Fallback based on product_key
+  if (sale.product_key) {
+    if (sale.product_key.includes('semente')) return 'Participação mensal — Plano Semente';
+    if (sale.product_key.includes('muda')) return 'Participação mensal — Plano Muda';
+    if (sale.product_key.includes('arvore')) return 'Participação mensal — Plano Árvore';
+    if (sale.product_key.includes('pacote') || sale.product_key.includes('avulso')) return 'Compra avulsa de participações';
+    if (sale.product_key.includes('adubo')) return 'Venda de adubo';
+  }
+  return 'Venda registrada no sistema';
+}
+
+/** Check if a collection point has minimum quality for public display */
+function isPointPublicReady(pt: PublicCollectionPoint): boolean {
+  if (!pt.name || pt.name.trim().length < 4) return false;
+  if (!pt.city || pt.city.trim().length < 2) return false;
+  // Filter out obvious test/placeholder names
+  const lower = pt.name.toLowerCase().trim();
+  if (/^(teste?|test|mb|abc|xxx|\d{1,3})$/i.test(lower)) return false;
+  return true;
+}
+
 function ModuleDisabled({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 py-6 text-muted-foreground text-sm justify-center">
@@ -96,13 +142,11 @@ async function fetchDistributionsWithPayouts(limit = 6): Promise<EnrichedDistrib
 
   const distIds = distributions.map(d => d.id);
 
-  // Fetch payouts for these distributions with pro codes
   const { data: payoutsRaw } = await supabase
     .from('pro_payouts')
     .select('sale_distribution_id, amount_paid, pro_id')
     .in('sale_distribution_id', distIds);
 
-  // Get unique pro_ids to fetch codes
   const proIds = [...new Set((payoutsRaw || []).map(p => p.pro_id))];
   let proCodesMap: Record<string, string> = {};
 
@@ -114,7 +158,6 @@ async function fetchDistributionsWithPayouts(limit = 6): Promise<EnrichedDistrib
     proCodesMap = Object.fromEntries((prosData || []).map(p => [p.id, p.code]));
   }
 
-  // Group payouts by distribution
   const payoutsByDist: Record<string, DistributionPayout[]> = {};
   for (const p of (payoutsRaw || [])) {
     const key = p.sale_distribution_id;
@@ -161,12 +204,15 @@ export default function PublicTransparencyDashboard() {
     staleTime: 60_000,
   });
 
-  const { data: points = [], isLoading: pointsLoading } = useQuery({
+  const { data: rawPoints = [], isLoading: pointsLoading } = useQuery({
     queryKey: ['public-collection-points', refreshKey],
     queryFn: fetchPublicCollectionPoints,
     enabled: settings?.public_collection_points_enabled !== false,
     staleTime: 120_000,
   });
+
+  // Filter out low-quality collection points for public display
+  const points = rawPoints.filter(isPointPublicReady);
 
   const { data: distributions = [], isLoading: distributionsLoading } = useQuery({
     queryKey: ['public-distributions-enriched', refreshKey],
@@ -185,9 +231,7 @@ export default function PublicTransparencyDashboard() {
     );
   }
 
-  // Derive values from system logic
   const totalPaidAmount = kpis ? kpis.paidPros * 2 : 0;
-  // "pendingPros" = all non-paid (pending, processing, ready, sold)
   const pendingValue = kpis ? kpis.pendingPros * 2 : 0;
 
   return (
@@ -215,7 +259,7 @@ export default function PublicTransparencyDashboard() {
             Aqui qualquer pessoa pode ver dados reais do sistema. Resíduos coletados, adubo produzido, vendas e pagamentos — tudo visível.
           </p>
           <p className="text-sm text-muted-foreground mb-8">
-            A operação viva acontece em <strong className="text-foreground">Camburi</strong>, no litoral norte de São Paulo.
+            Operação ativa em <strong className="text-foreground">Camburi</strong>, litoral norte de São Paulo.
           </p>
 
           <div className="flex flex-wrap justify-center gap-3 mb-6">
@@ -270,13 +314,16 @@ export default function PublicTransparencyDashboard() {
                 icon={Sprout}
                 label="Adubo devolvido ao ciclo"
                 value={fmtKg(kpis.weightDoneGrams)}
-                sub={`${kpis.batchesDone} ${pluralize(kpis.batchesDone, 'lote pronto', 'lotes prontos')}`}
+                sub={kpis.weightDoneGrams === 0
+                  ? 'Atualizado conforme lotes concluem o ciclo'
+                  : `${kpis.batchesDone} ${pluralize(kpis.batchesDone, 'lote pronto', 'lotes prontos')}`
+                }
               />
               <KPICard
                 icon={ListOrdered}
-                label="Participações prontas para iniciar"
+                label="Participações no ciclo"
                 value={kpis.pendingPros.toLocaleString('pt-BR')}
-                sub="equivalentes às próximas etapas do ciclo"
+                sub="aguardando as próximas etapas de processamento"
               />
               <KPICard
                 icon={TrendingUp}
@@ -304,10 +351,10 @@ export default function PublicTransparencyDashboard() {
                     <MapPin className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-foreground mb-1">Operação viva em Camburi</h3>
+                    <h3 className="font-bold text-foreground mb-1">Operação ativa em Camburi</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       O ciclo do Clube do Adubo está ativo em Camburi, São Sebastião — litoral norte de São Paulo.
-                      Os dados acima refletem a operação real nesse território. A estrutura foi pensada para crescer e alcançar novos pontos e regiões.
+                      Os dados deste painel refletem a operação real neste território.
                     </p>
                   </div>
                 </div>
@@ -340,7 +387,7 @@ export default function PublicTransparencyDashboard() {
                     Fila pública do ciclo
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    A ordem do ciclo é pública. Qualquer pessoa pode consultar a fila e verificar as posições.
+                    A ordem do ciclo é pública e pode ser consultada por qualquer pessoa.
                   </CardDescription>
                 </div>
               </div>
@@ -354,7 +401,7 @@ export default function PublicTransparencyDashboard() {
                   </div>
                   <div className="bg-muted/40 rounded-lg p-3 text-center">
                     <p className="text-2xl font-bold text-foreground">{fmtBRL(pendingValue)}</p>
-                    <p className="text-xs text-muted-foreground">valor a distribuir entre os usuários</p>
+                    <p className="text-xs text-muted-foreground">valor a distribuir entre os participantes</p>
                   </div>
                 </div>
               )}
@@ -404,9 +451,9 @@ export default function PublicTransparencyDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {sale.description && (
-                          <span className="text-xs text-muted-foreground">{sale.description}</span>
-                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {publicSaleLabel(sale)}
+                        </span>
                         {sale.is_distributed && (
                           <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
                             ✓ Distribuída
@@ -427,7 +474,7 @@ export default function PublicTransparencyDashboard() {
             <Receipt className="w-5 h-5 text-primary" /> Como cada venda foi dividida
           </h2>
           <p className="text-xs text-muted-foreground mb-4">
-            A cada venda confirmada, o sistema divide automaticamente: R$&nbsp;2,00 para o dono do resíduo, R$&nbsp;1,00 para a economia circular.
+            A cada venda confirmada, o sistema divide automaticamente: R$&nbsp;2,00 para o participante do ciclo e R$&nbsp;1,00 para a economia circular.
           </p>
 
           {distributionsLoading ? (
@@ -437,11 +484,12 @@ export default function PublicTransparencyDashboard() {
               Nenhuma distribuição registrada ainda.
             </CardContent></Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {(distributions as EnrichedDistribution[]).map((dist) => (
                 <Card key={dist.id} className="hover:shadow-sm transition-shadow">
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center gap-3">
+                  <CardContent className="p-4 md:p-5">
+                    {/* Header: valor + data */}
+                    <div className="flex items-center gap-3 mb-4">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <Receipt className="w-4 h-4 text-primary" />
                       </div>
@@ -453,35 +501,52 @@ export default function PublicTransparencyDashboard() {
                       </div>
                     </div>
 
-                    {/* Payouts detail */}
-                    {dist.payouts.length > 0 ? (
-                      <div className="space-y-1.5 pl-12">
-                        {dist.payouts.map((payout, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                              {fmtBRL(payout.amount_paid)} → resíduo {payout.pro_code}
+                    {/* Distribution detail */}
+                    <div className="ml-12 space-y-2">
+                      {dist.payouts.length > 0 ? (
+                        <>
+                          {dist.payouts.map((payout, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                                {fmtBRL(payout.amount_paid)}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                → participação {payout.pro_code}
+                              </span>
+                            </div>
+                          ))}
+                          <div className="flex items-center gap-2 pt-1">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                              {fmtBRL(Number(dist.amount_to_operations))}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              → economia circular
                             </span>
                           </div>
-                        ))}
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted">
-                            {fmtBRL(Number(dist.amount_to_operations))} para a economia circular
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-wrap gap-2 pl-12">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                          {dist.pros_paid_count} {pluralize(dist.pros_paid_count, 'participação paga', 'participações pagas')}
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
-                          {fmtBRL(Number(dist.amount_to_fifo))} para a fila
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
-                          {fmtBRL(Number(dist.amount_to_operations))} para a economia circular
-                        </span>
-                      </div>
-                    )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                              {fmtBRL(Number(dist.amount_to_fifo))}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              → {dist.pros_paid_count > 0
+                                ? `${dist.pros_paid_count} ${pluralize(dist.pros_paid_count, 'participação beneficiada', 'participações beneficiadas')}`
+                                : 'Nenhuma participação beneficiada nesta venda'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                              {fmtBRL(Number(dist.amount_to_operations))}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              → economia circular
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -540,7 +605,7 @@ export default function PublicTransparencyDashboard() {
           )}
         </section>
 
-        {/* CTA Final — Positivo */}
+        {/* CTA Final */}
         <section className="text-center py-8">
           <div className="max-w-lg mx-auto">
             <Recycle className="w-10 h-10 text-primary mx-auto mb-4" />

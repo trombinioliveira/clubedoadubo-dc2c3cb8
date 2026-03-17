@@ -35,11 +35,11 @@ function fmtKg(grams: number) {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending:    { label: 'Aguardando',   color: 'bg-amber-500/15 text-amber-700 border-amber-400/30' },
-  processing: { label: 'Processando', color: 'bg-blue-500/15 text-blue-700 border-blue-400/30' },
-  ready:      { label: 'Produzido',    color: 'bg-primary/15 text-primary border-primary/30' },
-  sold:       { label: 'Vendido',      color: 'bg-emerald-500/15 text-emerald-700 border-emerald-400/30' },
-  paid:       { label: 'Concluído',    color: 'bg-green-600/15 text-green-700 border-green-500/30' },
+  pending:    { label: 'Aguardando',    color: 'bg-amber-500/15 text-amber-700 border-amber-400/30' },
+  processing: { label: 'Em andamento', color: 'bg-blue-500/15 text-blue-700 border-blue-400/30' },
+  ready:      { label: 'Produzido',     color: 'bg-primary/15 text-primary border-primary/30' },
+  sold:       { label: 'Vendido',       color: 'bg-emerald-500/15 text-emerald-700 border-emerald-400/30' },
+  paid:       { label: 'Concluído',     color: 'bg-green-600/15 text-green-700 border-green-500/30' },
 };
 
 const STAGE_TO_STATUS: Record<keyof CycleStageCounts, string> = {
@@ -54,8 +54,6 @@ const FIFO_PAGE_SIZE = 50;
 
 // ─── Cycle Stages ───────────────────────────────────────────────────────────
 
-// Physical stages show weight in kg (1 unit = 100g, confirmed by pros.weight_grams default = 100)
-// Economic stages (venda, pago) show only count
 const CYCLE_STAGES: {
   key: keyof CycleStageCounts;
   icon: typeof MapPin;
@@ -64,11 +62,11 @@ const CYCLE_STAGES: {
   description: string;
   showKg: boolean;
 }[] = [
-  { key: 'coleta',        icon: MapPin,            label: 'Coleta',         emoji: '📍', description: 'Resíduo coletado',  showKg: true },
-  { key: 'processamento', icon: Factory,           label: 'Processamento',  emoji: '🏭', description: 'Em compostagem',    showKg: true },
-  { key: 'producao',      icon: Wheat,             label: 'Produção',       emoji: '🌾', description: 'Adubo produzido',   showKg: true },
-  { key: 'venda',         icon: Package,           label: 'Venda',          emoji: '📦', description: 'Adubo vendido',     showKg: false },
-  { key: 'pago',          icon: CircleDollarSign,  label: 'Concluído',      emoji: '💰', description: 'Ciclo completo',    showKg: false },
+  { key: 'coleta',        icon: MapPin,            label: 'Coleta',          emoji: '📍', description: 'Resíduo coletado',  showKg: true },
+  { key: 'processamento', icon: Factory,           label: 'Em andamento',    emoji: '🏭', description: 'No ciclo biológico', showKg: true },
+  { key: 'producao',      icon: Wheat,             label: 'Produção',        emoji: '🌾', description: 'Adubo produzido',   showKg: true },
+  { key: 'venda',         icon: Package,           label: 'Venda',           emoji: '📦', description: 'Adubo vendido',     showKg: false },
+  { key: 'pago',          icon: CircleDollarSign,  label: 'Concluído',       emoji: '💰', description: 'Ciclo completo',    showKg: false },
 ];
 
 function CycleStagesBlock({
@@ -114,7 +112,6 @@ function CycleStagesBlock({
             const count = detail.counts[stage.key];
             const isActive = activeStage === stage.key;
             const samples = detail.samples[stage.key];
-            // 1 unit = 100g (pros.weight_grams default)
             const weightGrams = count * 100;
 
             return (
@@ -182,7 +179,6 @@ export default function PublicFilaPage() {
     staleTime: 60_000,
   });
 
-  // Derive summary KPIs from stages (same source of truth)
   const summaryKpis = useMemo(() => {
     if (!stageDetail) return null;
     const c = stageDetail.counts;
@@ -193,7 +189,6 @@ export default function PublicFilaPage() {
     };
   }, [stageDetail]);
 
-  // Build status filter from active stage
   const statusFilter = activeStage ? STAGE_TO_STATUS[activeStage] : undefined;
 
   const { data: fifoData, isLoading: fifoLoading, error: fifoError } = useQuery({
@@ -232,9 +227,30 @@ export default function PublicFilaPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
               Fila pública do ciclo
             </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto mb-6">
               Qualquer pessoa pode consultar a ordem do ciclo. A fila avança conforme vendas reais de adubo acontecem.
             </p>
+
+            {/* ═══ BUSCA DESTACADA ═══ */}
+            <div className="max-w-md mx-auto">
+              <div className="relative">
+                <Search className="w-5 h-5 absolute left-4 top-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Digite seu código para localizar sua participação"
+                  className="pl-12 h-12 text-base rounded-xl border-primary/30 focus:border-primary shadow-sm"
+                  value={fifoSearch}
+                  onChange={(e) => { setFifoSearch(e.target.value); setFifoPage(0); }}
+                />
+                {fifoSearch && (
+                  <button onClick={() => setFifoSearch('')} className="absolute right-4 top-3.5">
+                    <X className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                Exemplo: 00001580 ou apenas 1580
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -258,7 +274,7 @@ export default function PublicFilaPage() {
           </CardContent>
         </Card>
 
-        {/* ═══ BLOCO 3 — Resumo rápido (derivado da mesma fonte) ═══ */}
+        {/* ═══ BLOCO 3 — Resumo rápido ═══ */}
         {summaryKpis && (
           <div className="grid grid-cols-3 gap-3">
             <Card>
@@ -282,7 +298,7 @@ export default function PublicFilaPage() {
           </div>
         )}
 
-        {/* ═══ BLOCO 4 — Etapas do Ciclo (quadros visuais com filtro) ═══ */}
+        {/* ═══ BLOCO 4 — Etapas do Ciclo ═══ */}
         <CycleStagesBlock
           detail={stageDetail}
           isLoading={stagesLoading}
@@ -290,29 +306,23 @@ export default function PublicFilaPage() {
           onStageClick={handleStageClick}
         />
 
-        {/* ═══ BLOCO 5 — Busca + filtro ativo ═══ */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por código (ex: 00001580 ou 1580)…"
-              className="pl-9 h-10"
-              value={fifoSearch}
-              onChange={(e) => { setFifoSearch(e.target.value); setFifoPage(0); }}
-            />
-            {fifoSearch && (
-              <button onClick={() => setFifoSearch('')} className="absolute right-3 top-3">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            )}
-          </div>
-          {activeStage && (
+        {/* ═══ Orientação antes da lista ═══ */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <ListOrdered className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+          <span>
+            A lista abaixo mostra a ordem pública do ciclo. Você pode navegar pelas páginas, filtrar por etapa ou buscar um código específico.
+          </span>
+        </div>
+
+        {/* ═══ Filtro ativo (quando não veio da busca do hero) ═══ */}
+        {activeStage && (
+          <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs gap-1 px-3 py-1.5 border-primary/30 text-primary">
               Filtro: {CYCLE_STAGES.find(s => s.key === activeStage)?.label}
               <button onClick={() => handleStageClick(null)}><X className="w-3 h-3" /></button>
             </Badge>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ═══ BLOCO 6 — Lista / Tabela ═══ */}
         <section>
@@ -345,23 +355,23 @@ export default function PublicFilaPage() {
               </CardContent>
             </Card>
           ) : isMobile ? (
-            /* Mobile: Cards */
-            <div className="space-y-2">
+            /* Mobile: Cards with better spacing */
+            <div className="space-y-3">
               {fifoData?.data.map((row: PublicFifoEntry) => {
                 const st = STATUS_LABELS[row.status] ?? { label: row.status, color: 'bg-muted text-muted-foreground' };
                 return (
                   <Card key={row.queue_id}>
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-mono font-bold text-primary text-lg">#{row.position}</span>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-mono font-bold text-primary text-xl">#{row.position}</span>
                         <Badge variant="outline" className={`text-xs ${st.color}`}>{st.label}</Badge>
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="font-mono">{row.pro_code}</span>
+                        <span className="font-mono font-medium text-foreground">{row.pro_code}</span>
                         <span>{fmtDateShort(row.created_at)}</span>
                       </div>
                       {row.paid_at && (
-                        <p className="text-xs text-primary mt-1">Concluído em {fmtDateShort(row.paid_at)}</p>
+                        <p className="text-xs text-primary mt-2 font-medium">Concluído em {fmtDateShort(row.paid_at)}</p>
                       )}
                     </CardContent>
                   </Card>
@@ -409,7 +419,7 @@ export default function PublicFilaPage() {
           {totalFifoPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <span className="text-xs text-muted-foreground">
-                Página {fifoPage + 1} de {totalFifoPages} • {fifoData?.count?.toLocaleString('pt-BR')} {pluralize(fifoData?.count ?? 0, 'posição', 'posições')}
+                Página {fifoPage + 1} de {totalFifoPages.toLocaleString('pt-BR')} • {fifoData?.count?.toLocaleString('pt-BR')} {pluralize(fifoData?.count ?? 0, 'posição', 'posições')}
               </span>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setFifoPage(p => Math.max(0, p - 1))} disabled={fifoPage === 0}>
@@ -424,8 +434,8 @@ export default function PublicFilaPage() {
         </section>
 
         {/* ═══ BLOCO 7 — Reforço de confiança ═══ */}
-        <div className="flex items-start gap-2 p-3 bg-muted/40 rounded-lg border text-xs text-muted-foreground">
-          <Shield className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2 p-4 bg-muted/40 rounded-lg border text-xs text-muted-foreground leading-relaxed">
+          <Shield className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
           <span>
             A ordem da fila é pública e não pode ser alterada. Os códigos exibidos são identificadores do sistema — nenhum dado pessoal é exposto. O ciclo avança conforme vendas reais de adubo são confirmadas.
           </span>
@@ -447,7 +457,7 @@ export default function PublicFilaPage() {
                   Entender como funciona
                 </Button>
               </Link>
-              <Link to="/planos">
+              <Link to="/planos#inicio">
                 <Button size="sm" className="gap-2 w-full sm:w-auto">
                   Participar do ciclo <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
