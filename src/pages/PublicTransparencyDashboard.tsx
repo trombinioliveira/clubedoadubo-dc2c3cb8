@@ -7,7 +7,7 @@ import { ptBR } from 'date-fns/locale';
 import {
   RefreshCw, Leaf, TrendingUp, DollarSign, MapPin, Clock,
   ArrowRight, Ban, Shield, Recycle, ListOrdered, AlertCircle,
-  X, Receipt, Sprout, ExternalLink
+  X, Receipt, Sprout, ExternalLink, Map
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -35,6 +35,9 @@ function fmtBRL(val: number) {
 function fmtDate(iso: string | null | undefined) {
   if (!iso) return '—';
   return format(new Date(iso), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+}
+function pluralize(n: number, singular: string, plural: string) {
+  return n === 1 ? singular : plural;
 }
 
 function ModuleDisabled({ label }: { label: string }) {
@@ -129,6 +132,9 @@ export default function PublicTransparencyDashboard() {
     );
   }
 
+  // Derive total paid amount: each PRO pays R$2.00 (system logic in process_sale_distribution)
+  const totalPaidAmount = kpis ? kpis.paidPros * 2 : 0;
+
   return (
     <>
       <Helmet>
@@ -154,7 +160,7 @@ export default function PublicTransparencyDashboard() {
             Aqui qualquer pessoa pode ver dados reais do sistema. Resíduos coletados, adubo produzido, vendas e pagamentos — tudo visível.
           </p>
           <p className="text-sm text-muted-foreground mb-8">
-            A operação viva acontece em <strong className="text-foreground">Cambury</strong>, no litoral norte de São Paulo.
+            A operação viva acontece em <strong className="text-foreground">Camburi</strong>, no litoral norte de São Paulo.
           </p>
 
           <div className="flex flex-wrap justify-center gap-3 mb-6">
@@ -203,29 +209,29 @@ export default function PublicTransparencyDashboard() {
                 icon={Leaf}
                 label="Resíduos transformados"
                 value={fmtKg(kpis.weightCollectedGrams)}
-                sub={`${kpis.totalWeighings} coletas realizadas`}
+                sub={`${kpis.totalWeighings} ${pluralize(kpis.totalWeighings, 'coleta realizada', 'coletas realizadas')}`}
               />
               <KPICard
                 icon={Sprout}
                 label="Adubo devolvido ao ciclo"
                 value={fmtKg(kpis.weightDoneGrams)}
-                sub={`${kpis.batchesDone} lote${kpis.batchesDone !== 1 ? 's' : ''} pronto${kpis.batchesDone !== 1 ? 's' : ''}`}
+                sub={`${kpis.batchesDone} ${pluralize(kpis.batchesDone, 'lote pronto', 'lotes prontos')}`}
               />
               <KPICard
                 icon={ListOrdered}
-                label="Participações aguardando"
+                label="Participações prontas para iniciar"
                 value={kpis.pendingPros.toLocaleString('pt-BR')}
-                sub="na fila do ciclo"
+                sub="equivalentes às próximas etapas do ciclo"
               />
               <KPICard
                 icon={TrendingUp}
-                label="Participações concluídas"
+                label="Pagamentos realizados"
                 value={kpis.paidPros.toLocaleString('pt-BR')}
-                sub={fmtBRL(kpis.totalDistributed) + ' devolvidos'}
+                sub={`${fmtBRL(totalPaidAmount)} devolvidos`}
               />
               <KPICard
                 icon={MapPin}
-                label="Pontos ativos"
+                label="Pontos contribuindo com o ciclo"
                 value={kpis.activeCollectionPoints.toLocaleString('pt-BR')}
                 sub="recebendo resíduos"
               />
@@ -242,11 +248,20 @@ export default function PublicTransparencyDashboard() {
                   <MapPin className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-foreground mb-1">Operação viva em Cambury</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    O ciclo do Clube do Adubo está ativo em Cambury, São Sebastião — litoral norte de São Paulo.
+                  <h3 className="font-bold text-foreground mb-1">Operação viva em Camburi</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                    O ciclo do Clube do Adubo está ativo em Camburi, São Sebastião — litoral norte de São Paulo.
                     Os dados acima refletem a operação real nesse território. A estrutura foi pensada para crescer e alcançar novos pontos e regiões.
                   </p>
+                  <a
+                    href="https://www.google.com/maps/place/Praia+de+Cambur%C3%AD,+S%C3%A3o+Sebasti%C3%A3o+-+SP,+11600-000/@-23.7602109,-45.6801453,11041m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94cd8083086d4971:0x7fb032e91d117153!8m2!3d-23.771609!4d-45.6503317!16s%2Fg%2F1ymtx8zlb?entry=ttu&g_ep=EgoyMDI2MDMxMS4wIKXMDSoASAFQAw%3D%3D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
+                  >
+                    <Map className="w-3.5 h-3.5" />
+                    Ver Camburi no mapa
+                  </a>
                 </div>
               </div>
             </CardContent>
@@ -274,11 +289,11 @@ export default function PublicTransparencyDashboard() {
                 <div className="grid grid-cols-2 gap-4 mb-5">
                   <div className="bg-muted/40 rounded-lg p-3 text-center">
                     <p className="text-2xl font-bold text-foreground">{kpis.pendingPros.toLocaleString('pt-BR')}</p>
-                    <p className="text-xs text-muted-foreground">aguardando na fila</p>
+                    <p className="text-xs text-muted-foreground">participações em andamento</p>
                   </div>
                   <div className="bg-muted/40 rounded-lg p-3 text-center">
                     <p className="text-2xl font-bold text-foreground">{kpis.paidPros.toLocaleString('pt-BR')}</p>
-                    <p className="text-xs text-muted-foreground">já concluídos</p>
+                    <p className="text-xs text-muted-foreground">{pluralize(kpis.paidPros, 'pagamento realizado', 'pagamentos realizados')}</p>
                   </div>
                 </div>
               )}
@@ -378,7 +393,7 @@ export default function PublicTransparencyDashboard() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {dist.pros_paid_count} participação{dist.pros_paid_count !== 1 ? 'ões' : ''} paga{dist.pros_paid_count !== 1 ? 's' : ''}
+                        {dist.pros_paid_count} {pluralize(dist.pros_paid_count, 'participação paga', 'participações pagas')}
                       </span>
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
                         {fmtBRL(Number(dist.amount_to_fifo))} para a fila

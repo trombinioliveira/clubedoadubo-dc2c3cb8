@@ -24,6 +24,16 @@ function fmtDateShort(iso: string) {
   return format(new Date(iso), 'dd/MM/yyyy', { locale: ptBR });
 }
 
+function pluralize(n: number, singular: string, plural: string) {
+  return n === 1 ? singular : plural;
+}
+
+function fmtKg(grams: number) {
+  const kg = grams / 1000;
+  if (kg >= 1000) return `${(kg / 1000).toFixed(2)} t`;
+  return `${kg.toFixed(1)} kg`;
+}
+
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending:    { label: 'Aguardando',   color: 'bg-amber-500/15 text-amber-700 border-amber-400/30' },
   processing: { label: 'Processando', color: 'bg-blue-500/15 text-blue-700 border-blue-400/30' },
@@ -40,26 +50,25 @@ const STAGE_TO_STATUS: Record<keyof CycleStageCounts, string> = {
   pago: 'paid',
 };
 
-function pluralize(n: number, singular: string, plural: string) {
-  return n === 1 ? singular : plural;
-}
-
 const FIFO_PAGE_SIZE = 50;
 
 // ─── Cycle Stages ───────────────────────────────────────────────────────────
 
+// Physical stages show weight in kg (1 unit = 100g, confirmed by pros.weight_grams default = 100)
+// Economic stages (venda, pago) show only count
 const CYCLE_STAGES: {
   key: keyof CycleStageCounts;
   icon: typeof MapPin;
   label: string;
   emoji: string;
   description: string;
+  showKg: boolean;
 }[] = [
-  { key: 'coleta',        icon: MapPin,            label: 'Coleta',         emoji: '📍', description: 'Resíduo coletado' },
-  { key: 'processamento', icon: Factory,           label: 'Processamento',  emoji: '🏭', description: 'Em compostagem' },
-  { key: 'producao',      icon: Wheat,             label: 'Produção',       emoji: '🌾', description: 'Adubo produzido' },
-  { key: 'venda',         icon: Package,           label: 'Venda',          emoji: '📦', description: 'Adubo vendido' },
-  { key: 'pago',          icon: CircleDollarSign,  label: 'Concluído',      emoji: '💰', description: 'Ciclo completo' },
+  { key: 'coleta',        icon: MapPin,            label: 'Coleta',         emoji: '📍', description: 'Resíduo coletado',  showKg: true },
+  { key: 'processamento', icon: Factory,           label: 'Processamento',  emoji: '🏭', description: 'Em compostagem',    showKg: true },
+  { key: 'producao',      icon: Wheat,             label: 'Produção',       emoji: '🌾', description: 'Adubo produzido',   showKg: true },
+  { key: 'venda',         icon: Package,           label: 'Venda',          emoji: '📦', description: 'Adubo vendido',     showKg: false },
+  { key: 'pago',          icon: CircleDollarSign,  label: 'Concluído',      emoji: '💰', description: 'Ciclo completo',    showKg: false },
 ];
 
 function CycleStagesBlock({
@@ -80,9 +89,9 @@ function CycleStagesBlock({
       <Card>
         <CardContent className="p-5">
           <Skeleton className="h-5 w-48 mb-4" />
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-lg" />
+              <Skeleton key={i} className="h-28 rounded-lg" />
             ))}
           </div>
         </CardContent>
@@ -100,11 +109,13 @@ function CycleStagesBlock({
           Veja em que fase as participações estão neste momento. Clique em uma etapa para filtrar a lista abaixo.
         </p>
 
-        <div className={`grid gap-2 ${isMobile ? 'grid-cols-3' : 'grid-cols-5'}`}>
+        <div className={`grid gap-3 ${isMobile ? 'grid-cols-3' : 'grid-cols-5'}`}>
           {CYCLE_STAGES.map((stage) => {
             const count = detail.counts[stage.key];
             const isActive = activeStage === stage.key;
             const samples = detail.samples[stage.key];
+            // 1 unit = 100g (pros.weight_grams default)
+            const weightGrams = count * 100;
 
             return (
               <button
@@ -116,13 +127,16 @@ function CycleStagesBlock({
                     : 'bg-muted/40 border-border/50 hover:border-primary/30'
                   }`}
               >
-                <span className="text-xl mb-1">{stage.emoji}</span>
-                <span className="text-[11px] font-semibold text-foreground leading-tight">{stage.label}</span>
-                <span className="text-lg font-bold text-primary mt-1">{count.toLocaleString('pt-BR')}</span>
-                <span className="text-[10px] text-muted-foreground leading-tight">{stage.description}</span>
+                <span className="text-xl mb-1.5">{stage.emoji}</span>
+                <span className="text-[11px] font-semibold text-foreground leading-tight mb-1">{stage.label}</span>
+                <span className="text-lg font-bold text-primary">{count.toLocaleString('pt-BR')}</span>
+                {stage.showKg && count > 0 && (
+                  <span className="text-[10px] text-muted-foreground font-medium">{fmtKg(weightGrams)}</span>
+                )}
+                <span className="text-[10px] text-muted-foreground leading-tight mt-0.5">{stage.description}</span>
 
                 {samples.length > 0 && (
-                  <div className="mt-2 space-y-0.5 w-full">
+                  <div className="mt-2 pt-2 border-t border-border/30 space-y-0.5 w-full">
                     {samples.map((code) => (
                       <span key={code} className="block text-[9px] font-mono text-muted-foreground/70 truncate">
                         {code}
@@ -135,14 +149,15 @@ function CycleStagesBlock({
           })}
         </div>
 
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-4">
           <p className="text-[11px] text-muted-foreground">
             {detail.total.toLocaleString('pt-BR')} {pluralize(detail.total, 'participação', 'participações')} no ciclo
+            {' · '}Etapas físicas exibem peso equivalente (1 participação = 100 g)
           </p>
           {activeStage && (
             <button
               onClick={() => onStageClick(null)}
-              className="text-[11px] text-primary hover:underline flex items-center gap-1"
+              className="text-[11px] text-primary hover:underline flex items-center gap-1 flex-shrink-0 ml-3"
             >
               <X className="w-3 h-3" /> Limpar filtro
             </button>
@@ -255,7 +270,7 @@ export default function PublicFilaPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-xl md:text-2xl font-bold text-foreground">{summaryKpis.aguardando.toLocaleString('pt-BR')}</p>
-                <p className="text-xs text-muted-foreground mt-1">{pluralize(summaryKpis.aguardando, 'em andamento', 'em andamento')}</p>
+                <p className="text-xs text-muted-foreground mt-1">em andamento</p>
               </CardContent>
             </Card>
             <Card>
@@ -280,7 +295,7 @@ export default function PublicFilaPage() {
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
             <Input
-              placeholder="Buscar por código…"
+              placeholder="Buscar por código (ex: 00001580 ou 1580)…"
               className="pl-9 h-10"
               value={fifoSearch}
               onChange={(e) => { setFifoSearch(e.target.value); setFifoPage(0); }}
