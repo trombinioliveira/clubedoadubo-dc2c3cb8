@@ -220,7 +220,7 @@ export default function PublicFilaPage() {
       {/* ═══ BLOCO 1 — Abertura ═══ */}
       <section className="py-10 md:py-16 bg-gradient-to-b from-primary/8 to-transparent">
         <div className="container mx-auto px-4">
-          <Link to="/painel-publico" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+          <Link to="/painel-publico#inicio" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" />
             Voltar ao Painel Público
           </Link>
