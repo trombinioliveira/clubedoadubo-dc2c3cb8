@@ -63,7 +63,7 @@ const TransparenciaPage = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg mb-8">
             Sem promessas. Sem atalhos. Apenas economia circular real, com dados abertos e fila pública.
           </p>
-          <Link to="/painel-publico">
+          <Link to="/painel-publico#inicio">
             <Button variant="outline" size="sm" className="gap-2">
               <ExternalLink className="w-3.5 h-3.5" />
               Ver dados ao vivo no Painel Público
@@ -302,7 +302,7 @@ const TransparenciaPage = () => {
             Agora você pode acompanhar o ciclo ao vivo no Painel Público, ou dar o próximo passo e participar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/painel-publico">
+            <Link to="/painel-publico#inicio">
               <Button variant="secondary" size="lg" className="gap-2">
                 <ExternalLink className="w-4 h-4" />
                 Ver o Painel Público
