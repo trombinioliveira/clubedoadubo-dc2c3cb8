@@ -435,7 +435,7 @@ export default function PublicFilaPage() {
         <section className="text-center py-6">
           <div className="max-w-md mx-auto space-y-3">
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/painel-publico">
+              <Link to="/painel-publico#inicio">
                 <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Voltar ao Painel Público

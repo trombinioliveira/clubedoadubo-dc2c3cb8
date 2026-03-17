@@ -6,8 +6,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   RefreshCw, Leaf, TrendingUp, DollarSign, MapPin, Clock,
-  ArrowRight, Ban, Shield, Recycle, ListOrdered, AlertCircle,
-  X, Receipt, Sprout, ExternalLink, Map
+  ArrowRight, Shield, Recycle, ListOrdered, AlertCircle,
+  Receipt, Sprout, ExternalLink
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -21,6 +21,7 @@ import {
   type PublicSaleEntry, type PublicCollectionPoint,
   type PublicDistributionEntry, fetchPublicDistributions,
 } from '@/lib/publicTransparency';
+import { supabase } from '@/integrations/supabase/client';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,58 @@ function KPICard({ icon: Icon, label, value, sub }: {
   );
 }
 
+// ─── Distribution with payouts ──────────────────────────────────────────────
+
+interface DistributionPayout {
+  pro_code: string;
+  amount_paid: number;
+}
+
+interface EnrichedDistribution extends PublicDistributionEntry {
+  payouts: DistributionPayout[];
+}
+
+async function fetchDistributionsWithPayouts(limit = 6): Promise<EnrichedDistribution[]> {
+  const distributions = await fetchPublicDistributions(limit);
+  if (distributions.length === 0) return [];
+
+  const distIds = distributions.map(d => d.id);
+
+  // Fetch payouts for these distributions with pro codes
+  const { data: payoutsRaw } = await supabase
+    .from('pro_payouts')
+    .select('sale_distribution_id, amount_paid, pro_id')
+    .in('sale_distribution_id', distIds);
+
+  // Get unique pro_ids to fetch codes
+  const proIds = [...new Set((payoutsRaw || []).map(p => p.pro_id))];
+  let proCodesMap: Record<string, string> = {};
+
+  if (proIds.length > 0) {
+    const { data: prosData } = await supabase
+      .from('pros')
+      .select('id, code')
+      .in('id', proIds);
+    proCodesMap = Object.fromEntries((prosData || []).map(p => [p.id, p.code]));
+  }
+
+  // Group payouts by distribution
+  const payoutsByDist: Record<string, DistributionPayout[]> = {};
+  for (const p of (payoutsRaw || [])) {
+    const key = p.sale_distribution_id;
+    if (!payoutsByDist[key]) payoutsByDist[key] = [];
+    payoutsByDist[key].push({
+      pro_code: proCodesMap[p.pro_id] || '—',
+      amount_paid: Number(p.amount_paid),
+    });
+  }
+
+  return distributions.map(d => ({
+    ...d,
+    payouts: payoutsByDist[d.id] || [],
+  }));
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function PublicTransparencyDashboard() {
@@ -116,8 +169,8 @@ export default function PublicTransparencyDashboard() {
   });
 
   const { data: distributions = [], isLoading: distributionsLoading } = useQuery({
-    queryKey: ['public-distributions', refreshKey],
-    queryFn: () => fetchPublicDistributions(6),
+    queryKey: ['public-distributions-enriched', refreshKey],
+    queryFn: () => fetchDistributionsWithPayouts(6),
     staleTime: 60_000,
   });
 
@@ -132,8 +185,10 @@ export default function PublicTransparencyDashboard() {
     );
   }
 
-  // Derive total paid amount: each PRO pays R$2.00 (system logic in process_sale_distribution)
+  // Derive values from system logic
   const totalPaidAmount = kpis ? kpis.paidPros * 2 : 0;
+  // "pendingPros" = all non-paid (pending, processing, ready, sold)
+  const pendingValue = kpis ? kpis.pendingPros * 2 : 0;
 
   return (
     <>
@@ -147,7 +202,7 @@ export default function PublicTransparencyDashboard() {
       </Helmet>
 
       {/* ═══ CAMADA 1 — LEITURA RÁPIDA ═══ */}
-      <section className="py-12 md:py-20 bg-gradient-to-b from-primary/8 via-primary/4 to-transparent">
+      <section id="inicio" className="py-12 md:py-20 bg-gradient-to-b from-primary/8 via-primary/4 to-transparent">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-semibold mb-5">
             <Recycle className="w-4 h-4" />
@@ -243,25 +298,31 @@ export default function PublicTransparencyDashboard() {
         <section>
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-5 md:p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-primary" />
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-1">Operação viva em Camburi</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      O ciclo do Clube do Adubo está ativo em Camburi, São Sebastião — litoral norte de São Paulo.
+                      Os dados acima refletem a operação real nesse território. A estrutura foi pensada para crescer e alcançar novos pontos e regiões.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-foreground mb-1">Operação viva em Camburi</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                    O ciclo do Clube do Adubo está ativo em Camburi, São Sebastião — litoral norte de São Paulo.
-                    Os dados acima refletem a operação real nesse território. A estrutura foi pensada para crescer e alcançar novos pontos e regiões.
-                  </p>
-                  <a
-                    href="https://www.google.com/maps/place/Praia+de+Cambur%C3%AD,+S%C3%A3o+Sebasti%C3%A3o+-+SP,+11600-000/@-23.7602109,-45.6801453,11041m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94cd8083086d4971:0x7fb032e91d117153!8m2!3d-23.771609!4d-45.6503317!16s%2Fg%2F1ymtx8zlb?entry=ttu&g_ep=EgoyMDI2MDMxMS4wIKXMDSoASAFQAw%3D%3D"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
-                  >
-                    <Map className="w-3.5 h-3.5" />
-                    Ver Camburi no mapa
-                  </a>
+                <div className="rounded-xl overflow-hidden border border-border">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14508.5!2d-45.6503317!3d-23.771609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cd8083086d4971%3A0x7fb032e91d117153!2sPraia%20de%20Camburi%2C%20S%C3%A3o%20Sebasti%C3%A3o%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1710000000000"
+                    width="100%"
+                    height="220"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Localização de Camburi, São Sebastião - SP"
+                    className="w-full"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -292,8 +353,8 @@ export default function PublicTransparencyDashboard() {
                     <p className="text-xs text-muted-foreground">participações em andamento</p>
                   </div>
                   <div className="bg-muted/40 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-foreground">{kpis.paidPros.toLocaleString('pt-BR')}</p>
-                    <p className="text-xs text-muted-foreground">{pluralize(kpis.paidPros, 'pagamento realizado', 'pagamentos realizados')}</p>
+                    <p className="text-2xl font-bold text-foreground">{fmtBRL(pendingValue)}</p>
+                    <p className="text-xs text-muted-foreground">valor a distribuir entre os usuários</p>
                   </div>
                 </div>
               )}
@@ -316,7 +377,7 @@ export default function PublicTransparencyDashboard() {
             <DollarSign className="w-5 h-5 text-primary" /> Últimas vendas de adubo
           </h2>
           <p className="text-xs text-muted-foreground mb-4">
-            Cada venda avança a fila e paga quem está na vez.
+            Vendas registradas no sistema — online ou presenciais. Cada venda avança a fila e paga quem está na vez.
           </p>
 
           {settings?.public_sales_enabled === false ? (
@@ -366,7 +427,7 @@ export default function PublicTransparencyDashboard() {
             <Receipt className="w-5 h-5 text-primary" /> Como cada venda foi dividida
           </h2>
           <p className="text-xs text-muted-foreground mb-4">
-            A cada venda confirmada, o sistema divide automaticamente: parte para quem está na fila, parte para a operação.
+            A cada venda confirmada, o sistema divide automaticamente: R$&nbsp;2,00 para o dono do resíduo, R$&nbsp;1,00 para a economia circular.
           </p>
 
           {distributionsLoading ? (
@@ -377,31 +438,50 @@ export default function PublicTransparencyDashboard() {
             </CardContent></Card>
           ) : (
             <div className="space-y-3">
-              {distributions.map((dist: PublicDistributionEntry) => (
+              {(distributions as EnrichedDistribution[]).map((dist) => (
                 <Card key={dist.id} className="hover:shadow-sm transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <Receipt className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-semibold text-sm">{fmtBRL(Number(dist.gross_amount))}</p>
+                        <p className="font-semibold text-sm">Venda de {fmtBRL(Number(dist.gross_amount))}</p>
                         <p className="text-xs text-muted-foreground">
                           {dist.sale_received_at ? fmtDate(dist.sale_received_at) : fmtDate(dist.created_at)}
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        {dist.pros_paid_count} {pluralize(dist.pros_paid_count, 'participação paga', 'participações pagas')}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
-                        {fmtBRL(Number(dist.amount_to_fifo))} para a fila
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
-                        {fmtBRL(Number(dist.amount_to_operations))} para operação
-                      </span>
-                    </div>
+
+                    {/* Payouts detail */}
+                    {dist.payouts.length > 0 ? (
+                      <div className="space-y-1.5 pl-12">
+                        {dist.payouts.map((payout, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                              {fmtBRL(payout.amount_paid)} → resíduo {payout.pro_code}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted">
+                            {fmtBRL(Number(dist.amount_to_operations))} para a economia circular
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2 pl-12">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                          {dist.pros_paid_count} {pluralize(dist.pros_paid_count, 'participação paga', 'participações pagas')}
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                          {fmtBRL(Number(dist.amount_to_fifo))} para a fila
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                          {fmtBRL(Number(dist.amount_to_operations))} para a economia circular
+                        </span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -460,33 +540,6 @@ export default function PublicTransparencyDashboard() {
           )}
         </section>
 
-        {/* O que não existe aqui */}
-        <section>
-          <Card className="border-destructive/20 bg-destructive/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-destructive text-base">
-                <Ban className="w-5 h-5" /> O que não existe aqui
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                {[
-                  'Sem promessa de rentabilidade',
-                  'Sem prazo garantido para pagamento',
-                  'Sem aceleração paga da fila',
-                  'Sem hierarquia que altera a ordem',
-                  'Sem dinheiro gerado por entrada de novas pessoas',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <X className="w-4 h-4 text-destructive flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </section>
-
         {/* CTA Final — Positivo */}
         <section className="text-center py-8">
           <div className="max-w-lg mx-auto">
@@ -498,7 +551,7 @@ export default function PublicTransparencyDashboard() {
               Conheça os planos, entenda melhor como funciona, ou consulte a fila pública do ciclo.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/planos">
+              <Link to="/planos#inicio">
                 <Button className="gap-2">
                   Conhecer os planos <ArrowRight className="w-4 h-4" />
                 </Button>

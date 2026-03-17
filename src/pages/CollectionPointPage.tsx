@@ -196,7 +196,7 @@ export default function CollectionPointPage() {
             🌱 Você está apoiando o ponto {data.name}.
           </p>
           <div className="flex justify-center">
-            <Link to="/painel-publico">
+            <Link to="/painel-publico#inicio">
               <Button variant="ghost" size="sm">
                 <Eye className="w-4 h-4 mr-2" />
                 Ver painel público

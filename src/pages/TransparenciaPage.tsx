@@ -302,7 +302,7 @@ const TransparenciaPage = () => {
             Agora você pode acompanhar o ciclo ao vivo no Painel Público, ou dar o próximo passo e participar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/painel-publico">
+            <Link to="/painel-publico#inicio">
               <Button variant="secondary" size="lg" className="gap-2">
                 <ExternalLink className="w-4 h-4" />
                 Ver o Painel Público
