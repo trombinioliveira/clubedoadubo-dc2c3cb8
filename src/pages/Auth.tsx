@@ -268,7 +268,7 @@ export default function Auth() {
       }
     } else {
       // Record terms acceptance
-      const { data: { user: newUser } } = await supabase.auth.getUser();
+      const { data: { user: newUser } } = await (supabase.auth as any).getUser();
       if (newUser) {
         await supabase.from('terms_acceptance').insert({
           user_id: newUser.id,
