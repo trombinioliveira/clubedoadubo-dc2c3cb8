@@ -611,9 +611,9 @@ export default function FifoQueuePage() {
                   <p className="text-foreground font-medium leading-relaxed">
                     Para acompanhar sua participação por aqui, primeiro você precisa entrar no ciclo.
                   </p>
-                  <Link to="/assinatura">
+                  <Link to="/planos">
                     <Button className="earth-gradient gap-1.5">
-                      <Sparkles className="w-4 h-4" /> Começar a participar
+                      <Sparkles className="w-4 h-4" /> Conhecer os planos
                     </Button>
                   </Link>
                 </>
