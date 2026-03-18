@@ -509,13 +509,13 @@ export default function MyProfilePage() {
               </div>
 
               {/* Commission preference — inline, simplified */}
-              <div className="space-y-2 pt-2 border-t border-border/50">
+              <div className="space-y-3 pt-2 border-t border-border/50">
                 <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-medium text-foreground">Preferência de retorno da onda</p>
-                  <MicroHelp text="Quando sua onda de impacto gera retorno, ele pode ser convertido de formas diferentes." />
+                  <p className="text-sm font-medium text-foreground">O que fazer com o retorno da sua onda</p>
+                  <MicroHelp text="Quando alguém entra no Clube do Adubo pelo seu link e participa, o clube reconhece sua contribuição com um pequeno retorno. Aqui você escolhe o que fazer com ele." />
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Escolha como você prefere receber o retorno gerado pela sua onda de impacto (indicações).
+                  Quando pessoas que entraram pelo seu link compram participações, o Clube do Adubo reconhece sua contribuição com um pequeno percentual desse valor. Abaixo, você escolhe o que fazer com esse retorno:
                 </p>
                 <RadioGroup
                   value={(profile as any)?.commission_preference || 'pro'}
@@ -527,19 +527,22 @@ export default function MyProfilePage() {
                   className="space-y-2 mt-2"
                 >
                   {[
-                    { value: 'pro', label: 'Converter em participações', desc: 'O retorno vira novas participações no ciclo.' },
-                    { value: 'dinheiro', label: 'Receber via Pix', desc: 'O retorno vai para sua chave Pix cadastrada.' },
-                    { value: 'adubos', label: 'Converter em créditos de adubo', desc: 'O retorno vira créditos para retirar adubo.' },
+                    { value: 'pro', label: 'Converter em participações', desc: 'O retorno se transforma em novas participações no ciclo, ampliando automaticamente sua presença.' },
+                    { value: 'dinheiro', label: 'Receber via Pix', desc: 'O valor é transferido para a chave Pix cadastrada acima, sempre que atingir o mínimo para envio.' },
+                    { value: 'adubos', label: 'Converter em créditos de adubo', desc: 'O retorno se transforma em créditos para retirar adubo em pontos de coleta parceiros.' },
                   ].map(opt => (
                     <label key={opt.value} className="flex items-start gap-3 p-3 rounded-lg border border-border hover:border-primary/30 cursor-pointer transition-colors">
                       <RadioGroupItem value={opt.value} className="mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{opt.label}</p>
-                        <p className="text-xs text-muted-foreground">{opt.desc}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{opt.desc}</p>
                       </div>
                     </label>
                   ))}
                 </RadioGroup>
+                <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
+                  Você pode mudar essa escolha a qualquer momento. A mudança vale para os próximos retornos.
+                </p>
               </div>
             </CardContent>
           </Card>
