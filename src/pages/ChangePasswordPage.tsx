@@ -32,7 +32,7 @@ export default function ChangePasswordPage() {
 
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event from Supabase magic link
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = (supabase.auth as any).onAuthStateChange((event: string, session: any) => {
       if (event === 'PASSWORD_RECOVERY') {
         setMode('recovery');
       }
