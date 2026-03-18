@@ -33,33 +33,22 @@ const levelLabels: Record<number, { label: string; variant: 'default' | 'seconda
   4: { label: 'Líder', variant: 'default' },
 };
 
-export function ReferralsTable() {
-  const [search, setSearch] = React.useState('');
-
-  const { data: users, isLoading } = useQuery({
-    queryKey: ['admin-referrals-users'],
-    queryFn: async () => {
-      // Get profiles with referral codes
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, user_id, full_name, email, referral_code')
-        .not('referral_code', 'is', null)
-        .order('created_at', { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      // Get referral stats
-      const { data: stats, error: statsError } = await supabase
-        .from('referral_stats')
-        .select('*');
-
-      if (statsError) throw statsError;
-
+interface ReferralStatsLookup {
+  user_id: string;
+  direct_pros: number | null;
+  recurring_pros: number | null;
+  global_pros_received: number | null;
+  current_level: number | null;
+  commission_earned: number | null;
+}
+...
       // Merge data
-      const statsMap = new Map(stats?.map(s => [s.user_id, s]) ?? []);
+      const statsMap = new Map<string, ReferralStatsLookup>(
+        stats?.map((s) => [s.user_id, s as ReferralStatsLookup]) ?? [],
+      );
       
       return profiles?.map(profile => {
-        const stat = statsMap.get(profile.user_id) as any;
+        const stat = statsMap.get(profile.user_id);
         return {
           id: profile.id,
           full_name: profile.full_name,

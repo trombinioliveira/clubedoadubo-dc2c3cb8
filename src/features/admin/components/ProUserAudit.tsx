@@ -40,80 +40,20 @@ interface ProWithUser {
   referred_by_name: string | null;
 }
 
-const statusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
-  pending: { label: 'Pendente', variant: 'outline' },
-  processing: { label: 'Processando', variant: 'secondary' },
-  ready: { label: 'Pronto', variant: 'default' },
-  sold: { label: 'Vendido', variant: 'default' },
-  paid: { label: 'Pago', variant: 'default' },
-};
-
-type ProStatus = 'pending' | 'processing' | 'ready' | 'sold' | 'paid';
-
-export function ProUserAudit() {
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ProStatus | 'all'>('all');
-  const [page, setPage] = useState(0);
-  const pageSize = 50;
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-pro-user-audit', statusFilter, page],
-    queryFn: async () => {
-      // Get PROs with user info
-      let query = supabase
-        .from('pros')
-        .select(`
-          id,
-          code,
-          status,
-          weight_grams,
-          created_at,
-          paid_at,
-          pro_type,
-          user_id
-        `)
-        .order('created_at', { ascending: false })
-        .range(page * pageSize, (page + 1) * pageSize - 1);
-
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter as ProStatus);
-      }
-
-      const { data: pros, error: prosError } = await query;
-      if (prosError) throw prosError;
-
-      if (!pros || pros.length === 0) return [];
-
-      // Get unique user IDs
-      const userIds = [...new Set(pros.map(p => p.user_id))];
-
-      // Get profiles for these users
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, user_id, full_name, email, referral_code, referred_by')
-        .in('user_id', userIds);
-
-      if (profilesError) throw profilesError;
-
-      // Get referrer names
-      const referredByIds = profiles?.filter(p => p.referred_by).map(p => p.referred_by) || [];
-      let referrerMap = new Map<string, string>();
-      
-      if (referredByIds.length > 0) {
-        const { data: referrers } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .in('id', referredByIds);
-        
-        referrers?.forEach(r => referrerMap.set(r.id, r.full_name));
-      }
-
+interface ProfileLookup {
+  user_id: string;
+  full_name: string;
+  email: string;
+  referral_code: string | null;
+  referred_by: string | null;
+}
+...
       // Create profile map
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) ?? []);
+      const profileMap = new Map<string, ProfileLookup>(profiles?.map((p) => [p.user_id, p as ProfileLookup]) ?? []);
 
       // Merge data
-      return pros.map(pro => {
-        const profile = profileMap.get(pro.user_id) as any;
+      return pros.map((pro) => {
+        const profile = profileMap.get(pro.user_id);
         return {
           ...pro,
           user_name: profile?.full_name || 'Desconhecido',

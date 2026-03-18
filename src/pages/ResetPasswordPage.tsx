@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event
-    const { data: { subscription } } = (supabase.auth as any).onAuthStateChange((event: string) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         sessionStorage.setItem('password_recovery', '1');
         setMode('ready');
@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      const { data: { session } } = await (supabase.auth as any).getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setMode('no_access');
         return;
@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const { error: updateError } = await (supabase.auth as any).updateUser({ password: newPassword });
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
 
       if (updateError) {
         if (updateError.message.toLowerCase().includes('weak')) {
@@ -115,7 +115,7 @@ export default function ResetPasswordPage() {
       }
 
       // Clear password_change_required flag if set
-      const { data: { session } } = await (supabase.auth as any).getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         await supabase
           .from('profiles')

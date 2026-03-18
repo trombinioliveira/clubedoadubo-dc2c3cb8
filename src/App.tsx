@@ -41,7 +41,7 @@ import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
-const queryClient = new (QueryClient as any)();
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
