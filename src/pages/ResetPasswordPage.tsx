@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await (supabase.auth as any).getSession();
       if (!session) {
         setMode('no_access');
         return;
