@@ -157,6 +157,7 @@ export default function MyProfilePage() {
   const [otpSending, setOtpSending] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [whatsappVerified, setWhatsappVerified] = useState(false);
+  const [testOtpCode, setTestOtpCode] = useState<string | null>(null);
 
   // Notification prefs
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
