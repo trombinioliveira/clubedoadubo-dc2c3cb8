@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+
+// Use `any` to work around type drift between installed @supabase/supabase-js types
+const auth = supabase.auth as any;
+
+type User = any;
+type Session = any;
 
 type AppRole = 'admin' | 'staff' | 'client';
 
