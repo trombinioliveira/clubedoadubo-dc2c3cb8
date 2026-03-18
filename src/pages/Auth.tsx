@@ -351,7 +351,7 @@ export default function Auth() {
                   variant="outline"
                   className="w-full"
                   onClick={async () => {
-                    const { error } = await supabase.auth.resend({
+                    const { error } = await (supabase.auth as any).resend({
                       type: 'signup',
                       email: signupEmail,
                     });

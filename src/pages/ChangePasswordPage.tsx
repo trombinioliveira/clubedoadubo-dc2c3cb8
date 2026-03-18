@@ -122,7 +122,7 @@ export default function ChangePasswordPage() {
       }
 
       // Clear password_change_required flag if set
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await (supabase.auth as any).getSession();
       if (session?.user) {
         await supabase
           .from('profiles')

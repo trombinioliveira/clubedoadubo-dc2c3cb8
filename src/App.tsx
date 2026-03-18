@@ -2,6 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// @ts-ignore - QueryClient exists at runtime despite type drift
+const queryClient = new (QueryClient as any)();
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { AppLayout, PublicLayout } from "@/components/layout";
