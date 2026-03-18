@@ -33,6 +33,7 @@ import CheckoutResultPage from "./pages/CheckoutResultPage";
 import CicloPage from "./pages/CicloPage";
 import AssinaturaPage from "./pages/AssinaturaPage";
 import JornadaPage from "./pages/JornadaPage";
+import TutorialPage from "./pages/TutorialPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -164,6 +165,14 @@ const App = () => (
                     <ProfileDeadlineGuard>
                       <ReferralsPage />
                     </ProfileDeadlineGuard>
+                  </PasswordChangeGuard>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/tutorial" element={
+                <ProtectedRoute clientOnly>
+                  <PasswordChangeGuard>
+                    <TutorialPage />
                   </PasswordChangeGuard>
                 </ProtectedRoute>
               } />

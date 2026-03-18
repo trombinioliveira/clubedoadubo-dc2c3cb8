@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, User, Sparkles, Eye, Globe, BarChart3, CreditCard, Compass, Heart, Waves, Users } from 'lucide-react';
+import { Settings, LogOut, User, Sparkles, Eye, Globe, CreditCard, Compass, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -126,7 +126,10 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                       <CreditCard className="w-4 h-4 mr-2" />
                       Minha Assinatura
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/tutorial')}>
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Como tudo funciona
+                    </DropdownMenuItem>
 
                     {/* Acompanhar section */}
                     <DropdownMenuLabel className="text-xs text-muted-foreground font-normal uppercase tracking-wider px-3 py-1">
