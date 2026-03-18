@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      const { error: updateError } = await (supabase.auth as any).updateUser({ password: newPassword });
 
       if (updateError) {
         if (updateError.message.toLowerCase().includes('weak')) {
