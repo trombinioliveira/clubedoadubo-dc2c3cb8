@@ -65,7 +65,7 @@ export const CreateDreamModal = ({ open, onOpenChange, onConfirm }: CreateDreamM
                 Criar novo sonho
               </DialogTitle>
               <DialogDescription>
-                Defina uma meta e acompanhe seu progresso com os pagamentos dos PROs.
+                Dê um nome ao que você quer construir e defina um valor. Sua participação no ciclo vai dando forma a ele com o tempo.
               </DialogDescription>
             </DialogHeader>
 
