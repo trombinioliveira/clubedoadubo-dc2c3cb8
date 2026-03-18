@@ -136,7 +136,7 @@ export default function ChangePasswordPage() {
 
       // Redirect after short delay
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/jornada');
       }, 2500);
     } catch {
       setError('Erro inesperado. Tente novamente mais tarde.');

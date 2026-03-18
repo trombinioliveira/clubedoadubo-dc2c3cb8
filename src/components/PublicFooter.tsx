@@ -65,7 +65,7 @@ export const PublicFooter = () => {
               FAQ
             </Link>
             <p className="text-xs text-muted-foreground mt-1">
-              Tire dúvidas sobre PRO, fila e impacto
+              Tire suas dúvidas sobre o ciclo
             </p>
           </div>
 

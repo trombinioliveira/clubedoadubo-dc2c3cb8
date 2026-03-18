@@ -199,7 +199,7 @@ export default function ResetPasswordPage() {
           <CardContent>
             <Button
               className="w-full earth-gradient"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/jornada')}
             >
               Entrar no Clube do Adubo
             </Button>
