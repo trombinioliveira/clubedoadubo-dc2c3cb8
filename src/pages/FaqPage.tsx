@@ -54,7 +54,7 @@ const FaqPage = () => {
             Tire suas dúvidas
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Tudo que você precisa saber sobre o Clube do Adubo, PROs, Fila FIFO e como o ciclo funciona.
+            Tudo que você precisa saber sobre o Clube do Adubo, como o ciclo funciona e como participar.
           </p>
         </div>
       </section>

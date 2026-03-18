@@ -379,7 +379,7 @@ const DreamsPage = () => {
                   { emoji: '🌱', label: 'Plantado', desc: 'Ainda no início' },
                   { emoji: '🌿', label: 'Em crescimento', desc: 'Já ganhando forma' },
                   { emoji: '🌳', label: 'Ganhando forma', desc: 'Avançando com constância' },
-                  { emoji: '🎉', label: 'Realizado', desc: 'Mais perto de se realizar' },
+                  { emoji: '🎉', label: 'Realizado', desc: 'Meta alcançada!' },
                 ].map(s => (
                   <div key={s.label} className="text-center space-y-1">
                     <span className="text-2xl">{s.emoji}</span>
