@@ -34,7 +34,6 @@ import CicloPage from "./pages/CicloPage";
 import AssinaturaPage from "./pages/AssinaturaPage";
 import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
-import JornadaPage from "./pages/JornadaPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
