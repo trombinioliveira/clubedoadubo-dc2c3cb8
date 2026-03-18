@@ -169,6 +169,14 @@ const App = () => (
                 </ProtectedRoute>
               } />
               
+              <Route path="/tutorial" element={
+                <ProtectedRoute clientOnly>
+                  <PasswordChangeGuard>
+                    <TutorialPage />
+                  </PasswordChangeGuard>
+                </ProtectedRoute>
+              } />
+              
               <Route path="/admin" element={
                 <ProtectedRoute requireStaff>
                   <AdminDashboard />

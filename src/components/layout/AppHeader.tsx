@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, User, Sparkles, Eye, Globe, BarChart3, CreditCard, Compass, Heart, Waves, Users } from 'lucide-react';
+import { Settings, LogOut, User, Sparkles, Eye, Globe, CreditCard, Compass, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
