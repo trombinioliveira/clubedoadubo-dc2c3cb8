@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = auth.onAuthStateChange(
       (event, session) => {
         // Intercept PASSWORD_RECOVERY: force redirect to reset password page
         if (event === 'PASSWORD_RECOVERY') {
