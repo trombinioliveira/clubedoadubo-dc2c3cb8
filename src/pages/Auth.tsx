@@ -59,7 +59,7 @@ function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalProps) {
 
     setIsSubmitting(true);
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      const { error: resetError } = await (supabase.auth as any).resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/redefinir-senha`,
       });
 
@@ -268,7 +268,7 @@ export default function Auth() {
       }
     } else {
       // Record terms acceptance
-      const { data: { user: newUser } } = await supabase.auth.getUser();
+      const { data: { user: newUser } } = await (supabase.auth as any).getUser();
       if (newUser) {
         await supabase.from('terms_acceptance').insert({
           user_id: newUser.id,
@@ -351,7 +351,7 @@ export default function Auth() {
                   variant="outline"
                   className="w-full"
                   onClick={async () => {
-                    const { error } = await supabase.auth.resend({
+                    const { error } = await (supabase.auth as any).resend({
                       type: 'signup',
                       email: signupEmail,
                     });

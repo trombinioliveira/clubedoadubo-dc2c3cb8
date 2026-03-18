@@ -109,11 +109,11 @@ export function ProUserAudit() {
       }
 
       // Create profile map
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) ?? []);
 
       // Merge data
       return pros.map(pro => {
-        const profile = profileMap.get(pro.user_id);
+        const profile = profileMap.get(pro.user_id) as any;
         return {
           ...pro,
           user_name: profile?.full_name || 'Desconhecido',

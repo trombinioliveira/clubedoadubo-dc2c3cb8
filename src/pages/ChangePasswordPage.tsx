@@ -32,7 +32,7 @@ export default function ChangePasswordPage() {
 
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event from Supabase magic link
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = (supabase.auth as any).onAuthStateChange((event: string, session: any) => {
       if (event === 'PASSWORD_RECOVERY') {
         setMode('recovery');
       }
@@ -40,7 +40,7 @@ export default function ChangePasswordPage() {
 
     // Determine initial mode based on current state
     const detectMode = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await (supabase.auth as any).getSession();
 
       if (!session) {
         // Check if there's a recovery token in the URL hash
@@ -107,7 +107,7 @@ export default function ChangePasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      const { error: updateError } = await (supabase.auth as any).updateUser({ password: newPassword });
 
       if (updateError) {
         // Map common error messages to Portuguese
@@ -122,7 +122,7 @@ export default function ChangePasswordPage() {
       }
 
       // Clear password_change_required flag if set
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await (supabase.auth as any).getSession();
       if (session?.user) {
         await supabase
           .from('profiles')
