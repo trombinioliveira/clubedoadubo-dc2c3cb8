@@ -54,12 +54,12 @@ export async function exportToCSV(
   // Log the export
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    await supabase.from('export_logs').insert({
+    await (supabase.from('export_logs').insert as any)([{
       admin_user_id: user.id,
       dataset_type: datasetType,
       filters_applied: filters,
       rows_exported: data.length,
-    });
+    }]);
   }
 
   return data.length;

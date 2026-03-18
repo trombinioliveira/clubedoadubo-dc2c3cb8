@@ -92,6 +92,16 @@ export function SiteManagement() {
   const togglePubPoints = useToggleSetting('public_collection_points_enabled');
   const togglePubKpis = useToggleSetting('public_kpis_enabled');
 
+  // Missions query
+  const { data: missions = [], isLoading: missionsLoading } = useQuery({
+    queryKey: ['admin-missions'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('impact_missions').select('*').order('sort_order');
+      if (error) throw error;
+      return (data ?? []) as Mission[];
+    },
+  });
+
   const toggleModule = useMutation({
     mutationFn: async (enabled: boolean) => {
       const { data: { user } } = await supabase.auth.getUser();
