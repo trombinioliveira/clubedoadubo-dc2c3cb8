@@ -70,7 +70,7 @@ export default function ChangePasswordPage() {
           setMode('recovery');
         } else {
           // Already fine, redirect
-          navigate('/dashboard');
+          navigate('/jornada');
         }
       }
     };
