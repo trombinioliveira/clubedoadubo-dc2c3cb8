@@ -223,19 +223,22 @@ export function ReferralsPage() {
                   </div>
                 </div>
 
-                {/* Public page */}
-                <div className="p-3 bg-muted/50 rounded-lg">
+                {/* Public page — prominent */}
+                <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4 text-primary shrink-0" />
+                    <p className="text-sm font-medium text-foreground">Sua página pessoal no ciclo</p>
+                  </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Você também tem uma <span className="font-medium text-foreground">página pessoal pública</span> que mostra seu impacto no ciclo:
+                    Quem visita seu link vê uma página com seu impacto real. Você pode abrir, revisar e compartilhar quando quiser.
                   </p>
                   <a
                     href={referralLink || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline mt-1"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Ver minha página
+                    Abrir minha página →
                   </a>
                 </div>
               </CardContent>
@@ -256,39 +259,34 @@ export function ReferralsPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-foreground">Sua onda agora</h2>
           {hasNetwork ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-5 space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium text-muted-foreground">Pessoas conectadas</span>
-                    <MicroHelp text="Pessoas que entraram no Clube do Adubo através do seu link." />
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{referredUsers.length}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {activeNetwork} {activeNetwork === 1 ? 'já está participando' : 'já estão participando'}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-5 space-y-1">
-                  <span className="text-sm font-medium text-muted-foreground">Participações geradas</span>
-                  <p className="text-2xl font-bold text-foreground">{networkPros}</p>
-                  <p className="text-xs text-muted-foreground">Pela sua rede de impacto</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-5 space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium text-muted-foreground">Impacto ambiental</span>
-                    <MicroHelp text="Calculado com base nos resíduos processados pela sua rede." />
-                  </div>
-                  <p className="text-2xl font-bold text-primary">
-                    {impact.co2AvoidedKg.toFixed(1)} <span className="text-sm font-normal">kg CO₂</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground">CO₂ evitado pela sua onda</p>
-                </CardContent>
-              </Card>
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="p-5 space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-medium text-muted-foreground">Pessoas conectadas</span>
+                      <MicroHelp text="Pessoas que entraram no Clube do Adubo através do seu link." />
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{referredUsers.length}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activeNetwork} {activeNetwork === 1 ? 'já está participando' : 'já estão participando'}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5 space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Participações geradas</span>
+                    <p className="text-2xl font-bold text-foreground">{networkPros}</p>
+                    <p className="text-xs text-muted-foreground">Criadas por quem entrou pela sua onda</p>
+                  </CardContent>
+                </Card>
+              </div>
+              {impact.co2AvoidedKg > 0 && (
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  🌿 Sua onda já ajudou a evitar <span className="font-semibold text-foreground">{impact.co2AvoidedKg.toFixed(1)} kg de CO₂</span> — calculado com base nos resíduos que sua rede processou no ciclo.
+                </p>
+              )}
+            </>
           ) : (
             <Card className="border-dashed border-primary/20">
               <CardContent className="p-6 sm:p-8 text-center space-y-4">
@@ -394,16 +392,20 @@ export function ReferralsPage() {
               {/* Retorno da onda */}
               {(commissionEarned > 0 || hasNetwork) && (
                 <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                  <p className="text-sm font-medium text-foreground">Retorno da sua onda</p>
+                  <p className="text-sm font-medium text-foreground">Como o retorno da onda acontece</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Quando uma venda de adubo acontece, uma parte do valor é direcionada a quem ajudou a expandir o ciclo.
-                    Hoje, sua participação na onda garante <span className="font-semibold text-foreground">{currentRate}%</span> sobre cada venda atribuída à sua rede.
+                    O adubo produzido pelo ciclo é vendido para compradores reais. De cada venda, uma parte do valor sustenta a operação e outra parte é distribuída dentro do ciclo. Quem ajudou a expandir a rede recebe uma parcela proporcional dessas vendas — hoje, no seu nível, isso corresponde a <span className="font-semibold text-foreground">{currentRate}%</span> sobre cada venda ligada à sua onda.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Esse retorno só existe porque existe venda real de adubo. Sem venda, não há retorno.
                   </p>
                   {commissionEarned > 0 && (
-                    <p className="text-lg font-bold text-primary mt-1">
-                      R$ {commissionEarned.toFixed(2).replace('.', ',')}
-                      <span className="text-xs font-normal text-muted-foreground ml-1.5">acumulado</span>
-                    </p>
+                    <div className="pt-2 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground">Total acumulado até agora</p>
+                      <p className="text-lg font-bold text-primary">
+                        R$ {commissionEarned.toFixed(2).replace('.', ',')}
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
@@ -463,22 +465,23 @@ export function ReferralsPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-foreground">Reconhecimento progressivo</h2>
           <p className="text-sm text-muted-foreground">
-            Conforme sua onda cresce, seu reconhecimento e participação no ciclo evoluem.
+            Conforme sua onda cresce, seu papel dentro do ciclo evolui.
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map(level => {
               const info = levelHuman[level];
               const isCurrent = level === currentLevel;
               const rate = tierRates[level];
               return (
-                <Card key={level} className={isCurrent ? 'border-primary/30 bg-primary/5' : 'opacity-70'}>
-                  <CardContent className="p-4 space-y-1">
+                <Card key={level} className={isCurrent ? 'border-primary/30 bg-primary/5' : 'opacity-60'}>
+                  <CardContent className="p-4 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{info.emoji}</span>
-                      <span className="font-semibold text-foreground text-sm">{info.label}</span>
+                      <span className="font-semibold text-foreground">{info.label}</span>
                       {isCurrent && <Badge variant="default" className="text-[10px] px-1.5 py-0">Você</Badge>}
                     </div>
-                    <p className="text-xs text-muted-foreground">{rate}% de participação nas vendas da rede</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{info.reading}</p>
+                    <p className="text-[11px] text-muted-foreground/70">{rate}% de participação nas vendas da rede</p>
                   </CardContent>
                 </Card>
               );
