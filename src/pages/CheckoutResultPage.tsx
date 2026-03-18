@@ -34,7 +34,7 @@ const CONFIG: Record<Status, {
     title: 'Seu pagamento está em análise.',
     description: 'Seu primeiro passo já foi iniciado. Assim que o pagamento for confirmado, sua participação será registrada automaticamente.',
     cta: 'Acompanhar status',
-    ctaPath: '/dashboard',
+    ctaPath: '/jornada',
   },
   erro: {
     icon: XCircle,

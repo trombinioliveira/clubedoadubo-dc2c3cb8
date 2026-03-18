@@ -21,7 +21,7 @@ const LandingCompra = () => {
 
   const handleGetStarted = () => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/jornada');
     } else {
       navigate('/auth');
     }

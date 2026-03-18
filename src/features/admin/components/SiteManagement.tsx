@@ -219,7 +219,7 @@ export function SiteManagement() {
             <div>
               <Label className="text-base font-medium">Impacto Ambiental Coletivo</Label>
               <p className="text-sm text-muted-foreground">
-                {collectiveImpactEnabled ? 'Card de impacto coletivo visível no dashboard' : 'Card de impacto coletivo oculto para todos'}
+                {collectiveImpactEnabled ? 'Card de impacto coletivo visível na área logada' : 'Card de impacto coletivo oculto para todos'}
               </p>
             </div>
             <Switch

@@ -223,15 +223,15 @@ function renderTemplate(
 
     // ── Existing templates (backward compat) ──
     case "pro_credited": {
-      const qty = payload.quantity || payload.count || "seus";
+      const qty = payload.quantity || payload.count || "suas";
       return {
-        subject: "PROs creditados na sua conta",
+        subject: "Participações creditadas na sua conta",
         html: wrapEmail(
-          "PROs creditados",
-          bodyText(`<strong>${qty}</strong> PRO(s) foram creditados na sua conta.`) +
-          bodyText("Eles já entraram na fila e estão avançando no ciclo.") +
-          btn("Acompanhar no painel", `${baseUrl}/dashboard`),
-          "Seus PROs foram creditados com sucesso."
+          "Participações creditadas",
+          bodyText(`<strong>${qty}</strong> participação(ões) foram creditadas na sua conta.`) +
+          bodyText("Elas já entraram no ciclo e estão avançando.") +
+          btn("Ver minha jornada", `${baseUrl}/jornada`),
+          "Suas participações foram creditadas com sucesso."
         ),
       };
     }
@@ -240,13 +240,13 @@ function renderTemplate(
       const paidCount = payload.pros_paid || 1;
       const amount = payload.amount ? `R$ ${Number(payload.amount).toFixed(2)}` : "";
       return {
-        subject: "PRO pago — o ciclo se completou",
+        subject: "O ciclo se completou — valor retornado",
         html: wrapEmail(
-          "PRO pago",
-          bodyText(`<strong>${paidCount}</strong> PRO(s) foram pagos!`) +
-          (amount ? bodyText(`<strong>Valor:</strong> ${amount}`) : "") +
-          bodyText("O ciclo da economia circular se completou.") +
-          btn("Ver fila", `${baseUrl}/fifo`),
+          "O ciclo se completou",
+          bodyText(`<strong>${paidCount}</strong> participação(ões) completaram o ciclo!`) +
+          (amount ? bodyText(`<strong>Valor retornado:</strong> ${amount}`) : "") +
+          bodyText("O valor já foi registrado na sua conta. Você pode acompanhar tudo com transparência.") +
+          btn("Ver minha participação", `${baseUrl}/fifo`),
           "O ciclo se completou."
         ),
       };
@@ -254,12 +254,12 @@ function renderTemplate(
 
     case "fifo_moved": {
       return {
-        subject: "A fila avançou",
+        subject: "Suas participações avançaram no ciclo",
         html: wrapEmail(
-          "A fila avançou",
-          bodyText("A fila avançou! Seus PROs estão mais próximos do retorno.") +
-          btn("Ver minha posição", `${baseUrl}/fifo`),
-          "Seus PROs estão mais próximos."
+          "O ciclo avançou",
+          bodyText("O ciclo avançou! Suas participações estão mais próximas do retorno.") +
+          btn("Ver minha participação", `${baseUrl}/fifo`),
+          "Suas participações estão mais próximas."
         ),
       };
     }
@@ -268,11 +268,12 @@ function renderTemplate(
       const dreamTitle = (payload.dream_title as string) || "Seu sonho";
       const progress = payload.progress ? `${payload.progress}%` : "";
       return {
-        subject: "Seu sonho avançou",
+        subject: `Seu sonho "${dreamTitle}" avançou`,
         html: wrapEmail(
-          "Sonho avançou",
-          bodyText(`<strong>${dreamTitle}</strong> ${progress ? `atingiu ${progress} do objetivo!` : "avançou!"}`)+
-          btn("Ver sonhos", `${baseUrl}/sonhos`),
+          "Seu sonho avançou",
+          bodyText(`<strong>${dreamTitle}</strong> ${progress ? `atingiu <strong>${progress}</strong> do caminho!` : "avançou!"}`)+
+          bodyText("Continue acompanhando seus sonhos e veja como sua participação ganha direção.") +
+          btn("Ver meus sonhos", `${baseUrl}/dreams`),
           "Seu sonho está avançando."
         ),
       };
