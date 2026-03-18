@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, User, Sparkles, Eye, Globe, CreditCard, Compass, Footprints, Heart, Waves, BookOpen } from 'lucide-react';
+import { Settings, LogOut, User, Sparkles, Eye, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import logoImage from '@/assets/logo.webp';
@@ -36,14 +35,6 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const navItems = [
-    { path: '/jornada', label: 'Jornada', icon: Compass },
-    { path: '/ciclo', label: 'Passo a passo', icon: Footprints },
-    { path: '/dreams', label: 'Sonhos', icon: Heart },
-    { path: '/fifo', label: 'Minha participação', icon: Sparkles },
-    { path: '/indicacoes', label: 'Minha onda', icon: Waves },
-  ];
-
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="container mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center gap-1 sm:gap-3">
@@ -58,20 +49,75 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
 
         {/* Nav links */}
         <nav className="flex items-center gap-0.5 sm:gap-1 lg:gap-2 flex-1 justify-center overflow-x-auto scrollbar-none">
-          {user && !isAdmin && navItems.map(({ path, label, icon: Icon }) => (
-            <Link
-              key={path}
-              to={path}
-              className={cn(
-                "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                isActive(path) ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              <Icon className="w-4 h-4 sm:w-4 sm:h-4 shrink-0" />
-              <span className="hidden sm:inline">{label}</span>
-              <span className="sm:hidden">{label.split(' ')[0]}</span>
-            </Link>
-          ))}
+          {user && !isAdmin && (
+            <>
+              <Link
+                to="/jornada"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/jornada') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                <span>Jornada</span>
+              </Link>
+
+              <Link
+                to="/ciclo"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/ciclo') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">1</span>
+                <span>Passo a passo</span>
+              </Link>
+
+              <Link
+                to="/dreams"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/dreams') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">2</span>
+                <span>Sonhos</span>
+              </Link>
+
+              <Link
+                to="/indicacoes"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/indicacoes') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">3</span>
+                <span>Indicações</span>
+              </Link>
+
+              <Link
+                to="/fifo"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/fifo') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">4</span>
+                <span>FIFO</span>
+              </Link>
+
+              <Link
+                to="/dashboard"
+                className={cn(
+                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                  isActive('/dashboard') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">5</span>
+                <span>PROs</span>
+              </Link>
+            </>
+          )}
 
           {user && isAdmin && (
             <Link to="/admin">
@@ -102,11 +148,8 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
-
-                {/* Grupo 1 — Minha conta */}
                 {!isAdmin && (
                   <>
-                    <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Minha conta</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => navigate('/perfil')}>
                       <User className="w-4 h-4 mr-2" />
                       Meu Perfil
@@ -115,36 +158,27 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/assinatura')}>
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Minha Assinatura
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Assinatura
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                   </>
                 )}
-
                 {isAdmin && (
-                  <>
-                    <DropdownMenuItem onClick={() => navigate('/admin')}>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Painel Admin
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Painel Admin
+                  </DropdownMenuItem>
                 )}
-
-                {/* Grupo 2 — Acompanhar o sistema */}
-                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Acompanhar o sistema</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigate('/painel-publico#inicio')}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Painel Público
-                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/')}>
                   <Globe className="w-4 h-4 mr-2" />
-                  Área Pública
+                  Área pública
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/transparencia')}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Painel público
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-
-                {/* Grupo 3 — Sessão */}
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
