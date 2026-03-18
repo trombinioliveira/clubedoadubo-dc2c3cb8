@@ -122,7 +122,7 @@ function renderTemplate(
           bodyText("Recebemos seu pagamento com sucesso.") +
           (amount ? bodyText(`<strong>Valor:</strong> ${amount}`) : "") +
           bodyText("Seu registro será processado e, em instantes, você poderá acompanhar tudo com transparência no Clube do Adubo.") +
-          btn("Ver próximos passos", `${BRAND_URL}/checkout/sucesso`) +
+          btn("Ver próximos passos", `${BRAND_URL}/compra/sucesso`) +
           auxText("Se este foi seu primeiro passo no ciclo, bem-vindo.<br>Você poderá acompanhar sua jornada diretamente na plataforma."),
           "Seu passo no ciclo foi confirmado com sucesso."
         ),
@@ -137,7 +137,7 @@ function renderTemplate(
           "Seu pagamento ainda está sendo processado",
           bodyText("Seu pagamento foi recebido e está em análise.") +
           bodyText("Assim que ele for confirmado, sua participação será registrada automaticamente.") +
-          btn("Acompanhar status", `${BRAND_URL}/checkout/pendente`) +
+          btn("Acompanhar status", `${BRAND_URL}/compra/pendente`) +
           auxText("Você não precisa fazer nada agora.<br>Se houver atualização, ela aparecerá na plataforma."),
           "Seu pagamento foi recebido e ainda está sendo processado."
         ),
@@ -214,7 +214,7 @@ function renderTemplate(
           "Seu primeiro passo foi dado",
           bodyText("Seu ingresso no ciclo foi confirmado.") +
           bodyText("A partir de agora, você pode acompanhar sua jornada e ver esse impacto crescer com transparência.") +
-          btn("Ver próximos passos", `${BRAND_URL}/checkout/sucesso`) +
+          btn("Ver próximos passos", `${BRAND_URL}/compra/sucesso`) +
           auxText("Se quiser continuar participando todo mês, você também pode conhecer os planos mensais."),
           "Seu primeiro passo foi dado com sucesso."
         ),

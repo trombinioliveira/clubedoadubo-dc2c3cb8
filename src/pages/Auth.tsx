@@ -180,7 +180,7 @@ export default function Auth() {
       return;
     }
 
-    navigate(isAdmin ? '/admin' : '/dashboard');
+    navigate(isAdmin ? '/admin' : '/jornada');
   }, [user, isLoading, isAdmin, navigate]);
 
   const clearForm = () => {

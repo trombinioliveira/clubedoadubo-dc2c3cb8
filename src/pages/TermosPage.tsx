@@ -7,10 +7,10 @@ export default function TermosPage() {
       <Helmet>
         <title>Clube do Adubo | Termos de Uso</title>
         <meta name="description" content="Termos de Uso do Clube do Adubo — plataforma de economia circular urbana baseada no processamento real de resíduo orgânico." />
-        <link rel="canonical" href="https://clubedoadubo.lovable.app/termos" />
+        <link rel="canonical" href="https://www.clubedoadubo.com.br/termos" />
         <meta property="og:title" content="Clube do Adubo | Termos de Uso" />
         <meta property="og:description" content="Termos de Uso do Clube do Adubo — economia circular urbana com impacto real." />
-        <meta property="og:url" content="https://clubedoadubo.lovable.app/termos" />
+        <meta property="og:url" content="https://www.clubedoadubo.com.br/termos" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">
