@@ -65,7 +65,7 @@ export function SiteManagement() {
 
   const useToggleSetting = (key: string) => useMutation({
     mutationFn: async (enabled: boolean) => {
-      const user = (await supabase.auth.getUser()).data.user?.id;
+      const user = (await (supabase.auth as any).getUser()).data.user?.id;
       const { error } = await supabase.from('site_settings')
         .update({ value: { enabled }, updated_by: user })
         .eq('key', key);
