@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import {
   Sparkles, Heart, Eye, Globe, PartyPopper, X,
   ArrowRight, CheckCircle2, Circle, Compass,
-  TrendingUp, Users, CreditCard, BarChart3
+  TrendingUp, Users, BarChart3, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useQuery } from '@tanstack/react-query';
@@ -14,61 +16,66 @@ import { supabase } from '@/integrations/supabase/client';
 type UserStage = 'A' | 'B' | 'C' | 'D';
 
 function useJornadaData(userId: string | undefined) {
-  const { data: prosCount = 0 } = useQuery({
+  const prosQuery = useQuery({
     queryKey: ['jornada-pros', userId],
     queryFn: async () => {
       if (!userId) return 0;
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from('pros')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId);
+      if (error) throw error;
       return count ?? 0;
     },
     enabled: !!userId,
   });
 
-  const { data: dreamsCount = 0 } = useQuery({
+  const dreamsQuery = useQuery({
     queryKey: ['jornada-dreams', userId],
     queryFn: async () => {
       if (!userId) return 0;
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from('dreams')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId);
+      if (error) throw error;
       return count ?? 0;
     },
     enabled: !!userId,
   });
 
-  const { data: completedDreams = 0 } = useQuery({
-    queryKey: ['jornada-dreams-completed', userId],
-    queryFn: async () => {
-      if (!userId) return 0;
-      const { count } = await supabase
-        .from('dreams')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('is_completed', true);
-      return count ?? 0;
-    },
-    enabled: !!userId,
-  });
-
-  const { data: hasSubscription = false } = useQuery({
+  const subQuery = useQuery({
     queryKey: ['jornada-sub', userId],
     queryFn: async () => {
       if (!userId) return false;
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from('subscriptions')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('status', 'active');
+      if (error) throw error;
       return (count ?? 0) > 0;
     },
     enabled: !!userId,
   });
 
-  return { prosCount, dreamsCount, completedDreams, hasSubscription };
+  const isLoading = prosQuery.isLoading || dreamsQuery.isLoading || subQuery.isLoading;
+  const isError = prosQuery.isError || dreamsQuery.isError || subQuery.isError;
+
+  const refetchAll = () => {
+    prosQuery.refetch();
+    dreamsQuery.refetch();
+    subQuery.refetch();
+  };
+
+  return {
+    prosCount: prosQuery.data ?? 0,
+    dreamsCount: dreamsQuery.data ?? 0,
+    hasSubscription: subQuery.data ?? false,
+    isLoading,
+    isError,
+    refetchAll,
+  };
 }
 
 function getStage(prosCount: number, dreamsCount: number, hasSubscription: boolean): UserStage {
@@ -146,10 +153,9 @@ const proximoPassoContent: Record<UserStage, { frase: string; micro: string; cta
 
 const JornadaPage = () => {
   const { user, profile } = useAuth();
-  const navigate = useNavigate();
   const [showWelcome, setShowWelcome] = useState(false);
 
-  const { prosCount, dreamsCount, completedDreams, hasSubscription } = useJornadaData(user?.id);
+  const { prosCount, dreamsCount, hasSubscription, isLoading, isError, refetchAll } = useJornadaData(user?.id);
   const stage = getStage(prosCount, dreamsCount, hasSubscription);
   const momento = momentoContent[stage];
   const proximo = proximoPassoContent[stage];
@@ -165,6 +171,7 @@ const JornadaPage = () => {
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Participante';
 
+  // Marcos with dynamic titles for marco 3
   const marcos = [
     {
       title: 'Você entrou no ciclo',
@@ -177,11 +184,82 @@ const JornadaPage = () => {
       done: dreamsCount > 0,
     },
     {
-      title: 'Sua jornada ganhou continuidade',
-      text: 'Acompanhar e fortalecer o ritmo da sua participação torna sua experiência mais viva e mais estável.',
+      title: hasSubscription
+        ? 'Sua jornada segue com continuidade'
+        : 'Sua jornada pode ganhar continuidade',
+      text: hasSubscription
+        ? 'Sua participação contínua está ativa e seu ritmo segue em movimento.'
+        : 'Acompanhar e fortalecer o ritmo da sua participação torna sua experiência mais viva e mais estável.',
       done: hasSubscription,
     },
   ];
+
+  // ─── Error state ───
+  if (isError) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-md mx-auto text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-6 h-6 text-destructive" />
+          </div>
+          <h2 className="text-lg font-bold text-foreground">Não foi possível carregar sua jornada</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Tivemos um problema ao buscar seus dados. Isso pode ser temporário — tente novamente em instantes.
+          </p>
+          <Button onClick={refetchAll} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Tentar novamente
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Loading state ───
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="max-w-2xl mx-auto space-y-10">
+          {/* Header skeleton */}
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-5 w-40" />
+          </div>
+          {/* Momento card skeleton */}
+          <Card>
+            <CardContent className="p-5 sm:p-6 space-y-3">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-10 w-48 mt-2" />
+            </CardContent>
+          </Card>
+          {/* Cards skeleton */}
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-56" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <Card key={i}>
+                  <CardContent className="p-5 space-y-2">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <Skeleton className="h-7 w-12" />
+                    <Skeleton className="h-3 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+          {/* Next step skeleton */}
+          <Card>
+            <CardContent className="p-5 space-y-3">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-10 w-44 mt-2" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 sm:py-12">
@@ -271,7 +349,6 @@ const JornadaPage = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Card 1 — Participação */}
             <Card className="hover:shadow-md transition-shadow">
               <CardContent className="p-5 space-y-2">
                 <div className="flex items-center gap-2">
@@ -289,7 +366,6 @@ const JornadaPage = () => {
               </CardContent>
             </Card>
 
-            {/* Card 2 — Sonhos */}
             <Card className="hover:shadow-md transition-shadow">
               <CardContent className="p-5 space-y-2">
                 <div className="flex items-center gap-2">
@@ -307,7 +383,6 @@ const JornadaPage = () => {
               </CardContent>
             </Card>
 
-            {/* Card 3 — Ritmo */}
             <Card className="hover:shadow-md transition-shadow">
               <CardContent className="p-5 space-y-2">
                 <div className="flex items-center gap-2">
@@ -372,14 +447,12 @@ const JornadaPage = () => {
           <div className="space-y-0">
             {marcos.map((marco, i) => (
               <div key={i} className="flex gap-4 relative">
-                {/* Vertical line */}
                 {i < marcos.length - 1 && (
                   <div className={cn(
                     "absolute left-[15px] top-8 w-0.5 h-[calc(100%-8px)]",
                     marco.done ? "bg-primary/40" : "bg-border"
                   )} />
                 )}
-                {/* Icon */}
                 <div className="shrink-0 z-10">
                   {marco.done ? (
                     <CheckCircle2 className="w-8 h-8 text-primary" />
@@ -387,7 +460,6 @@ const JornadaPage = () => {
                     <Circle className="w-8 h-8 text-muted-foreground/40" />
                   )}
                 </div>
-                {/* Content */}
                 <div className="pb-8">
                   <p className={cn(
                     "font-medium text-sm",
@@ -451,7 +523,7 @@ const JornadaPage = () => {
             Sua jornada faz parte de um ciclo real de transformação de resíduos, produção de adubo e acompanhamento público no território.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link to="/transparencia">
+            <Link to="/painel-publico#inicio">
               <Button variant="outline" size="sm" className="gap-1.5">
                 <Eye className="w-4 h-4" />
                 Ver o Painel Público
@@ -470,7 +542,7 @@ const JornadaPage = () => {
   );
 };
 
-// ─── Path Card Component ───
+// ─── Path Card ───
 
 function PathCard({ to, icon, title, text }: { to: string; icon: React.ReactNode; title: string; text: string }) {
   return (
@@ -492,11 +564,6 @@ function PathCard({ to, icon, title, text }: { to: string; icon: React.ReactNode
       </Card>
     </Link>
   );
-}
-
-// ─── Utility ───
-function cn(...classes: (string | false | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }
 
 export default JornadaPage;
