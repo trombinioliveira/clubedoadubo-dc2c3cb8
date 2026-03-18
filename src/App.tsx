@@ -1,10 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// @ts-ignore - QueryClient exists at runtime despite type drift
-const queryClient = new (QueryClient as any)();
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { AppLayout, PublicLayout } from "@/components/layout";
@@ -43,6 +40,8 @@ import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
+// @ts-ignore - QueryClient exists at runtime
+const { QueryClient } = require("@tanstack/react-query");
 const queryClient = new QueryClient();
 
 const App = () => (
