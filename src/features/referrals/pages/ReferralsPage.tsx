@@ -259,39 +259,34 @@ export function ReferralsPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-foreground">Sua onda agora</h2>
           {hasNetwork ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-5 space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium text-muted-foreground">Pessoas conectadas</span>
-                    <MicroHelp text="Pessoas que entraram no Clube do Adubo através do seu link." />
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{referredUsers.length}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {activeNetwork} {activeNetwork === 1 ? 'já está participando' : 'já estão participando'}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-5 space-y-1">
-                  <span className="text-sm font-medium text-muted-foreground">Participações geradas</span>
-                  <p className="text-2xl font-bold text-foreground">{networkPros}</p>
-                  <p className="text-xs text-muted-foreground">Pela sua rede de impacto</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-5 space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium text-muted-foreground">Impacto ambiental</span>
-                    <MicroHelp text="Calculado com base nos resíduos processados pela sua rede." />
-                  </div>
-                  <p className="text-2xl font-bold text-primary">
-                    {impact.co2AvoidedKg.toFixed(1)} <span className="text-sm font-normal">kg CO₂</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground">CO₂ evitado pela sua onda</p>
-                </CardContent>
-              </Card>
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="p-5 space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-medium text-muted-foreground">Pessoas conectadas</span>
+                      <MicroHelp text="Pessoas que entraram no Clube do Adubo através do seu link." />
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{referredUsers.length}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activeNetwork} {activeNetwork === 1 ? 'já está participando' : 'já estão participando'}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-5 space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Participações geradas</span>
+                    <p className="text-2xl font-bold text-foreground">{networkPros}</p>
+                    <p className="text-xs text-muted-foreground">Criadas por quem entrou pela sua onda</p>
+                  </CardContent>
+                </Card>
+              </div>
+              {impact.co2AvoidedKg > 0 && (
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  🌿 Sua onda já ajudou a evitar <span className="font-semibold text-foreground">{impact.co2AvoidedKg.toFixed(1)} kg de CO₂</span> — calculado com base nos resíduos que sua rede processou no ciclo.
+                </p>
+              )}
+            </>
           ) : (
             <Card className="border-dashed border-primary/20">
               <CardContent className="p-6 sm:p-8 text-center space-y-4">
