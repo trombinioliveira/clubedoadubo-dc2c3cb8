@@ -185,6 +185,9 @@ export function SubscriptionsManagement() {
       const oldPlan = editingSub.plan_key;
       const oldStatus = editingSub.status;
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
       const { error: updateErr } = await supabase
         .from('subscriptions')
         .update({ plan_key: editPlan, status: editStatus, updated_at: new Date().toISOString() })
@@ -195,7 +198,7 @@ export function SubscriptionsManagement() {
         .from('subscription_logs')
         .insert({
           subscription_id: editingSub.id,
-          admin_user_id: (await (supabase.auth as any).getUser()).data.user!.id,
+          admin_user_id: user.id,
           old_plan_key: oldPlan,
           new_plan_key: editPlan,
           old_status: oldStatus,

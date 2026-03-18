@@ -26,6 +26,15 @@ interface UserReferralData {
   commission_earned: number;
 }
 
+interface ReferralStatsLookup {
+  user_id: string;
+  direct_pros: number | null;
+  recurring_pros: number | null;
+  global_pros_received: number | null;
+  current_level: number | null;
+  commission_earned: number | null;
+}
+
 const levelLabels: Record<number, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
   1: { label: 'Iniciante', variant: 'outline' },
   2: { label: 'Ativo', variant: 'secondary' },
@@ -39,7 +48,6 @@ export function ReferralsTable() {
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-referrals-users'],
     queryFn: async () => {
-      // Get profiles with referral codes
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, user_id, full_name, email, referral_code')
@@ -48,18 +56,18 @@ export function ReferralsTable() {
 
       if (profilesError) throw profilesError;
 
-      // Get referral stats
       const { data: stats, error: statsError } = await supabase
         .from('referral_stats')
         .select('*');
 
       if (statsError) throw statsError;
 
-      // Merge data
-      const statsMap = new Map(stats?.map(s => [s.user_id, s]) ?? []);
-      
-      return profiles?.map(profile => {
-        const stat = statsMap.get(profile.user_id) as any;
+      const statsMap = new Map<string, ReferralStatsLookup>(
+        stats?.map((s) => [s.user_id, s as ReferralStatsLookup]) ?? [],
+      );
+
+      return profiles?.map((profile) => {
+        const stat = statsMap.get(profile.user_id);
         return {
           id: profile.id,
           full_name: profile.full_name,
@@ -79,10 +87,10 @@ export function ReferralsTable() {
     if (!search) return users;
     const searchLower = search.toLowerCase();
     return users?.filter(
-      u =>
+      (u) =>
         u.full_name.toLowerCase().includes(searchLower) ||
         u.email.toLowerCase().includes(searchLower) ||
-        u.referral_code?.toLowerCase().includes(searchLower)
+        u.referral_code?.toLowerCase().includes(searchLower),
     );
   }, [users, search]);
 
@@ -139,19 +147,13 @@ export function ReferralsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <code className="bg-muted px-2 py-1 rounded text-sm">
-                        {user.referral_code}
-                      </code>
+                      <code className="bg-muted px-2 py-1 rounded text-sm">{user.referral_code}</code>
                     </TableCell>
                     <TableCell className="text-center">{user.direct_pros}</TableCell>
                     <TableCell className="text-center">{user.recurring_pros}</TableCell>
                     <TableCell className="text-center">{user.global_pros_received}</TableCell>
-                    <TableCell>
-                      <Badge variant={levelInfo.variant}>{levelInfo.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      R$ {user.commission_earned.toFixed(2)}
-                    </TableCell>
+                    <TableCell><Badge variant={levelInfo.variant}>{levelInfo.label}</Badge></TableCell>
+                    <TableCell className="text-right">R$ {user.commission_earned.toFixed(2)}</TableCell>
                   </TableRow>
                 );
               })

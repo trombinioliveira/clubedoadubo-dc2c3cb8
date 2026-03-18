@@ -19,7 +19,7 @@ const passwordSchema = z
 type PageMode = 'loading' | 'recovery' | 'forced_change' | 'no_access';
 
 export default function ChangePasswordPage() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<PageMode>('loading');
@@ -32,7 +32,7 @@ export default function ChangePasswordPage() {
 
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event from Supabase magic link
-    const { data: { subscription } } = (supabase.auth as any).onAuthStateChange((event: string, session: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setMode('recovery');
       }
@@ -40,7 +40,7 @@ export default function ChangePasswordPage() {
 
     // Determine initial mode based on current state
     const detectMode = async () => {
-      const { data: { session } } = await (supabase.auth as any).getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
         // Check if there's a recovery token in the URL hash
@@ -107,7 +107,7 @@ export default function ChangePasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const { error: updateError } = await (supabase.auth as any).updateUser({ password: newPassword });
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
 
       if (updateError) {
         // Map common error messages to Portuguese
@@ -122,7 +122,7 @@ export default function ChangePasswordPage() {
       }
 
       // Clear password_change_required flag if set
-      const { data: { session } } = await (supabase.auth as any).getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         await supabase
           .from('profiles')

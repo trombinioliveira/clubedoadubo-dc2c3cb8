@@ -40,6 +40,14 @@ interface ProWithUser {
   referred_by_name: string | null;
 }
 
+interface ProfileLookup {
+  user_id: string;
+  full_name: string;
+  email: string;
+  referral_code: string | null;
+  referred_by: string | null;
+}
+
 const statusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   pending: { label: 'Pendente', variant: 'outline' },
   processing: { label: 'Processando', variant: 'secondary' },
@@ -59,7 +67,6 @@ export function ProUserAudit() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-pro-user-audit', statusFilter, page],
     queryFn: async () => {
-      // Get PROs with user info
       let query = supabase
         .from('pros')
         .select(`
@@ -81,13 +88,10 @@ export function ProUserAudit() {
 
       const { data: pros, error: prosError } = await query;
       if (prosError) throw prosError;
-
       if (!pros || pros.length === 0) return [];
 
-      // Get unique user IDs
-      const userIds = [...new Set(pros.map(p => p.user_id))];
+      const userIds = [...new Set(pros.map((p) => p.user_id))];
 
-      // Get profiles for these users
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, user_id, full_name, email, referral_code, referred_by')
@@ -95,25 +99,24 @@ export function ProUserAudit() {
 
       if (profilesError) throw profilesError;
 
-      // Get referrer names
-      const referredByIds = profiles?.filter(p => p.referred_by).map(p => p.referred_by) || [];
-      let referrerMap = new Map<string, string>();
-      
+      const referredByIds = profiles?.filter((p) => p.referred_by).map((p) => p.referred_by) || [];
+      const referrerMap = new Map<string, string>();
+
       if (referredByIds.length > 0) {
         const { data: referrers } = await supabase
           .from('profiles')
           .select('id, full_name')
           .in('id', referredByIds);
-        
-        referrers?.forEach(r => referrerMap.set(r.id, r.full_name));
+
+        referrers?.forEach((r) => referrerMap.set(r.id, r.full_name));
       }
 
-      // Create profile map
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) ?? []);
+      const profileMap = new Map<string, ProfileLookup>(
+        profiles?.map((p) => [p.user_id, p as ProfileLookup]) ?? [],
+      );
 
-      // Merge data
-      return pros.map(pro => {
-        const profile = profileMap.get(pro.user_id) as any;
+      return pros.map((pro) => {
+        const profile = profileMap.get(pro.user_id);
         return {
           ...pro,
           user_name: profile?.full_name || 'Desconhecido',
@@ -146,11 +149,11 @@ export function ProUserAudit() {
     if (!search || !data) return data;
     const searchLower = search.toLowerCase();
     return data.filter(
-      p =>
+      (p) =>
         p.code.toLowerCase().includes(searchLower) ||
         p.user_name.toLowerCase().includes(searchLower) ||
         p.user_email.toLowerCase().includes(searchLower) ||
-        p.referral_code?.toLowerCase().includes(searchLower)
+        p.referral_code?.toLowerCase().includes(searchLower),
     );
   }, [data, search]);
 
@@ -165,7 +168,6 @@ export function ProUserAudit() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -191,7 +193,6 @@ export function ProUserAudit() {
           </Select>
         </div>
 
-        {/* Stats */}
         <div className="flex gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Package className="w-4 h-4" />
@@ -203,7 +204,6 @@ export function ProUserAudit() {
           </span>
         </div>
 
-        {/* Table */}
         {isLoading ? (
           <Skeleton className="h-64 w-full" />
         ) : (
@@ -235,9 +235,7 @@ export function ProUserAudit() {
                     return (
                       <TableRow key={pro.id}>
                         <TableCell>
-                          <code className="bg-muted px-2 py-1 rounded text-sm font-mono">
-                            {pro.code}
-                          </code>
+                          <code className="bg-muted px-2 py-1 rounded text-sm font-mono">{pro.code}</code>
                         </TableCell>
                         <TableCell>
                           <div>
@@ -247,43 +245,28 @@ export function ProUserAudit() {
                         </TableCell>
                         <TableCell>
                           {pro.referral_code ? (
-                            <a 
+                            <a
                               href={`/u/${pro.referral_code}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-secondary hover:underline"
                             >
-                              <code className="bg-secondary/20 px-2 py-0.5 rounded text-sm">
-                                {pro.referral_code}
-                              </code>
+                              <code className="bg-secondary/20 px-2 py-0.5 rounded text-sm">{pro.referral_code}</code>
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                        <TableCell>
-                          {pro.referred_by_name || <span className="text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {pro.pro_type || 'standard'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusInfo.variant}>
-                            {statusInfo.label}
-                          </Badge>
-                        </TableCell>
+                        <TableCell>{pro.referred_by_name || <span className="text-muted-foreground">—</span>}</TableCell>
+                        <TableCell><Badge variant="outline">{pro.pro_type || 'standard'}</Badge></TableCell>
+                        <TableCell><Badge variant={statusInfo.variant}>{statusInfo.label}</Badge></TableCell>
                         <TableCell>{pro.weight_grams}g</TableCell>
+                        <TableCell>{format(new Date(pro.created_at), 'dd/MM/yy HH:mm', { locale: ptBR })}</TableCell>
                         <TableCell>
-                          {format(new Date(pro.created_at), "dd/MM/yy HH:mm", { locale: ptBR })}
-                        </TableCell>
-                        <TableCell>
-                          {pro.paid_at 
-                            ? format(new Date(pro.paid_at), "dd/MM/yy", { locale: ptBR })
-                            : <span className="text-muted-foreground">—</span>
-                          }
+                          {pro.paid_at
+                            ? format(new Date(pro.paid_at), 'dd/MM/yy', { locale: ptBR })
+                            : <span className="text-muted-foreground">—</span>}
                         </TableCell>
                       </TableRow>
                     );
@@ -294,25 +277,12 @@ export function ProUserAudit() {
           </div>
         )}
 
-        {/* Pagination */}
         <div className="flex justify-between items-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(p => Math.max(0, p - 1))}
-            disabled={page === 0}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
             Anterior
           </Button>
-          <span className="text-sm text-muted-foreground">
-            Página {page + 1} de {totalPages || 1}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(p => p + 1)}
-            disabled={page >= totalPages - 1}
-          >
+          <span className="text-sm text-muted-foreground">Página {page + 1} de {totalPages || 1}</span>
+          <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages - 1}>
             Próxima
           </Button>
         </div>

@@ -37,7 +37,9 @@ export function ResetSandbox() {
         .eq('key', 'env_mode')
         .single();
       if (error) return 'unknown';
-      return (data?.value as any)?.mode || 'production';
+      const value = data?.value;
+      const mode = value && typeof value === 'object' && 'mode' in value ? (value as { mode?: string }).mode : undefined;
+      return mode || 'production';
     },
   });
 
@@ -49,7 +51,7 @@ export function ResetSandbox() {
     setIsResetting(true);
 
     try {
-      const { data: { session } } = await (supabase.auth as any).getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Sessão expirada');
         return;

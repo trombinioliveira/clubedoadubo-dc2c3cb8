@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-// Use `any` to work around type drift between installed @supabase/supabase-js types
-const auth = supabase.auth as any;
-
-type User = any;
-type Session = any;
+const auth = supabase.auth;
 
 type AppRole = 'admin' | 'staff' | 'client';
 
@@ -102,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = auth.onAuthStateChange(
-      (event, session) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         // Intercept PASSWORD_RECOVERY: force redirect to reset password page
         if (event === 'PASSWORD_RECOVERY') {
           _isPasswordRecovery = true;
@@ -132,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     // THEN check for existing session
-    auth.getSession().then(({ data: { session } }: any) => {
+    auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       

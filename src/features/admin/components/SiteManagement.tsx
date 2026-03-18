@@ -59,15 +59,17 @@ export function SiteManagement() {
     queryFn: async () => {
       const { data, error } = await supabase.from('site_settings').select('value').eq('key', key).single();
       if (error) return defaultVal;
-      return (data?.value as any)?.enabled ?? defaultVal;
+      const value = data?.value;
+      const enabled = value && typeof value === 'object' && 'enabled' in value ? (value as { enabled?: boolean }).enabled : undefined;
+      return enabled ?? defaultVal;
     },
   });
 
   const useToggleSetting = (key: string) => useMutation({
     mutationFn: async (enabled: boolean) => {
-      const user = (await (supabase.auth as any).getUser()).data.user?.id;
+      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase.from('site_settings')
-        .update({ value: { enabled }, updated_by: user })
+        .update({ value: { enabled }, updated_by: user?.id })
         .eq('key', key);
       if (error) throw error;
     },
@@ -90,25 +92,12 @@ export function SiteManagement() {
   const togglePubPoints = useToggleSetting('public_collection_points_enabled');
   const togglePubKpis = useToggleSetting('public_kpis_enabled');
 
-  // Fetch missions
-  const { data: missions = [], isLoading: missionsLoading } = useQuery({
-    queryKey: ['admin-missions'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('impact_missions')
-        .select('*')
-        .order('sort_order', { ascending: true });
-      if (error) throw error;
-      return data as Mission[];
-    },
-  });
-
-  // Toggle missions module
   const toggleModule = useMutation({
     mutationFn: async (enabled: boolean) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase
         .from('site_settings')
-        .update({ value: { enabled }, updated_by: (await (supabase.auth as any).getUser()).data.user?.id })
+        .update({ value: { enabled }, updated_by: user?.id })
         .eq('key', 'missions_enabled');
       if (error) throw error;
     },
