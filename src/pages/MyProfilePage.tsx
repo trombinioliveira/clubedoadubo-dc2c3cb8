@@ -243,7 +243,9 @@ export default function MyProfilePage() {
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
       await supabase.from('otp_codes').insert({ user_id: user?.id, type, code, expires_at: expiresAt });
-      toast({ title: 'Código enviado!', description: `Código de verificação (teste): ${code}` });
+      // Store code temporarily for test display inside dialog (NOT in toast)
+      setTestOtpCode(code);
+      toast({ title: 'Código enviado!', description: `Verifique seu ${type === 'email' ? 'e-mail' : 'WhatsApp'}.` });
       setOtpType(type);
       setOtpCode('');
       setOtpDialogOpen(true);
