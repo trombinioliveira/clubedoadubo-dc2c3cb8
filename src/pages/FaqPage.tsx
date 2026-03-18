@@ -8,36 +8,36 @@ import { HelpCircle, ArrowRight } from 'lucide-react';
 const FaqPage = () => {
   const faqs = [
     {
-      question: 'O que é um PRO?',
-      answer: 'PRO significa Processamento de Resíduo Orgânico. É a unidade básica do Clube do Adubo: cada PRO representa 100 gramas de resíduo orgânico urbano que será compostado e transformado em adubo natural. Quando você ativa um PRO, ele entra na Fila FIFO global e você acompanha todo o ciclo até a venda do adubo.'
+      question: 'O que é uma participação?',
+      answer: 'Cada participação representa 100 gramas de resíduo orgânico que será compostado e transformado em adubo natural. Ao ativar uma participação, ela entra no ciclo e você acompanha todo o processo até a venda do adubo e o retorno do valor.'
     },
     {
       question: 'Isso é investimento financeiro?',
-      answer: 'NÃO. O Clube do Adubo é um modelo de economia circular, não um investimento financeiro. O valor que você pode receber (R$ 2,00 por PRO) vem exclusivamente da venda real do adubo produzido. Não há promessas de rendimento, não há ganhos garantidos, e não há nenhum tipo de aplicação financeira envolvida. O ciclo só gera valor quando o adubo é efetivamente vendido.'
+      answer: 'Não. O Clube do Adubo é um modelo de economia circular, não um investimento. O valor que pode retornar (R$ 2,00 por participação) vem exclusivamente da venda real do adubo produzido. Não há promessas de rendimento, ganhos garantidos ou qualquer tipo de aplicação financeira. O ciclo só gera valor quando o adubo é efetivamente vendido.'
     },
     {
       question: 'De onde vem o dinheiro?',
-      answer: 'O dinheiro vem exclusivamente da venda do adubo. O ciclo funciona assim: resíduo orgânico é coletado → processado em compostagem → transformado em adubo natural → vendido. Cada venda de adubo gera R$ 2,00, que são distribuídos seguindo a ordem da Fila FIFO. Ou seja: o valor vem de uma atividade produtiva real (venda de produto), não da entrada de novos participantes.'
+      answer: 'Exclusivamente da venda do adubo. Resíduos orgânicos são coletados, processados por compostagem, transformados em adubo natural e vendidos. Cada venda gera R$ 2,00 que são distribuídos seguindo a ordem de entrada no ciclo. O valor vem de uma atividade produtiva real, não da entrada de novos participantes.'
     },
     {
-      question: 'O que é a Fila FIFO?',
-      answer: 'FIFO significa "First In, First Out" (Primeiro a Entrar, Primeiro a Sair). É a fila única e global que organiza a distribuição do valor gerado pela venda do adubo. Quem ativou PROs primeiro, recebe primeiro. A fila é cronológica, transparente e não pode ser alterada. Ninguém fura a fila, ninguém paga para acelerar. É justiça baseada em tempo de participação.'
+      question: 'Como funciona a ordem do ciclo?',
+      answer: 'O ciclo segue a regra "primeiro a entrar, primeiro a receber". Quem ativou participações antes, recebe antes. A ordem é cronológica, transparente e não pode ser alterada. Ninguém fura a fila e ninguém paga para acelerar.'
     },
     {
-      question: 'O que são Ondas de Impacto?',
-      answer: 'Ondas de Impacto são o sistema de indicações do Clube do Adubo. Quando você indica alguém e essa pessoa participa do ciclo, você ganha PROs Diretos (pelo engajamento) e pode receber comissões sobre vendas de adubo. Importante: as Ondas medem seu impacto ambiental e social, mas NUNCA alteram a ordem da Fila FIFO. Fila é dinheiro. Ondas são impacto.'
+      question: 'O que é a onda de impacto?',
+      answer: 'A onda de impacto mostra o alcance das suas indicações. Quando você indica alguém e essa pessoa participa, isso amplia o volume do ciclo e pode gerar participações adicionais para você. Importante: a onda mede impacto, mas nunca altera a ordem do ciclo.'
     },
     {
       question: 'Quanto tempo demora para receber?',
-      answer: 'O tempo depende do ritmo real do ciclo: coleta de resíduos, processamento, produção do adubo e vendas. Não fazemos promessas de prazo porque o sistema é baseado em atividade real. Você pode acompanhar sua posição na Fila FIFO e ver quantos PROs estão à sua frente a qualquer momento.'
+      answer: 'O tempo depende do ritmo real do ciclo: coleta, processamento, produção e vendas. Não fazemos promessas de prazo porque o sistema é baseado em atividade real. Você pode acompanhar a posição das suas participações e ver o andamento a qualquer momento.'
     },
     {
-      question: 'Posso perder meu PRO?',
-      answer: 'Uma vez ativado, seu PRO entra na Fila FIFO e permanece lá até receber o pagamento correspondente. Cada PRO é rastreável do início ao fim do ciclo.'
+      question: 'Posso perder minha participação?',
+      answer: 'Não. Uma vez ativada, sua participação entra no ciclo e permanece lá até completar o percurso. Cada participação é rastreável do início ao fim.'
     },
     {
-      question: 'Como funcionam as metas progressivas?',
-      answer: 'Na Fila FIFO, cada usuário tem uma meta de PROs Globais a receber. A meta inicial é 2 PROs. Ao atingir a meta, você é movido para o final da fila e sua próxima meta dobra (2 → 4 → 8 → 16...). Isso mantém o ciclo justo e rotativo, garantindo que todos tenham oportunidade.'
+      question: 'O que são os sonhos?',
+      answer: 'Sonhos são metas pessoais que você conecta à sua jornada. Pode ser qualquer coisa — uma viagem, um presente, um objetivo. Conforme suas participações completam o ciclo, o valor vai acumulando rumo ao seu sonho. É uma forma de dar direção pessoal à sua participação.'
     }
   ];
 
@@ -54,7 +54,7 @@ const FaqPage = () => {
             Tire suas dúvidas
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Tudo que você precisa saber sobre o Clube do Adubo, PROs, Fila FIFO e como o ciclo funciona.
+            Tudo que você precisa saber sobre o Clube do Adubo, como o ciclo funciona e como participar.
           </p>
         </div>
       </section>

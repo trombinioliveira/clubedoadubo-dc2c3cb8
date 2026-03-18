@@ -196,9 +196,9 @@ export function SiteManagement() {
       {/* Module toggles */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Módulos do Dashboard</CardTitle>
+          <CardTitle className="text-xl">Módulos da Área Logada</CardTitle>
           <CardDescription>
-            Ative ou desative módulos exibidos no dashboard dos usuários.
+            Ative ou desative módulos visíveis na área logada dos usuários.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -219,7 +219,7 @@ export function SiteManagement() {
             <div>
               <Label className="text-base font-medium">Impacto Ambiental Coletivo</Label>
               <p className="text-sm text-muted-foreground">
-                {collectiveImpactEnabled ? 'Card de impacto coletivo visível no dashboard' : 'Card de impacto coletivo oculto para todos'}
+                {collectiveImpactEnabled ? 'Card de impacto coletivo visível na área logada' : 'Card de impacto coletivo oculto para todos'}
               </p>
             </div>
             <Switch
