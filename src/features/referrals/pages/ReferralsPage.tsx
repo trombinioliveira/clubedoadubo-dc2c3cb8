@@ -465,22 +465,23 @@ export function ReferralsPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-foreground">Reconhecimento progressivo</h2>
           <p className="text-sm text-muted-foreground">
-            Conforme sua onda cresce, seu reconhecimento e participação no ciclo evoluem.
+            Conforme sua onda cresce, seu papel dentro do ciclo evolui.
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map(level => {
               const info = levelHuman[level];
               const isCurrent = level === currentLevel;
               const rate = tierRates[level];
               return (
-                <Card key={level} className={isCurrent ? 'border-primary/30 bg-primary/5' : 'opacity-70'}>
-                  <CardContent className="p-4 space-y-1">
+                <Card key={level} className={isCurrent ? 'border-primary/30 bg-primary/5' : 'opacity-60'}>
+                  <CardContent className="p-4 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{info.emoji}</span>
-                      <span className="font-semibold text-foreground text-sm">{info.label}</span>
+                      <span className="font-semibold text-foreground">{info.label}</span>
                       {isCurrent && <Badge variant="default" className="text-[10px] px-1.5 py-0">Você</Badge>}
                     </div>
-                    <p className="text-xs text-muted-foreground">{rate}% de participação nas vendas da rede</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{info.reading}</p>
+                    <p className="text-[11px] text-muted-foreground/70">{rate}% de participação nas vendas da rede</p>
                   </CardContent>
                 </Card>
               );
