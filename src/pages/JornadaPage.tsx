@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils';
 import {
   Sparkles, Heart, Eye, Globe, PartyPopper, X,
   ArrowRight, CheckCircle2, Circle, Compass,
-  TrendingUp, Users, BarChart3, AlertCircle, RefreshCw
+  TrendingUp, Users, BarChart3, AlertCircle, RefreshCw,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useQuery } from '@tanstack/react-query';
@@ -15,66 +16,50 @@ import { supabase } from '@/integrations/supabase/client';
 
 type UserStage = 'A' | 'B' | 'C' | 'D';
 
+interface DashboardSummary {
+  pros_in_cycle: number;
+  pros_sold: number;
+  pros_paid: number;
+  total_received: number;
+  today_sales_count: number;
+  today_pros_paid: number;
+  month_sales_count: number;
+  month_pros_paid: number;
+  active_dreams_count: number;
+  completed_dreams_count: number;
+  has_active_subscription: boolean;
+  active_plan_key: string | null;
+}
+
 function useJornadaData(userId: string | undefined) {
-  const prosQuery = useQuery({
-    queryKey: ['jornada-pros', userId],
+  // Full summary RPC (same as old dashboard)
+  const summaryQuery = useQuery({
+    queryKey: ['dashboard-summary', userId],
     queryFn: async () => {
-      if (!userId) return 0;
-      const { count, error } = await supabase
-        .from('pros')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId);
+      if (!userId) return null;
+      const { data, error } = await supabase.rpc('get_user_dashboard_summary', {
+        p_user_id: userId,
+      });
       if (error) throw error;
-      return count ?? 0;
+      return data as unknown as DashboardSummary;
     },
     enabled: !!userId,
+    refetchInterval: 60_000,
   });
 
-  const dreamsQuery = useQuery({
-    queryKey: ['jornada-dreams', userId],
-    queryFn: async () => {
-      if (!userId) return 0;
-      const { count, error } = await supabase
-        .from('dreams')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId);
-      if (error) throw error;
-      return count ?? 0;
-    },
-    enabled: !!userId,
-  });
-
-  const subQuery = useQuery({
-    queryKey: ['jornada-sub', userId],
-    queryFn: async () => {
-      if (!userId) return false;
-      const { count, error } = await supabase
-        .from('subscriptions')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('status', 'active');
-      if (error) throw error;
-      return (count ?? 0) > 0;
-    },
-    enabled: !!userId,
-  });
-
-  const isLoading = prosQuery.isLoading || dreamsQuery.isLoading || subQuery.isLoading;
-  const isError = prosQuery.isError || dreamsQuery.isError || subQuery.isError;
-
-  const refetchAll = () => {
-    prosQuery.refetch();
-    dreamsQuery.refetch();
-    subQuery.refetch();
-  };
+  const summary = summaryQuery.data;
+  const prosCount = summary ? (summary.pros_in_cycle + summary.pros_sold + summary.pros_paid) : 0;
+  const dreamsCount = summary ? (summary.active_dreams_count + summary.completed_dreams_count) : 0;
+  const hasSubscription = summary?.has_active_subscription ?? false;
 
   return {
-    prosCount: prosQuery.data ?? 0,
-    dreamsCount: dreamsQuery.data ?? 0,
-    hasSubscription: subQuery.data ?? false,
-    isLoading,
-    isError,
-    refetchAll,
+    summary,
+    prosCount,
+    dreamsCount,
+    hasSubscription,
+    isLoading: summaryQuery.isLoading,
+    isError: summaryQuery.isError,
+    refetchAll: summaryQuery.refetch,
   };
 }
 
@@ -84,6 +69,9 @@ function getStage(prosCount: number, dreamsCount: number, hasSubscription: boole
   if (prosCount > 0) return 'B';
   return 'A';
 }
+
+const formatBRL = (v: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 // ─── Content Maps ───
 
@@ -155,7 +143,7 @@ const JornadaPage = () => {
   const { user, profile } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
 
-  const { prosCount, dreamsCount, hasSubscription, isLoading, isError, refetchAll } = useJornadaData(user?.id);
+  const { summary, prosCount, dreamsCount, hasSubscription, isLoading, isError, refetchAll } = useJornadaData(user?.id);
   const stage = getStage(prosCount, dreamsCount, hasSubscription);
   const momento = momentoContent[stage];
   const proximo = proximoPassoContent[stage];
@@ -206,7 +194,7 @@ const JornadaPage = () => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             Tivemos um problema ao buscar seus dados. Isso pode ser temporário — tente novamente em instantes.
           </p>
-          <Button onClick={refetchAll} variant="outline" className="gap-2">
+          <Button onClick={() => refetchAll()} variant="outline" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Tentar novamente
           </Button>
@@ -220,12 +208,10 @@ const JornadaPage = () => {
     return (
       <div className="container mx-auto px-4 py-8 sm:py-12">
         <div className="max-w-2xl mx-auto space-y-10">
-          {/* Header skeleton */}
           <div className="space-y-3">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-5 w-40" />
           </div>
-          {/* Momento card skeleton */}
           <Card>
             <CardContent className="p-5 sm:p-6 space-y-3">
               <Skeleton className="h-5 w-full" />
@@ -233,22 +219,19 @@ const JornadaPage = () => {
               <Skeleton className="h-10 w-48 mt-2" />
             </CardContent>
           </Card>
-          {/* Cards skeleton */}
           <div className="space-y-3">
             <Skeleton className="h-6 w-56" />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[1, 2, 3].map(i => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map(i => (
                 <Card key={i}>
-                  <CardContent className="p-5 space-y-2">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <Skeleton className="h-7 w-12" />
+                  <CardContent className="p-4 space-y-2">
                     <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-7 w-12" />
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
-          {/* Next step skeleton */}
           <Card>
             <CardContent className="p-5 space-y-3">
               <Skeleton className="h-5 w-full" />
@@ -301,9 +284,7 @@ const JornadaPage = () => {
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════
-            BLOCO 1 — Seu momento no ciclo
-        ═══════════════════════════════════════════════ */}
+        {/* ═══ BLOCO 1 — Seu momento no ciclo ═══ */}
         <section className="space-y-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Seu momento no ciclo
@@ -338,9 +319,7 @@ const JornadaPage = () => {
           </Card>
         </section>
 
-        {/* ═══════════════════════════════════════════════
-            BLOCO 2 — O que já está em andamento
-        ═══════════════════════════════════════════════ */}
+        {/* ═══ BLOCO 2 — O que já está em andamento (enriched) ═══ */}
         <section className="space-y-4">
           <div>
             <h2 className="text-xl font-bold text-foreground">O que já está em andamento</h2>
@@ -348,65 +327,118 @@ const JornadaPage = () => {
               Veja o que já começou a ganhar forma na sua jornada.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">Sua participação</span>
-                </div>
-                <p className="text-2xl font-bold text-foreground">{prosCount}</p>
-                <p className="text-xs text-muted-foreground">
-                  {prosCount === 0
-                    ? 'Sua participação ainda não começou.'
-                    : 'Tudo o que você já conectou ao ciclo aparece por aqui.'}
-                </p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <StatCard
+              label="No ciclo"
+              value={summary?.pros_in_cycle ?? 0}
+              icon={<Sparkles className="w-4 h-4 text-primary" />}
+              sub="Participações ativas"
+            />
+            <StatCard
+              label="Vendidos"
+              value={summary?.pros_sold ?? 0}
+              icon={<TrendingUp className="w-4 h-4 text-primary" />}
+              sub="Aguardando retorno"
+            />
+            <StatCard
+              label="Concluídos"
+              value={summary?.pros_paid ?? 0}
+              icon={<CheckCircle2 className="w-4 h-4 text-primary" />}
+              sub="Ciclo completo"
+            />
+            <StatCard
+              label="Recebido"
+              value={formatBRL(summary?.total_received ?? 0)}
+              icon={<Wallet className="w-4 h-4 text-primary" />}
+              sub="Retorno total"
+              isText
+            />
+          </div>
 
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          {/* Dreams + Rhythm summary row */}
+          <div className="grid grid-cols-2 gap-3">
+            <Link to="/dreams" className="group">
+              <Card className="h-full hover:shadow-md hover:border-primary/30 transition-all">
+                <CardContent className="p-4 space-y-1">
+                  <div className="flex items-center gap-2">
                     <Heart className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Sonhos</span>
                   </div>
-                  <span className="text-sm font-medium text-foreground">Seus sonhos</span>
-                </div>
-                <p className="text-2xl font-bold text-foreground">{dreamsCount}</p>
-                <p className="text-xs text-muted-foreground">
-                  {dreamsCount === 0
-                    ? 'Nenhum sonho criado ainda.'
-                    : 'Os sonhos mostram para onde sua jornada está apontando.'}
-                </p>
-              </CardContent>
-            </Card>
+                  <p className="text-lg font-bold text-foreground">
+                    {summary?.active_dreams_count ?? 0}
+                    {(summary?.completed_dreams_count ?? 0) > 0 && (
+                      <span className="text-sm font-normal text-muted-foreground ml-1">
+                        + {summary?.completed_dreams_count} concluído{(summary?.completed_dreams_count ?? 0) > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {(summary?.active_dreams_count ?? 0) === 0
+                      ? 'Nenhum sonho criado ainda.'
+                      : 'Sonhos ativos dando direção à jornada.'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <Link to={hasSubscription ? '/assinatura' : '/planos'} className="group">
+              <Card className="h-full hover:shadow-md hover:border-primary/30 transition-all">
+                <CardContent className="p-4 space-y-1">
+                  <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Ritmo</span>
                   </div>
-                  <span className="text-sm font-medium text-foreground">Seu ritmo</span>
-                </div>
-                <p className="text-sm font-semibold text-foreground">
-                  {hasSubscription ? 'Contínuo' : 'Manual'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {hasSubscription
-                    ? 'Sua participação segue em ritmo contínuo.'
-                    : 'Você pode seguir manualmente ou automatizar sua participação depois.'}
-                </p>
-              </CardContent>
-            </Card>
+                  <p className="text-sm font-semibold text-foreground">
+                    {hasSubscription ? 'Contínuo' : 'Manual'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasSubscription
+                      ? 'Participação contínua ativa.'
+                      : 'Participe manualmente ou ative um plano.'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════
-            BLOCO 3 — Seu próximo passo
-        ═══════════════════════════════════════════════ */}
+        {/* ═══ BLOCO 2.5 — Movimento do ciclo (from dashboard) ═══ */}
+        {prosCount > 0 && (
+          <section className="space-y-4">
+            <Card>
+              <CardContent className="p-5 sm:p-6 space-y-3">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" />
+                  <h3 className="text-base font-semibold text-foreground">Movimento do ciclo</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Vendas de adubo e participações concluídas — o que moveu o ciclo recentemente.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Hoje</p>
+                    <p className="text-sm text-foreground">
+                      <span className="font-semibold">{summary?.today_sales_count ?? 0}</span> venda{(summary?.today_sales_count ?? 0) !== 1 ? 's' : ''} · <span className="font-semibold">{summary?.today_pros_paid ?? 0}</span> concluída{(summary?.today_pros_paid ?? 0) !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Este mês</p>
+                    <p className="text-sm text-foreground">
+                      <span className="font-semibold">{summary?.month_sales_count ?? 0}</span> venda{(summary?.month_sales_count ?? 0) !== 1 ? 's' : ''} · <span className="font-semibold">{summary?.month_pros_paid ?? 0}</span> concluída{(summary?.month_pros_paid ?? 0) !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+                <Link to="/painel-publico#inicio">
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1 px-0">
+                    <Eye className="w-3.5 h-3.5" /> Ver painel público completo
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
+        {/* ═══ BLOCO 3 — Seu próximo passo ═══ */}
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-foreground">Seu próximo passo</h2>
           <Card className="border-primary/20">
@@ -434,9 +466,7 @@ const JornadaPage = () => {
           </Card>
         </section>
 
-        {/* ═══════════════════════════════════════════════
-            BLOCO 4 — Como sua jornada avança
-        ═══════════════════════════════════════════════ */}
+        {/* ═══ BLOCO 4 — Como sua jornada avança ═══ */}
         <section className="space-y-4">
           <div>
             <h2 className="text-xl font-bold text-foreground">Como sua jornada avança</h2>
@@ -476,9 +506,7 @@ const JornadaPage = () => {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════
-            BLOCO 5 — Continue sua jornada
-        ═══════════════════════════════════════════════ */}
+        {/* ═══ BLOCO 5 — Continue sua jornada ═══ */}
         <section className="space-y-4">
           <div>
             <h2 className="text-xl font-bold text-foreground">Continue sua jornada</h2>
@@ -514,9 +542,7 @@ const JornadaPage = () => {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════
-            BLOCO 6 — Você faz parte de algo maior
-        ═══════════════════════════════════════════════ */}
+        {/* ═══ BLOCO 6 — Você faz parte de algo maior ═══ */}
         <section className="space-y-4 pb-4">
           <h2 className="text-xl font-bold text-foreground">Você faz parte de algo maior</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -542,7 +568,24 @@ const JornadaPage = () => {
   );
 };
 
-// ─── Path Card ───
+// ─── Sub-components ───
+
+function StatCard({ label, value, icon, sub, isText }: {
+  label: string; value: string | number; icon: React.ReactNode; sub: string; isText?: boolean;
+}) {
+  return (
+    <Card className="hover:shadow-sm transition-shadow">
+      <CardContent className="p-3 sm:p-4 space-y-1">
+        <div className="flex items-center gap-1.5">
+          {icon}
+          <span className="text-[11px] text-muted-foreground">{label}</span>
+        </div>
+        <p className={cn("font-bold text-foreground", isText ? "text-sm" : "text-xl")}>{value}</p>
+        <p className="text-[10px] text-muted-foreground">{sub}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
 function PathCard({ to, icon, title, text }: { to: string; icon: React.ReactNode; title: string; text: string }) {
   return (

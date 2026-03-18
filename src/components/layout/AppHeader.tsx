@@ -132,10 +132,6 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                     <DropdownMenuLabel className="text-xs text-muted-foreground font-normal uppercase tracking-wider px-3 py-1">
                       Acompanhar o sistema
                     </DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Resumo detalhado
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/transparencia')}>
                       <Eye className="w-4 h-4 mr-2" />
                       Painel Público

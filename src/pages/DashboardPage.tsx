@@ -1,8 +1,16 @@
-import React from 'react';
-import { DashboardPage as NewDashboardPage } from '@/features/dashboard';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+// Dashboard foi redistribuído para /jornada.
+// Esta rota redireciona automaticamente.
 const DashboardPage = () => {
-  return <NewDashboardPage />;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate('/jornada', { replace: true });
+  }, [navigate]);
+
+  return null;
 };
 
 export default DashboardPage;
