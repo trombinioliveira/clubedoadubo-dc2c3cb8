@@ -566,53 +566,40 @@ export default function FifoQueuePage() {
           </Card>
         </section>
 
-        {/* ═══ BLOCO 5 — Panorama do ciclo ═══ */}
-        <section className="space-y-4">
-          <div>
+        {/* ═══ BLOCO 5 — Panorama do ciclo (compacto, focado no usuário) ═══ */}
+        {hasParticipation && (
+          <section className="space-y-4">
             <h2 className="text-xl font-bold text-foreground">Panorama do ciclo</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Veja como está o ciclo considerando todas as participações, não só as suas.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {([
-              { status: 'pending' as ProStatus, label: 'Aguardando coleta' },
-              { status: 'processing' as ProStatus, label: 'Em compostagem' },
-              { status: 'ready' as ProStatus, label: 'Adubo pronto' },
-              { status: 'sold' as ProStatus, label: 'Aguardando retorno' },
-              { status: 'paid' as ProStatus, label: 'Ciclos concluídos' },
-            ]).map(({ status, label }) => (
-              <Card key={status} className={status === 'paid' ? 'border-primary/20' : ''}>
-                <CardContent className="p-4 text-center space-y-1">
-                  <span className="text-lg">{statusHuman[status].emoji}</span>
-                  <p className="text-xl font-bold text-foreground">{globalByStatus[status]}</p>
-                  <p className="text-xs text-muted-foreground">{label}</p>
-                </CardContent>
-              </Card>
-            ))}
             <Card>
-              <CardContent className="p-4 text-center space-y-1">
-                <span className="text-lg">🌍</span>
-                <p className="text-xl font-bold text-foreground">{totalGlobal}</p>
-                <p className="text-xs text-muted-foreground">Total no ciclo</p>
-              </CardContent>
-            </Card>
-          </div>
+              <CardContent className="p-5 sm:p-6 space-y-4">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  O ciclo está ativo e funcionando. Atualmente existem <span className="font-semibold text-foreground">{totalGlobal}</span> participações no sistema — <span className="font-semibold text-foreground">{globalByStatus.paid}</span> já completaram o ciclo.
+                </p>
 
-          {hasParticipation && firstPosition && (
-            <Card className="border-primary/15">
-              <CardContent className="p-4 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Sua participação mais próxima está na posição <span className="font-bold text-foreground">#{firstPosition}</span>
-                  {aheadCount > 0 && (
-                    <>, com <span className="font-bold text-foreground">{aheadCount}</span> participações à frente</>
-                  )}
-                  .
+                {firstPosition && (
+                  <div className="p-4 bg-primary/5 rounded-lg text-center space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      Sua participação mais próxima está na posição
+                    </p>
+                    <p className="text-2xl font-bold text-primary">#{firstPosition}</p>
+                    {aheadCount > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {aheadCount} {aheadCount === 1 ? 'participação à frente' : 'participações à frente'}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Quer ver todos os dados abertos do ciclo?{' '}
+                  <Link to="/painel-publico/fila" className="text-primary hover:underline font-medium">
+                    Acesse o painel público →
+                  </Link>
                 </p>
               </CardContent>
             </Card>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* ═══ BLOCO 6 — Próximo passo ═══ */}
         <section className="space-y-4">
