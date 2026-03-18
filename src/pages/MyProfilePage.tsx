@@ -362,7 +362,7 @@ export default function MyProfilePage() {
         <section className="space-y-3">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Meu perfil</h1>
           <p className="text-muted-foreground leading-relaxed">
-            Aqui você organiza sua presença no Clube do Adubo. Cada informação tem uma razão — explicamos tudo ao lado.
+            Aqui você organiza sua presença no Clube do Adubo. Cada informação tem uma razão — e você encontra a explicação junto de cada campo.
           </p>
         </section>
 
