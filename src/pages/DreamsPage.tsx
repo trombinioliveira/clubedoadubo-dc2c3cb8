@@ -546,11 +546,16 @@ const DreamsPage = () => {
         {/* ═══ Continue sua jornada ═══ */}
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-foreground">Continue sua jornada</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <PathCard
               title="Voltar para minha Jornada"
               text="Veja seu momento atual e o próximo passo mais importante."
               link="/jornada"
+            />
+            <PathCard
+              title="Entender o ciclo"
+              text="Veja como funciona cada etapa da sua participação."
+              link="/ciclo"
             />
             <PathCard
               title="Acompanhar minha participação"

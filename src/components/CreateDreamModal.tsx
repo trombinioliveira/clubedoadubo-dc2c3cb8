@@ -118,7 +118,7 @@ export const CreateDreamModal = ({ open, onOpenChange, onConfirm }: CreateDreamM
                   <div className="flex items-center gap-2 text-sm">
                     <Target className="w-4 h-4 text-primary" />
                     <span className="text-muted-foreground">
-                      Você precisa de aproximadamente <span className="font-semibold text-foreground">{prosNeeded} PROs pagos</span> para alcançar essa meta
+                      Cada participação paga contribui com R$ 2,00. Para este sonho, são aproximadamente <span className="font-semibold text-foreground">{prosNeeded} participações</span>.
                     </span>
                   </div>
                 </div>
