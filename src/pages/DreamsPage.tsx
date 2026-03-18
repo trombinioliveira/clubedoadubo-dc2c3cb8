@@ -418,31 +418,41 @@ const DreamsPage = () => {
               {pageState === 'inicio' && (
                 <>
                   <p className="text-foreground font-medium leading-relaxed">
-                    Seu próximo passo é continuar dando forma ao que você quer construir.
+                    Seu sonho já está criado. Agora ele precisa ganhar conexão com a sua participação.
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Ao seguir construindo, seu sonho deixa de ser só uma ideia e ganha presença real na sua jornada.
+                    Que tal criar mais um sonho pequeno para sentir o ciclo funcionando cedo? Sonhos de R$ 2 a R$ 20 já mostram resultados reais.
                   </p>
-                  <Link to="/fifo">
-                    <Button className="earth-gradient gap-1.5">
-                      <ArrowRight className="w-4 h-4" /> Continuar construindo
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => setIsCreateOpen(true)} className="earth-gradient gap-1.5">
+                      <Plus className="w-4 h-4" /> Criar outro sonho
                     </Button>
-                  </Link>
+                    <Link to="/fifo">
+                      <Button variant="outline" className="gap-1.5">
+                        <Eye className="w-4 h-4" /> Ver minha participação
+                      </Button>
+                    </Link>
+                  </div>
                 </>
               )}
               {pageState === 'crescendo' && (
                 <>
                   <p className="text-foreground font-medium leading-relaxed">
-                    Seu próximo passo é acompanhar o que já está em movimento e seguir fortalecendo sua construção.
+                    Seus sonhos já estão ganhando forma. Continue acompanhando a evolução deles por aqui.
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Seu sonho já começou a ganhar forma. Agora vale acompanhar sua evolução com mais clareza.
+                    Você pode criar novos sonhos para diversificar sua construção ou acompanhar como sua participação avança no ciclo.
                   </p>
-                  <Link to="/fifo">
-                    <Button className="earth-gradient gap-1.5">
-                      <Eye className="w-4 h-4" /> Acompanhar este sonho
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => setIsCreateOpen(true)} className="earth-gradient gap-1.5">
+                      <Plus className="w-4 h-4" /> Criar mais um sonho
                     </Button>
-                  </Link>
+                    <Link to="/fifo">
+                      <Button variant="outline" className="gap-1.5">
+                        <Eye className="w-4 h-4" /> Ver minha participação
+                      </Button>
+                    </Link>
+                  </div>
                 </>
               )}
               {pageState === 'maduro' && (
