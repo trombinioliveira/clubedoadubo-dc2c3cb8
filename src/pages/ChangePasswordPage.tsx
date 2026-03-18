@@ -107,7 +107,7 @@ export default function ChangePasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      const { error: updateError } = await (supabase.auth as any).updateUser({ password: newPassword });
 
       if (updateError) {
         // Map common error messages to Portuguese
