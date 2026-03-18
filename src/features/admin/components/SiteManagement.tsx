@@ -241,7 +241,7 @@ export function SiteManagement() {
           {[
             { key: 'public_transparency_enabled', label: 'Painel Público (geral)', desc: 'Habilita ou desabilita o painel completo', data: pubTransparency, toggle: togglePubTransparency },
             { key: 'public_kpis_enabled', label: 'KPIs Públicos', desc: 'Indicadores do ciclo (PROs, kg, vendas)', data: pubKpis, toggle: togglePubKpis },
-            { key: 'public_fifo_enabled', label: 'Fila FIFO Pública', desc: 'Tabela paginada da fila pública', data: pubFifo, toggle: togglePubFifo },
+            { key: 'public_fifo_enabled', label: 'Fila Pública do Ciclo', desc: 'Tabela paginada da fila pública', data: pubFifo, toggle: togglePubFifo },
             { key: 'public_sales_enabled', label: 'Vendas Públicas', desc: 'Listagem de entradas financeiras públicas', data: pubSales, toggle: togglePubSales },
             { key: 'public_collection_points_enabled', label: 'Pontos de Coleta', desc: 'Lista de pontos ativos no painel', data: pubPoints, toggle: togglePubPoints },
           ].map(({ key, label, desc, data, toggle }) => (
