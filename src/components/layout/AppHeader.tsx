@@ -126,7 +126,10 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                       <CreditCard className="w-4 h-4 mr-2" />
                       Minha Assinatura
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/tutorial')}>
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Como tudo funciona
+                    </DropdownMenuItem>
 
                     {/* Acompanhar section */}
                     <DropdownMenuLabel className="text-xs text-muted-foreground font-normal uppercase tracking-wider px-3 py-1">
