@@ -122,7 +122,7 @@ function renderTemplate(
           bodyText("Recebemos seu pagamento com sucesso.") +
           (amount ? bodyText(`<strong>Valor:</strong> ${amount}`) : "") +
           bodyText("Seu registro será processado e, em instantes, você poderá acompanhar tudo com transparência no Clube do Adubo.") +
-          btn("Ver próximos passos", `${BRAND_URL}/checkout/sucesso`) +
+          btn("Ver próximos passos", `${BRAND_URL}/compra/sucesso`) +
           auxText("Se este foi seu primeiro passo no ciclo, bem-vindo.<br>Você poderá acompanhar sua jornada diretamente na plataforma."),
           "Seu passo no ciclo foi confirmado com sucesso."
         ),
