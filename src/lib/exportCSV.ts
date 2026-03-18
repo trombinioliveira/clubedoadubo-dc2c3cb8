@@ -52,7 +52,7 @@ export async function exportToCSV(
   downloadCSV(csv, filename);
 
   // Log the export
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await (supabase.auth as any).getUser();
   if (user) {
     await supabase.from('export_logs').insert({
       admin_user_id: user.id,

@@ -108,7 +108,7 @@ export function SiteManagement() {
     mutationFn: async (enabled: boolean) => {
       const { error } = await supabase
         .from('site_settings')
-        .update({ value: { enabled }, updated_by: (await supabase.auth.getUser()).data.user?.id })
+        .update({ value: { enabled }, updated_by: (await (supabase.auth as any).getUser()).data.user?.id })
         .eq('key', 'missions_enabled');
       if (error) throw error;
     },

@@ -56,10 +56,10 @@ export function ReferralsTable() {
       if (statsError) throw statsError;
 
       // Merge data
-      const statsMap = new Map(stats?.map(s => [s.user_id, s]));
+      const statsMap = new Map(stats?.map(s => [s.user_id, s]) ?? []);
       
       return profiles?.map(profile => {
-        const stat = statsMap.get(profile.user_id);
+        const stat = statsMap.get(profile.user_id) as any;
         return {
           id: profile.id,
           full_name: profile.full_name,

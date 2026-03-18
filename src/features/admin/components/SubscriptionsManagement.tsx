@@ -195,7 +195,7 @@ export function SubscriptionsManagement() {
         .from('subscription_logs')
         .insert({
           subscription_id: editingSub.id,
-          admin_user_id: (await supabase.auth.getUser()).data.user!.id,
+          admin_user_id: (await (supabase.auth as any).getUser()).data.user!.id,
           old_plan_key: oldPlan,
           new_plan_key: editPlan,
           old_status: oldStatus,

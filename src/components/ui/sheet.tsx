@@ -48,10 +48,14 @@ const sheetVariants = cva(
 );
 
 interface SheetContentProps
-  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {}
+  extends Omit<React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>, 'className' | 'children'>,
+    VariantProps<typeof sheetVariants> {
+  className?: string;
+  children?: React.ReactNode;
+  side?: "top" | "bottom" | "left" | "right";
+}
 
-const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
+const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
   ({ side = "right", className, children, ...props }, ref) => (
     <SheetPortal>
       <SheetOverlay />
