@@ -214,7 +214,7 @@ function renderTemplate(
           "Seu primeiro passo foi dado",
           bodyText("Seu ingresso no ciclo foi confirmado.") +
           bodyText("A partir de agora, você pode acompanhar sua jornada e ver esse impacto crescer com transparência.") +
-          btn("Ver próximos passos", `${BRAND_URL}/checkout/sucesso`) +
+          btn("Ver próximos passos", `${BRAND_URL}/compra/sucesso`) +
           auxText("Se quiser continuar participando todo mês, você também pode conhecer os planos mensais."),
           "Seu primeiro passo foi dado com sucesso."
         ),
