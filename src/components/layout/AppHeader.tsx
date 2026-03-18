@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings, LogOut, User, Sparkles, Eye, Globe } from 'lucide-react';
+import { Settings, LogOut, User, Sparkles, Eye, Globe, BarChart3, CreditCard, Compass, Heart, Waves, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import logoImage from '@/assets/logo.webp';
@@ -18,6 +19,14 @@ interface HeaderProps {
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
 }
+
+const navItems = [
+  { to: '/jornada', label: 'Jornada', icon: Sparkles, badge: null },
+  { to: '/ciclo', label: 'Passo a passo', icon: null, badge: '1' },
+  { to: '/dreams', label: 'Sonhos', icon: null, badge: '2' },
+  { to: '/fifo', label: 'Minha participação', icon: null, badge: '3' },
+  { to: '/indicacoes', label: 'Minha onda de impacto', icon: null, badge: '4' },
+];
 
 export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
   const { user, profile, isAdmin, isStaff, signOut } = useAuth();
@@ -49,75 +58,25 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
 
         {/* Nav links */}
         <nav className="flex items-center gap-0.5 sm:gap-1 lg:gap-2 flex-1 justify-center overflow-x-auto scrollbar-none">
-          {user && !isAdmin && (
-            <>
-              <Link
-                to="/jornada"
-                className={cn(
-                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                  isActive('/jornada') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                <span>Jornada</span>
-              </Link>
-
-              <Link
-                to="/ciclo"
-                className={cn(
-                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                  isActive('/ciclo') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">1</span>
-                <span>Passo a passo</span>
-              </Link>
-
-              <Link
-                to="/dreams"
-                className={cn(
-                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                  isActive('/dreams') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">2</span>
-                <span>Sonhos</span>
-              </Link>
-
-              <Link
-                to="/indicacoes"
-                className={cn(
-                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                  isActive('/indicacoes') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">3</span>
-                <span>Indicações</span>
-              </Link>
-
-              <Link
-                to="/fifo"
-                className={cn(
-                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                  isActive('/fifo') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">4</span>
-                <span>FIFO</span>
-              </Link>
-
-              <Link
-                to="/dashboard"
-                className={cn(
-                  "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
-                  isActive('/dashboard') ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">5</span>
-                <span>PROs</span>
-              </Link>
-            </>
-          )}
+          {user && !isAdmin && navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={cn(
+                "text-[11px] sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl whitespace-nowrap",
+                isActive(item.to) ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              {item.icon ? (
+                <item.icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+              ) : item.badge ? (
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/15 text-primary text-[10px] sm:text-xs font-bold shrink-0">
+                  {item.badge}
+                </span>
+              ) : null}
+              <span>{item.label}</span>
+            </Link>
+          ))}
 
           {user && isAdmin && (
             <Link to="/admin">
@@ -142,44 +101,68 @@ export function AppHeader({ menuOpen, setMenuOpen }: HeaderProps) {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover z-[60]">
-                <div className="px-2 py-1.5">
+              <DropdownMenuContent align="end" className="w-60 bg-popover z-[60]">
+                {/* User info */}
+                <div className="px-3 py-2">
                   <p className="text-sm font-medium">{profile?.full_name || 'Usuário'}</p>
                   <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
+
                 {!isAdmin && (
                   <>
+                    {/* Minha conta section */}
+                    <DropdownMenuLabel className="text-xs text-muted-foreground font-normal uppercase tracking-wider px-3 py-1">
+                      Minha conta
+                    </DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => navigate('/perfil')}>
                       <User className="w-4 h-4 mr-2" />
                       Meu Perfil
                       {!profile?.profile_completed_at && (
-                        <span className="ml-auto text-xs text-destructive">!</span>
+                        <span className="ml-auto text-xs bg-destructive/15 text-destructive rounded-full px-1.5 py-0.5">completar</span>
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/assinatura')}>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Assinatura
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Minha Assinatura
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+
+                    {/* Acompanhar section */}
+                    <DropdownMenuLabel className="text-xs text-muted-foreground font-normal uppercase tracking-wider px-3 py-1">
+                      Acompanhar o sistema
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Resumo detalhado
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/transparencia')}>
+                      <Eye className="w-4 h-4 mr-2" />
+                      Painel Público
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                   </>
                 )}
+
                 {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate('/admin')}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Painel Admin
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Painel Admin
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
                 )}
-                <DropdownMenuSeparator />
+
+                {/* Links externos */}
                 <DropdownMenuItem onClick={() => navigate('/')}>
                   <Globe className="w-4 h-4 mr-2" />
-                  Área pública
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/transparencia')}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Painel público
+                  Área Pública
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
+
+                {/* Sair */}
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
                 </DropdownMenuItem>
