@@ -76,8 +76,8 @@ export default function CicloPage() {
     },
   ];
 
-  // Determine current step
-  const currentStepIndex = !status.hasPro ? 0 : !status.hasDream ? 2 : !status.hasSubscription ? 3 : 4;
+  // Determine current step (number for display)
+  const currentStepIndex: number = !status.hasPro ? 0 : !status.hasDream ? 2 : !status.hasSubscription ? 3 : 4;
 
   if (isLoading) {
     return (
