@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = (supabase.auth as any).onAuthStateChange((event: string) => {
       if (event === 'PASSWORD_RECOVERY') {
         sessionStorage.setItem('password_recovery', '1');
         setMode('ready');
