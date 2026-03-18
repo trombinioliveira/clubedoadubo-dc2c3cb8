@@ -26,13 +26,6 @@ interface UserReferralData {
   commission_earned: number;
 }
 
-const levelLabels: Record<number, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
-  1: { label: 'Iniciante', variant: 'outline' },
-  2: { label: 'Ativo', variant: 'secondary' },
-  3: { label: 'Embaixador', variant: 'default' },
-  4: { label: 'Líder', variant: 'default' },
-};
-
 interface ReferralStatsLookup {
   user_id: string;
   direct_pros: number | null;
@@ -41,13 +34,39 @@ interface ReferralStatsLookup {
   current_level: number | null;
   commission_earned: number | null;
 }
-...
-      // Merge data
+
+const levelLabels: Record<number, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+  1: { label: 'Iniciante', variant: 'outline' },
+  2: { label: 'Ativo', variant: 'secondary' },
+  3: { label: 'Embaixador', variant: 'default' },
+  4: { label: 'Líder', variant: 'default' },
+};
+
+export function ReferralsTable() {
+  const [search, setSearch] = React.useState('');
+
+  const { data: users, isLoading } = useQuery({
+    queryKey: ['admin-referrals-users'],
+    queryFn: async () => {
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name, email, referral_code')
+        .not('referral_code', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      const { data: stats, error: statsError } = await supabase
+        .from('referral_stats')
+        .select('*');
+
+      if (statsError) throw statsError;
+
       const statsMap = new Map<string, ReferralStatsLookup>(
         stats?.map((s) => [s.user_id, s as ReferralStatsLookup]) ?? [],
       );
-      
-      return profiles?.map(profile => {
+
+      return profiles?.map((profile) => {
         const stat = statsMap.get(profile.user_id);
         return {
           id: profile.id,
@@ -68,10 +87,10 @@ interface ReferralStatsLookup {
     if (!search) return users;
     const searchLower = search.toLowerCase();
     return users?.filter(
-      u =>
+      (u) =>
         u.full_name.toLowerCase().includes(searchLower) ||
         u.email.toLowerCase().includes(searchLower) ||
-        u.referral_code?.toLowerCase().includes(searchLower)
+        u.referral_code?.toLowerCase().includes(searchLower),
     );
   }, [users, search]);
 
@@ -128,19 +147,13 @@ interface ReferralStatsLookup {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <code className="bg-muted px-2 py-1 rounded text-sm">
-                        {user.referral_code}
-                      </code>
+                      <code className="bg-muted px-2 py-1 rounded text-sm">{user.referral_code}</code>
                     </TableCell>
                     <TableCell className="text-center">{user.direct_pros}</TableCell>
                     <TableCell className="text-center">{user.recurring_pros}</TableCell>
                     <TableCell className="text-center">{user.global_pros_received}</TableCell>
-                    <TableCell>
-                      <Badge variant={levelInfo.variant}>{levelInfo.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      R$ {user.commission_earned.toFixed(2)}
-                    </TableCell>
+                    <TableCell><Badge variant={levelInfo.variant}>{levelInfo.label}</Badge></TableCell>
+                    <TableCell className="text-right">R$ {user.commission_earned.toFixed(2)}</TableCell>
                   </TableRow>
                 );
               })

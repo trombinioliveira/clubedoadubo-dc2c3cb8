@@ -42,7 +42,14 @@ export function ResetSandbox() {
       return mode || 'production';
     },
   });
-...
+
+  const isProduction = envMode === 'production';
+  const canReset = check1 && check2 && confirmText === 'RESET' && !isProduction && !isResetting;
+
+  const handleReset = async () => {
+    if (!canReset) return;
+    setIsResetting(true);
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {

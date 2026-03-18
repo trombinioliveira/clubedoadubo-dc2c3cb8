@@ -75,7 +75,23 @@ export function SiteManagement() {
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['site-settings'] }); toast.success('Módulo atualizado'); },
   });
-...
+
+  const { data: missionsEnabled, isLoading: settingsLoading } = useSetting('missions_enabled');
+  const { data: collectiveImpactEnabled, isLoading: collectiveLoading } = useSetting('collective_impact_enabled');
+  const { data: pubTransparency } = useSetting('public_transparency_enabled');
+  const { data: pubFifo } = useSetting('public_fifo_enabled');
+  const { data: pubSales } = useSetting('public_sales_enabled');
+  const { data: pubPoints } = useSetting('public_collection_points_enabled');
+  const { data: pubKpis } = useSetting('public_kpis_enabled');
+
+  const toggleMissions = useToggleSetting('missions_enabled');
+  const toggleCollective = useToggleSetting('collective_impact_enabled');
+  const togglePubTransparency = useToggleSetting('public_transparency_enabled');
+  const togglePubFifo = useToggleSetting('public_fifo_enabled');
+  const togglePubSales = useToggleSetting('public_sales_enabled');
+  const togglePubPoints = useToggleSetting('public_collection_points_enabled');
+  const togglePubKpis = useToggleSetting('public_kpis_enabled');
+
   const toggleModule = useMutation({
     mutationFn: async (enabled: boolean) => {
       const { data: { user } } = await supabase.auth.getUser();
