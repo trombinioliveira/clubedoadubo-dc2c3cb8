@@ -392,16 +392,20 @@ export function ReferralsPage() {
               {/* Retorno da onda */}
               {(commissionEarned > 0 || hasNetwork) && (
                 <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                  <p className="text-sm font-medium text-foreground">Retorno da sua onda</p>
+                  <p className="text-sm font-medium text-foreground">Como o retorno da onda acontece</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Quando uma venda de adubo acontece, uma parte do valor é direcionada a quem ajudou a expandir o ciclo.
-                    Hoje, sua participação na onda garante <span className="font-semibold text-foreground">{currentRate}%</span> sobre cada venda atribuída à sua rede.
+                    O adubo produzido pelo ciclo é vendido para compradores reais. De cada venda, uma parte do valor sustenta a operação e outra parte é distribuída dentro do ciclo. Quem ajudou a expandir a rede recebe uma parcela proporcional dessas vendas — hoje, no seu nível, isso corresponde a <span className="font-semibold text-foreground">{currentRate}%</span> sobre cada venda ligada à sua onda.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Esse retorno só existe porque existe venda real de adubo. Sem venda, não há retorno.
                   </p>
                   {commissionEarned > 0 && (
-                    <p className="text-lg font-bold text-primary mt-1">
-                      R$ {commissionEarned.toFixed(2).replace('.', ',')}
-                      <span className="text-xs font-normal text-muted-foreground ml-1.5">acumulado</span>
-                    </p>
+                    <div className="pt-2 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground">Total acumulado até agora</p>
+                      <p className="text-lg font-bold text-primary">
+                        R$ {commissionEarned.toFixed(2).replace('.', ',')}
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
