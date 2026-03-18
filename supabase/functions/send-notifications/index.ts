@@ -137,7 +137,7 @@ function renderTemplate(
           "Seu pagamento ainda está sendo processado",
           bodyText("Seu pagamento foi recebido e está em análise.") +
           bodyText("Assim que ele for confirmado, sua participação será registrada automaticamente.") +
-          btn("Acompanhar status", `${BRAND_URL}/checkout/pendente`) +
+          btn("Acompanhar status", `${BRAND_URL}/compra/pendente`) +
           auxText("Você não precisa fazer nada agora.<br>Se houver atualização, ela aparecerá na plataforma."),
           "Seu pagamento foi recebido e ainda está sendo processado."
         ),
