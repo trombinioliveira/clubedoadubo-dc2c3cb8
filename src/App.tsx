@@ -1,47 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/lib/auth";
-import { AppLayout, PublicLayout } from "@/components/layout";
-import { ProtectedRoute } from "@/components/shared";
-
-// Pages
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import DashboardPage from "./pages/DashboardPage";
-import DreamsPage from "./pages/DreamsPage";
-import MyProfilePage from "./pages/MyProfilePage";
-import NotFound from "./pages/NotFound";
-import LandingCompra from "./pages/LandingCompra";
-import FaqPage from "./pages/FaqPage";
-import TransparenciaPage from "./pages/TransparenciaPage";
-import ContatoPage from "./pages/ContatoPage";
-import EconomiaCircularPage from "./pages/EconomiaCircularPage";
-import ChangePasswordPage from "./pages/ChangePasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import CollectionPointPage from "./pages/CollectionPointPage";
-import TermosPage from "./pages/TermosPage";
-import PoliticaPrivacidadePage from "./pages/PoliticaPrivacidadePage";
-import PoliticaRiscosPage from "./pages/PoliticaRiscosPage";
-import NaturezaProPage from "./pages/NaturezaProPage";
-import PublicTransparencyDashboard from "./pages/PublicTransparencyDashboard";
-import PublicFilaPage from "./pages/PublicFilaPage";
-import CheckoutResultPage from "./pages/CheckoutResultPage";
-import CicloPage from "./pages/CicloPage";
-import AssinaturaPage from "./pages/AssinaturaPage";
-import JornadaPage from "./pages/JornadaPage";
-
-// Feature Pages
-import { AdminDashboard } from "@/features/admin";
-import { FifoQueuePage } from "@/features/fifo";
-import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
-import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
-import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
-
 // @ts-ignore - QueryClient type drift
-import { QueryClient as QC, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { AppLayout, PublicLayout } from "@/components/layout";
@@ -80,7 +41,7 @@ import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
-const queryClient = new (QC as any)();
+const queryClient = new (QueryClient as any)();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
