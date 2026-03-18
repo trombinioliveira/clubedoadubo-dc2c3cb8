@@ -388,9 +388,9 @@ export default function FifoQueuePage() {
                     Quando sua participação entrar no ciclo, ela vai aparecer aqui com todas as etapas que está percorrendo.
                   </p>
                 </div>
-                <Link to="/assinatura">
+                <Link to="/planos">
                   <Button className="earth-gradient gap-1.5">
-                    <Sparkles className="w-4 h-4" /> Começar a participar
+                    <Sparkles className="w-4 h-4" /> Conhecer os planos
                   </Button>
                 </Link>
               </CardContent>
