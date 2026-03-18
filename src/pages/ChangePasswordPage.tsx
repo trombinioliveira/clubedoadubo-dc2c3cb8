@@ -40,7 +40,7 @@ export default function ChangePasswordPage() {
 
     // Determine initial mode based on current state
     const detectMode = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await (supabase.auth as any).getSession();
 
       if (!session) {
         // Check if there's a recovery token in the URL hash
