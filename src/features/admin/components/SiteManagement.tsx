@@ -196,9 +196,9 @@ export function SiteManagement() {
       {/* Module toggles */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Módulos do Dashboard</CardTitle>
+          <CardTitle className="text-xl">Módulos da Área Logada</CardTitle>
           <CardDescription>
-            Ative ou desative módulos exibidos no dashboard dos usuários.
+            Ative ou desative módulos visíveis na área logada dos usuários.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
