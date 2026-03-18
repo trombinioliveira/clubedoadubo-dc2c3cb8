@@ -271,6 +271,17 @@ export default function FifoQueuePage() {
   const [selectedEntry, setSelectedEntry] = useState<QueueEntry | null>(null);
   const [showAllMine, setShowAllMine] = useState(false);
 
+  // Mark viewed — must be before early returns
+  React.useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('profiles')
+      .update({ has_viewed_fifo: true })
+      .eq('user_id', user.id)
+      .eq('has_viewed_fifo', false)
+      .then(() => {});
+  }, [user]);
+
   // ── Error ──
   if (isError) {
     return (
@@ -320,17 +331,6 @@ export default function FifoQueuePage() {
   const myActiveCount = myEntries.length - myPaidCount;
   const totalReceived = myPaidCount * 2;
   const visibleEntries = showAllMine ? myUnpaid : myUnpaid.slice(0, 5);
-
-  // Mark viewed
-  React.useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('profiles')
-      .update({ has_viewed_fifo: true })
-      .eq('user_id', user.id)
-      .eq('has_viewed_fifo', false)
-      .then(() => {});
-  }, [user]);
 
   return (
     <div className="container mx-auto px-4 py-8 sm:py-12">
