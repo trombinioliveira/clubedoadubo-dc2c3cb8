@@ -768,7 +768,7 @@ export default function MyProfilePage() {
       </div>
 
       {/* OTP Dialog */}
-      <Dialog open={otpDialogOpen} onOpenChange={setOtpDialogOpen}>
+      <Dialog open={otpDialogOpen} onOpenChange={(open) => { setOtpDialogOpen(open); if (!open) setTestOtpCode(null); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Verificação</DialogTitle>
@@ -777,6 +777,15 @@ export default function MyProfilePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
+            {testOtpCode && (
+              <div className="w-full p-3 rounded-lg bg-muted/50 border border-border text-center space-y-1">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Ambiente de teste</p>
+                <p className="text-xs text-muted-foreground">
+                  O envio real de e-mail/SMS ainda não está ativo. Use o código abaixo:
+                </p>
+                <p className="text-lg font-mono font-bold text-foreground tracking-[0.3em]">{testOtpCode}</p>
+              </div>
+            )}
             <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
