@@ -223,19 +223,22 @@ export function ReferralsPage() {
                   </div>
                 </div>
 
-                {/* Public page */}
-                <div className="p-3 bg-muted/50 rounded-lg">
+                {/* Public page — prominent */}
+                <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4 text-primary shrink-0" />
+                    <p className="text-sm font-medium text-foreground">Sua página pessoal no ciclo</p>
+                  </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Você também tem uma <span className="font-medium text-foreground">página pessoal pública</span> que mostra seu impacto no ciclo:
+                    Quem visita seu link vê uma página com seu impacto real. Você pode abrir, revisar e compartilhar quando quiser.
                   </p>
                   <a
                     href={referralLink || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline mt-1"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Ver minha página
+                    Abrir minha página →
                   </a>
                 </div>
               </CardContent>
