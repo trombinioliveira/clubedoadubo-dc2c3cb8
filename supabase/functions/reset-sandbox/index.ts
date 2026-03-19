@@ -133,44 +133,52 @@ Deno.serve(async (req) => {
 
     // 1. pro_payouts (depends on pros, sale_distributions)
     await adminClient.from("pro_payouts").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 2. notification_events
+    // 2. subscription_logs (depends on subscriptions — must come before subscriptions)
+    await adminClient.from("subscription_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+    // 3. notification_events
     await adminClient.from("notification_events").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 3. export_logs
+    // 4. export_logs
     await adminClient.from("export_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 4. referral_logs
+    // 5. referral_logs
     await adminClient.from("referral_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 5. referral_stats
+    // 6. referral_stats
     await adminClient.from("referral_stats").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 6. terms_acceptance
+    // 7. terms_acceptance
     await adminClient.from("terms_acceptance").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 7. otp_codes
+    // 8. otp_codes
     await adminClient.from("otp_codes").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 8. dreams
+    // 9. dreams
     await adminClient.from("dreams").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 9. subscriptions
+    // 10. subscriptions (after subscription_logs)
     await adminClient.from("subscriptions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 10. sale_distributions (depends on financial_entries)
+    // 11. pro_credits (créditos de teste — sem FK dependente)
+    await adminClient.from("pro_credits").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+    // 12. pro_activations (ativações de teste — PK é external_reference, não uuid id)
+    await adminClient.from("pro_activations").delete().gte("external_reference", "00000000-0000-0000-0000-000000000000");
+    // 13. sale_distributions (depends on financial_entries)
     await adminClient.from("sale_distributions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 11. fifo_queue (depends on pros)
+    // 14. fifo_queue (depends on pros)
     await adminClient.from("fifo_queue").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 12. pros (depends on batches, collection_points, dreams)
+    // 15. pros (depends on batches, collection_points, dreams)
     await adminClient.from("pros").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 13. financial_entries
+    // 16. financial_entries
     await adminClient.from("financial_entries").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 14. distributions (depends on sales_points)
+    // 17. distributions (depends on sales_points)
     await adminClient.from("distributions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 15. weighings (depends on collection_points)
+    // 18. weighings (depends on collection_points)
     await adminClient.from("weighings").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 16. batches
+    // 19. batches
     await adminClient.from("batches").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 17. notification_preferences
+    // 20. notification_preferences
     await adminClient.from("notification_preferences").delete().gte("user_id", "00000000-0000-0000-0000-000000000000");
-    // 18. impact_missions
+    // 21. impact_missions
     await adminClient.from("impact_missions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 19. collection_points
+    // 22. collection_points
     await adminClient.from("collection_points").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 20. sales_points
+    // 23. sales_points
     await adminClient.from("sales_points").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+    // 24. system_ledger (trilha de auditoria de teste — limpa por último)
+    await adminClient.from("system_ledger").delete().gte("id", "00000000-0000-0000-0000-000000000000");
 
     // Re-insert seeds
     const seeds: string[] = [];
