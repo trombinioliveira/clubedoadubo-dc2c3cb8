@@ -334,11 +334,11 @@ Deno.serve(async (req) => {
     const emailFrom = Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>";
     const baseUrl = Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br";
 
-    // Fetch queued notifications
+    // Fetch queued/pending notifications (both statuses are valid entry points)
     const { data: events, error: fetchErr } = await supabase
       .from("notification_events")
       .select("*")
-      .eq("status", "queued")
+      .in("status", ["queued", "pending"])
       .lt("retry_count", MAX_RETRIES)
       .order("created_at", { ascending: true })
       .limit(BATCH_SIZE);
