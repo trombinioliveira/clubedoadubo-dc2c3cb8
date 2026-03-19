@@ -157,9 +157,13 @@ function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalProps) {
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isLoading, isAdmin, signIn, signUp } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  // Capture ?ref= from URL (e.g. /auth?ref=ABC123)
+  const refCode = searchParams.get('ref')?.trim().toUpperCase() || '';
+
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(refCode ? 'signup' : 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
