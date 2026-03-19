@@ -109,6 +109,15 @@ export function SaleDistributionsManagement() {
 
   return (
     <div className="space-y-6">
+      {/* Help text */}
+      <div className="p-3 rounded-lg bg-muted/50 border text-sm text-muted-foreground flex items-start gap-2">
+        <span className="font-bold">ℹ️</span>
+        <span>
+          <strong>Distribuições por Venda</strong> — Esta é a leitura oficial das distribuições geradas pelo motor FIFO 
+          (<code>process_sale_distribution</code>) a partir de vendas confirmadas. Cada venda de R$ 3,00 destina R$ 2,00 
+          à fila e R$ 1,00 às operações. Os PROs são pagos em ordem FIFO.
+        </span>
+      </div>
       {/* Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>

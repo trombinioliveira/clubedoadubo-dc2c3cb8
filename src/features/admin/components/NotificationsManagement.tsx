@@ -99,6 +99,16 @@ export function NotificationsManagement() {
 
   return (
     <div className="space-y-6">
+      {/* Help text */}
+      <div className="p-3 rounded-lg bg-muted/50 border text-sm text-muted-foreground flex items-start gap-2">
+        <span className="font-bold">ℹ️</span>
+        <span>
+          <strong>Notificações</strong> — Log operacional de todos os eventos de mensageria do sistema. 
+          <strong> queued</strong> = aguardando envio, <strong>sent</strong> = enviado com sucesso, 
+          <strong>failed</strong> = erro no envio (pode ser reenviado). O processamento automático roda a cada 2 minutos via pg_cron. 
+          Use "Processar Fila" para forçar envio manual dos itens pendentes.
+        </span>
+      </div>
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
         <Card>

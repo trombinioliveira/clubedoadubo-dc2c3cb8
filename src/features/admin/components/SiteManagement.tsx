@@ -193,8 +193,13 @@ export function SiteManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Module toggles */}
-      <Card>
+      {/* Help text */}
+      <div className="p-3 rounded-lg bg-muted/50 border text-sm text-muted-foreground flex items-start gap-2">
+        <span className="font-bold">ℹ️</span>
+        <span>
+          <strong>Site</strong> — Controla módulos visíveis na área logada, no painel público de transparência, missões e o modo do ambiente (sandbox/production).
+        </span>
+      </div>
         <CardHeader>
           <CardTitle className="text-xl">Módulos da Área Logada</CardTitle>
           <CardDescription>
