@@ -59,28 +59,21 @@ export function QAGoLivePanel() {
   const [healthCheck, setHealthCheck] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const [checklist, setChecklist] = useState<Record<string, boolean>>({
-    auth_signup: false,
-    auth_email: false,
-    auth_login: false,
-    auth_reset: false,
-    mobile_iphone: false,
-    mobile_android: false,
-    mobile_ipad: false,
-    pay_avulso: false,
-    pay_plano: false,
-    point_purchase: false,
-    point_attribution: false,
-    admin_generate: false,
-    admin_subscriptions: false,
-    admin_notifications: false,
-    admin_reset_blocked: false,
-    plan_credits: false,
-    plan_conversion: false,
-    mp_env_production: false,
-    mp_token_prod_set: false,
-    mp_webhook_prod: false,
-    mp_checkout_init_point: false,
+  const CHECKLIST_KEY = 'clubedoadubo_qa_checklist';
+  const [checklist, setChecklist] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem(CHECKLIST_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      auth_signup: false, auth_email: false, auth_login: false, auth_reset: false,
+      mobile_iphone: false, mobile_android: false, mobile_ipad: false,
+      pay_avulso: false, pay_plano: false,
+      point_purchase: false, point_attribution: false,
+      admin_generate: false, admin_subscriptions: false, admin_notifications: false, admin_reset_blocked: false,
+      plan_credits: false, plan_conversion: false,
+      mp_env_production: false, mp_token_prod_set: false, mp_webhook_prod: false, mp_checkout_init_point: false,
+    };
   });
 
   const fetchAll = useCallback(async () => {
@@ -150,7 +143,11 @@ export function QAGoLivePanel() {
   };
 
   const toggleCheck = (key: string) => {
-    setChecklist(prev => ({ ...prev, [key]: !prev[key] }));
+    setChecklist(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem(CHECKLIST_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const envBadgeVariant = envMode === 'production' ? 'destructive' : 'secondary';
@@ -161,9 +158,9 @@ export function QAGoLivePanel() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <ClipboardList className="w-6 h-6" />
-            QA / Go-Live
+            Validação de Lançamento
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Checklist e verificações pré-produção</p>
+          <p className="text-sm text-muted-foreground mt-1">Checklist persistente de verificações pré-produção. O progresso é salvo automaticamente.</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}

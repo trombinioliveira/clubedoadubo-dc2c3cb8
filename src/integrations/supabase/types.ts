@@ -645,6 +645,54 @@ export type Database = {
         }
         Relationships: []
       }
+      pro_generation_logs: {
+        Row: {
+          config_interval_minutes: number | null
+          config_quantity_per_cycle: number | null
+          created_at: string
+          cumulative_total: number
+          error_message: string | null
+          executed_by: string | null
+          execution_type: string
+          first_position: number | null
+          id: string
+          last_position: number | null
+          quantity_generated: number
+          quantity_requested: number
+          status: string
+        }
+        Insert: {
+          config_interval_minutes?: number | null
+          config_quantity_per_cycle?: number | null
+          created_at?: string
+          cumulative_total?: number
+          error_message?: string | null
+          executed_by?: string | null
+          execution_type?: string
+          first_position?: number | null
+          id?: string
+          last_position?: number | null
+          quantity_generated?: number
+          quantity_requested?: number
+          status?: string
+        }
+        Update: {
+          config_interval_minutes?: number | null
+          config_quantity_per_cycle?: number | null
+          created_at?: string
+          cumulative_total?: number
+          error_message?: string | null
+          executed_by?: string | null
+          execution_type?: string
+          first_position?: number | null
+          id?: string
+          last_position?: number | null
+          quantity_generated?: number
+          quantity_requested?: number
+          status?: string
+        }
+        Relationships: []
+      }
       pro_payouts: {
         Row: {
           amount_paid: number
