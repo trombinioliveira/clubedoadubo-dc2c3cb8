@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, MapPin, Scale, BarChart3, Plus, Truck, Wallet, Factory, Share2, Globe, Receipt, Bell, RotateCcw, CreditCard, ClipboardList, FileSearch } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import {
+  BarChart3, Plus, Scale, Factory, Truck, Wallet, Receipt,
+  MapPin, Users, Share2, Globe, Bell, RotateCcw, CreditCard,
+  ClipboardList,
+} from 'lucide-react';
 import { UsersManagement } from '../components/UsersManagement';
 import { BatchesManagement } from '../components/BatchesManagement';
 import { CollectionPointsManagement } from '../components/CollectionPointsManagement';
@@ -18,7 +23,6 @@ import { NotificationsManagement } from '../components/NotificationsManagement';
 import { ResetSandbox } from '../components/ResetSandbox';
 import { SubscriptionsManagement } from '../components/SubscriptionsManagement';
 import { QAGoLivePanel } from '../components/QAGoLivePanel';
-import { AuditPanel } from '../components/AuditPanel';
 
 export default function AdminDashboard() {
   const { isAdmin, isStaff, isLoading } = useAuth();
@@ -36,237 +40,111 @@ export default function AdminDashboard() {
     return <Navigate to="/" replace />;
   }
 
+  const tabGroups = [
+    {
+      label: 'Operação do Ciclo',
+      tabs: [
+        { value: 'overview', icon: BarChart3, label: 'Jornada', adminOnly: false },
+        ...(isAdmin ? [{ value: 'generate-pros', icon: Plus, label: 'Abastecer Fila', adminOnly: true }] : []),
+        { value: 'collection-points', icon: MapPin, label: 'Pontos de Coleta', adminOnly: false },
+        { value: 'weighings', icon: Scale, label: 'Pesagem', adminOnly: false },
+        ...(isAdmin ? [{ value: 'batches', icon: Factory, label: 'Produção', adminOnly: true }] : []),
+        { value: 'distribution', icon: Truck, label: 'Distribuição', adminOnly: false },
+        ...(isAdmin ? [
+          { value: 'financial', icon: Wallet, label: 'Financeiro', adminOnly: true },
+          { value: 'sale-distributions', icon: Receipt, label: 'Dist. por Venda', adminOnly: true },
+        ] : []),
+      ],
+    },
+    {
+      label: 'Pessoas e Crescimento',
+      tabs: [
+        ...(isAdmin ? [{ value: 'users', icon: Users, label: 'Usuários', adminOnly: true }] : []),
+        ...(isAdmin ? [{ value: 'referrals', icon: Share2, label: 'Onda de Impacto', adminOnly: true }] : []),
+        { value: 'subscriptions', icon: CreditCard, label: 'Assinaturas', adminOnly: false },
+        ...(isAdmin ? [{ value: 'notifications', icon: Bell, label: 'Notificações', adminOnly: true }] : []),
+      ],
+    },
+    {
+      label: 'Configuração',
+      tabs: [
+        ...(isAdmin ? [{ value: 'site', icon: Globe, label: 'Site', adminOnly: true }] : []),
+      ],
+    },
+    {
+      label: 'Virada e Segurança',
+      tabs: [
+        ...(isAdmin ? [
+          { value: 'qa-golive', icon: ClipboardList, label: 'Validação', adminOnly: true },
+          { value: 'reset-sandbox', icon: RotateCcw, label: 'Reset', adminOnly: true },
+        ] : []),
+      ],
+    },
+  ].filter(g => g.tabs.length > 0);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
+          <h1 className="text-3xl font-bold text-foreground">Mesa de Operação</h1>
           <p className="text-muted-foreground mt-1">
-            Gerencie PROs, produção, distribuição e finanças
+            Controle completo do ciclo, pessoas e configuração do Clube do Adubo
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex flex-wrap w-full gap-1">
-            {/* (0) Visão Geral */}
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Visão Geral</span>
-            </TabsTrigger>
+          <div className="space-y-3 overflow-x-auto">
+            {tabGroups.map((group, gIdx) => (
+              <div key={group.label}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 px-1">
+                  {group.label}
+                </p>
+                <TabsList className="flex flex-wrap w-full gap-1 h-auto">
+                  {group.tabs.map((tab) => (
+                    <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1.5 text-xs">
+                      <tab.icon className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">{tab.label}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {gIdx < tabGroups.length - 1 && <Separator className="mt-3" />}
+              </div>
+            ))}
+          </div>
 
-            {/* (1) Gerar PROs - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="generate-pros" className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Gerar PROs</span>
-              </TabsTrigger>
-            )}
+          <TabsContent value="overview"><OverviewDashboard /></TabsContent>
 
-            {/* (2) Pesagem */}
-            <TabsTrigger value="weighings" className="flex items-center gap-2">
-              <Scale className="w-4 h-4" />
-              <span className="hidden sm:inline">Pesagem</span>
-            </TabsTrigger>
-
-            {/* (3) Produção - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="batches" className="flex items-center gap-2">
-                <Factory className="w-4 h-4" />
-                <span className="hidden sm:inline">Produção</span>
-              </TabsTrigger>
-            )}
-
-            {/* (4) Distribuição */}
-            <TabsTrigger value="distribution" className="flex items-center gap-2">
-              <Truck className="w-4 h-4" />
-              <span className="hidden sm:inline">Distribuição</span>
-            </TabsTrigger>
-
-            {/* (5) Financeiro - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="financial" className="flex items-center gap-2">
-                <Wallet className="w-4 h-4" />
-                <span className="hidden sm:inline">Financeiro</span>
-              </TabsTrigger>
-            )}
-
-            {/* (5b) Distribuições por Venda - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="sale-distributions" className="flex items-center gap-2">
-                <Receipt className="w-4 h-4" />
-                <span className="hidden sm:inline">Distribuições</span>
-              </TabsTrigger>
-            )}
-
-            {/* (6) Pontos de Coleta */}
-            <TabsTrigger value="collection-points" className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">Pontos de Coleta</span>
-            </TabsTrigger>
-
-            {/* (7) Usuários - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span className="hidden sm:inline">Usuários</span>
-              </TabsTrigger>
-            )}
-
-            {/* (8) Indicações - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="referrals" className="flex items-center gap-2">
-                <Share2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Indicações</span>
-              </TabsTrigger>
-            )}
-
-            {/* (9) Site - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="site" className="flex items-center gap-2">
-                <Globe className="w-4 h-4" />
-                <span className="hidden sm:inline">Site</span>
-              </TabsTrigger>
-            )}
-
-            {/* (10) Notificações - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="w-4 h-4" />
-                <span className="hidden sm:inline">Notificações</span>
-              </TabsTrigger>
-            )}
-
-            {/* Assinaturas - Admin + Staff */}
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Assinaturas</span>
-            </TabsTrigger>
-
-            {/* (11) Reset Sandbox - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="reset-sandbox" className="flex items-center gap-2">
-                <RotateCcw className="w-4 h-4" />
-                <span className="hidden sm:inline">Reset</span>
-              </TabsTrigger>
-            )}
-
-            {/* (12) QA / Go-Live - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="qa-golive" className="flex items-center gap-2">
-                <ClipboardList className="w-4 h-4" />
-                <span className="hidden sm:inline">QA / Go-Live</span>
-              </TabsTrigger>
-            )}
-
-            {/* (13) Audit - Admin only */}
-            {isAdmin && (
-              <TabsTrigger value="audit" className="flex items-center gap-2">
-                <FileSearch className="w-4 h-4" />
-                <span className="hidden sm:inline">Audit</span>
-              </TabsTrigger>
-            )}
-          </TabsList>
-
-          {/* (0) Visão Geral */}
-          <TabsContent value="overview">
-            <OverviewDashboard />
-          </TabsContent>
-
-          {/* (1) Gerar PROs */}
           {isAdmin && (
-            <TabsContent value="generate-pros">
-              <GenerateProsPanel />
-            </TabsContent>
+            <TabsContent value="generate-pros"><GenerateProsPanel /></TabsContent>
           )}
 
-          {/* (2) Pesagem */}
-          <TabsContent value="weighings">
-            <WeighingsManagement />
-          </TabsContent>
+          <TabsContent value="collection-points"><CollectionPointsManagement /></TabsContent>
+          <TabsContent value="weighings"><WeighingsManagement /></TabsContent>
 
-          {/* (3) Produção (Batches) */}
           {isAdmin && (
-            <TabsContent value="batches">
-              <BatchesManagement />
-            </TabsContent>
+            <TabsContent value="batches"><BatchesManagement /></TabsContent>
           )}
 
-          {/* (4) Distribuição */}
-          <TabsContent value="distribution">
-            <DistributionManagement />
-          </TabsContent>
+          <TabsContent value="distribution"><DistributionManagement /></TabsContent>
 
-          {/* (5) Financeiro */}
           {isAdmin && (
-            <TabsContent value="financial">
-              <FinancialManagement />
-            </TabsContent>
+            <>
+              <TabsContent value="financial"><FinancialManagement /></TabsContent>
+              <TabsContent value="sale-distributions"><SaleDistributionsManagement /></TabsContent>
+              <TabsContent value="users"><UsersManagement /></TabsContent>
+              <TabsContent value="referrals"><ReferralsManagement /></TabsContent>
+            </>
           )}
 
-          {/* (5b) Distribuições por Venda */}
+          <TabsContent value="subscriptions"><SubscriptionsManagement /></TabsContent>
+
           {isAdmin && (
-            <TabsContent value="sale-distributions">
-              <SaleDistributionsManagement />
-            </TabsContent>
-          )}
-
-          {/* (6) Pontos de Coleta */}
-          <TabsContent value="collection-points">
-            <CollectionPointsManagement />
-          </TabsContent>
-
-          {/* (7) Usuários */}
-          {isAdmin && (
-            <TabsContent value="users">
-              <UsersManagement />
-            </TabsContent>
-          )}
-
-          {/* (8) Indicações */}
-          {isAdmin && (
-            <TabsContent value="referrals">
-              <ReferralsManagement />
-            </TabsContent>
-          )}
-
-          {/* (9) Site */}
-          {isAdmin && (
-            <TabsContent value="site">
-              <SiteManagement />
-            </TabsContent>
-          )}
-
-          {/* (10) Notificações */}
-          {isAdmin && (
-            <TabsContent value="notifications">
-              <NotificationsManagement />
-            </TabsContent>
-          )}
-
-          {/* Assinaturas */}
-          <TabsContent value="subscriptions">
-            <SubscriptionsManagement />
-          </TabsContent>
-
-          {/* (11) Reset Sandbox */}
-          {isAdmin && (
-            <TabsContent value="reset-sandbox">
-              <ResetSandbox />
-            </TabsContent>
-          )}
-
-          {/* (12) QA / Go-Live */}
-          {isAdmin && (
-            <TabsContent value="qa-golive">
-              <QAGoLivePanel />
-            </TabsContent>
-          )}
-
-          {/* (13) Audit */}
-          {isAdmin && (
-            <TabsContent value="audit">
-              <AuditPanel />
-            </TabsContent>
+            <>
+              <TabsContent value="notifications"><NotificationsManagement /></TabsContent>
+              <TabsContent value="site"><SiteManagement /></TabsContent>
+              <TabsContent value="qa-golive"><QAGoLivePanel /></TabsContent>
+              <TabsContent value="reset-sandbox"><ResetSandbox /></TabsContent>
+            </>
           )}
         </Tabs>
       </div>
