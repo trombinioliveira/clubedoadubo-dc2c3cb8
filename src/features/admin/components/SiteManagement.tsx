@@ -200,6 +200,7 @@ export function SiteManagement() {
           <strong>Site</strong> — Controla módulos visíveis na área logada, no painel público de transparência, missões e o modo do ambiente (sandbox/production).
         </span>
       </div>
+      <Card>
         <CardHeader>
           <CardTitle className="text-xl">Módulos da Área Logada</CardTitle>
           <CardDescription>
