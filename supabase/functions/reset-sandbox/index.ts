@@ -93,6 +93,7 @@ Deno.serve(async (req) => {
     // Count rows before truncation
     const tablesToClean = [
       "pro_payouts",
+      "subscription_logs",
       "notification_events",
       "export_logs",
       "referral_logs",
@@ -101,6 +102,8 @@ Deno.serve(async (req) => {
       "otp_codes",
       "dreams",
       "subscriptions",
+      "pro_credits",
+      "pro_activations",
       "sale_distributions",
       "fifo_queue",
       "pros",
@@ -112,6 +115,7 @@ Deno.serve(async (req) => {
       "impact_missions",
       "collection_points",
       "sales_points",
+      "system_ledger",
     ];
 
     const counts: Record<string, { before: number; after: number }> = {};
