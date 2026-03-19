@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Loader2, Plus, Package, CheckCircle2, History, Info,
-  Play, Square, AlertTriangle, Activity, RefreshCw,
+  Play, Square, AlertTriangle, Activity, RefreshCw, Server,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
@@ -29,6 +29,7 @@ interface AutoGenConfig {
   started_at: string | null;
   total_generated: number;
   last_execution: string | null;
+  last_error: string | null;
 }
 
 const DEFAULT_CONFIG: AutoGenConfig = {
@@ -39,6 +40,7 @@ const DEFAULT_CONFIG: AutoGenConfig = {
   started_at: null,
   total_generated: 0,
   last_execution: null,
+  last_error: null,
 };
 
 interface GenLog {
@@ -70,7 +72,6 @@ export function GenerateProsPanel() {
   const [autoQty, setAutoQty] = useState('100');
   const [autoInterval, setAutoInterval] = useState('10');
   const [isToggling, setIsToggling] = useState(false);
-  const autoTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Logs
   const [logs, setLogs] = useState<GenLog[]>([]);
@@ -83,7 +84,7 @@ export function GenerateProsPanel() {
           .eq('user_id', 'b22080a1-ca50-4770-974d-57c9d198a5dd').eq('status', 'pending'),
         supabase.from('pros').select('id', { count: 'exact', head: true }),
         supabase.from('site_settings').select('value').eq('key', 'auto_gen_config').single(),
-        supabase.from('pro_generation_logs' as any).select('*').order('created_at', { ascending: false }).limit(20) as any,
+        supabase.from('pro_generation_logs' as any).select('*').order('created_at', { ascending: false }).limit(30) as any,
       ]);
 
       setPoolCount(poolRes.count ?? 0);
@@ -99,6 +100,7 @@ export function GenerateProsPanel() {
           started_at: val.started_at ?? null,
           total_generated: val.total_generated ?? 0,
           last_execution: val.last_execution ?? null,
+          last_error: val.last_error ?? null,
         });
         setAutoQty(String(val.quantity_per_cycle ?? 100));
         setAutoInterval(String(val.interval_minutes ?? 10));
@@ -114,87 +116,12 @@ export function GenerateProsPanel() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Auto-generation timer
+  // Auto-refresh every 30 seconds to show backend execution updates
   useEffect(() => {
-    if (autoTimerRef.current) {
-      clearInterval(autoTimerRef.current);
-      autoTimerRef.current = null;
-    }
-
-    if (autoConfig.active && user) {
-      const intervalMs = (autoConfig.interval_minutes || 10) * 60 * 1000;
-      autoTimerRef.current = setInterval(() => {
-        executeAutoGeneration();
-      }, intervalMs);
-    }
-
-    return () => {
-      if (autoTimerRef.current) clearInterval(autoTimerRef.current);
-    };
-  }, [autoConfig.active, autoConfig.interval_minutes, autoConfig.quantity_per_cycle]);
-
-  const executeAutoGeneration = async () => {
-    if (!user) return;
-    const qty = autoConfig.quantity_per_cycle || 100;
-    
-    try {
-      const { data, error } = await supabase.rpc('generate_pros_batch', {
-        p_amount: qty,
-        p_user_id: user.id,
-      });
-
-      if (error) throw error;
-      const result = data?.[0];
-
-      const newTotal = (autoConfig.total_generated || 0) + (result?.total_generated ?? qty);
-
-      // Log the execution
-      await supabase.from('pro_generation_logs' as any).insert({
-        execution_type: 'automatic',
-        quantity_generated: result?.total_generated ?? qty,
-        quantity_requested: qty,
-        first_position: result?.first_position,
-        last_position: result?.last_position,
-        config_quantity_per_cycle: autoConfig.quantity_per_cycle,
-        config_interval_minutes: autoConfig.interval_minutes,
-        executed_by: user.id,
-        status: 'success',
-        cumulative_total: newTotal,
-      });
-
-      // Update config with last execution
-      await supabase.from('site_settings').update({
-        value: {
-          ...autoConfig,
-          total_generated: newTotal,
-          last_execution: new Date().toISOString(),
-        },
-        updated_by: user.id,
-      }).eq('key', 'auto_gen_config');
-
-      setAutoConfig(prev => ({
-        ...prev,
-        total_generated: newTotal,
-        last_execution: new Date().toISOString(),
-      }));
-
-      loadData();
-    } catch (err: any) {
-      // Log error
-      await supabase.from('pro_generation_logs' as any).insert({
-        execution_type: 'automatic',
-        quantity_generated: 0,
-        quantity_requested: qty,
-        config_quantity_per_cycle: autoConfig.quantity_per_cycle,
-        config_interval_minutes: autoConfig.interval_minutes,
-        executed_by: user?.id,
-        status: 'error',
-        error_message: err.message,
-        cumulative_total: autoConfig.total_generated || 0,
-      });
-      console.error('Auto-generation error:', err);
-    }
-  };
+    if (!autoConfig.active) return;
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
+  }, [autoConfig.active, loadData]);
 
   const toggleAutoGeneration = async (activate: boolean) => {
     if (!user) return;
@@ -221,6 +148,7 @@ export function GenerateProsPanel() {
         started_at: activate ? new Date().toISOString() : autoConfig.started_at,
         total_generated: activate ? 0 : autoConfig.total_generated,
         last_execution: activate ? null : autoConfig.last_execution,
+        last_error: null,
       };
 
       // Upsert config
@@ -233,7 +161,9 @@ export function GenerateProsPanel() {
       if (error) throw error;
 
       setAutoConfig(newConfig);
-      toast.success(activate ? 'Geração automática iniciada!' : 'Geração automática parada.');
+      toast.success(activate 
+        ? 'Geração automática ativada! O backend executará a cada ciclo, independente desta aba.' 
+        : 'Geração automática parada. O backend não executará mais.');
 
       // Log
       await supabase.from('pro_generation_logs' as any).insert({
@@ -313,6 +243,14 @@ export function GenerateProsPanel() {
   const poolHealth = poolCount > 100 ? 'saudável' : poolCount > 0 ? 'baixo' : 'crítico';
   const poolColor = poolCount > 100 ? 'text-green-600' : poolCount > 0 ? 'text-amber-600' : 'text-destructive';
 
+  const getNextExecution = () => {
+    if (!autoConfig.active || !autoConfig.last_execution) return 'Em breve...';
+    const last = new Date(autoConfig.last_execution);
+    const next = new Date(last.getTime() + (autoConfig.interval_minutes || 10) * 60000);
+    if (next < new Date()) return 'A qualquer momento...';
+    return format(next, "dd/MM HH:mm:ss", { locale: ptBR });
+  };
+
   if (isLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
   }
@@ -322,11 +260,15 @@ export function GenerateProsPanel() {
       {/* Help text */}
       <div className="p-3 rounded-lg bg-muted/50 border text-sm text-muted-foreground flex items-start gap-2">
         <Info className="w-4 h-4 mt-0.5 shrink-0" />
-        <span>
+        <div>
           <strong>Abastecer Fila do Ciclo</strong> — Controla o pool global de participações-base que alimenta todo o sistema.
           Quando um participante compra, PROs são retirados deste pool e atribuídos a ele. Se o pool esvaziar,
-          nenhum novo participante receberá PROs. Use a geração manual para lotes grandes ou a automática para reposição contínua.
-        </span>
+          nenhum novo participante receberá PROs.
+          <ul className="mt-1 ml-4 list-disc text-xs space-y-0.5">
+            <li><strong>Geração Manual</strong>: para injeções pontuais e controladas</li>
+            <li><strong>Geração Automática</strong>: sustentada por backend real (Edge Function + pg_cron), funciona independente da aba aberta</li>
+          </ul>
+        </div>
       </div>
 
       {/* Pool Status */}
@@ -357,14 +299,9 @@ export function GenerateProsPanel() {
         <CardContent className="space-y-4">
           <div className="flex gap-3">
             <Input
-              type="number"
-              min="1"
-              max="100000"
-              value={amount}
+              type="number" min="1" max="100000" value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Ex: 500"
-              disabled={isGenerating}
-              className="max-w-xs"
+              placeholder="Ex: 500" disabled={isGenerating} className="max-w-xs"
             />
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -419,12 +356,12 @@ export function GenerateProsPanel() {
         </CardContent>
       </Card>
 
-      {/* Auto Generation */}
+      {/* Auto Generation — Backend-sustained */}
       <Card className={autoConfig.active ? 'border-green-500/30' : ''}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Activity className="w-5 h-5" />
-            Geração Automática Controlada
+            <Server className="w-5 h-5" />
+            Geração Automática — Backend
             {autoConfig.active ? (
               <Badge className="bg-green-500 text-white ml-2">Ativa</Badge>
             ) : (
@@ -432,33 +369,32 @@ export function GenerateProsPanel() {
             )}
           </CardTitle>
           <CardDescription>
-            Gera participações automaticamente em intervalos regulares enquanto esta aba estiver aberta.
-            A configuração é persistida — se a aba for fechada, a automação para. Reabra para reativar.
+            Sustentada por Edge Function + pg_cron. <strong>Funciona independente da aba aberta, do navegador e de sessão ativa.</strong>
+            {' '}O backend verifica a cada minuto se deve gerar PROs conforme a configuração abaixo.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {autoConfig.last_error && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Último erro: {autoConfig.last_error}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {!autoConfig.active ? (
             <>
               <div className="grid grid-cols-2 gap-4 max-w-md">
                 <div className="space-y-1">
                   <Label className="text-xs">Quantidade por ciclo</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="10000"
-                    value={autoQty}
-                    onChange={(e) => setAutoQty(e.target.value)}
-                  />
+                  <Input type="number" min="1" max="10000" value={autoQty}
+                    onChange={(e) => setAutoQty(e.target.value)} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Intervalo (minutos)</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="1440"
-                    value={autoInterval}
-                    onChange={(e) => setAutoInterval(e.target.value)}
-                  />
+                  <Input type="number" min="1" max="1440" value={autoInterval}
+                    onChange={(e) => setAutoInterval(e.target.value)} />
                 </div>
               </div>
 
@@ -471,11 +407,13 @@ export function GenerateProsPanel() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Confirmar Ativação</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      A geração automática criará <strong>{parseInt(autoQty || '100')} participações</strong> a cada{' '}
-                      <strong>{parseInt(autoInterval || '10')} minuto(s)</strong> enquanto esta aba estiver aberta.
-                      Toda execução é registrada no log. Você poderá parar a qualquer momento.
+                    <AlertDialogTitle>Confirmar Ativação da Automação</AlertDialogTitle>
+                    <AlertDialogDescription className="space-y-2">
+                      <p>A geração automática criará <strong>{parseInt(autoQty || '100')} participações</strong> a cada{' '}
+                      <strong>{parseInt(autoInterval || '10')} minuto(s)</strong>.</p>
+                      <p className="font-medium">⚠️ Esta automação é sustentada pelo backend (Edge Function + pg_cron) e continuará
+                      funcionando mesmo que você feche esta aba ou o navegador.</p>
+                      <p>Toda execução é registrada no log. Você poderá parar a qualquer momento.</p>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -488,7 +426,7 @@ export function GenerateProsPanel() {
           ) : (
             <>
               <div className="p-4 bg-green-50/50 dark:bg-green-950/20 rounded-lg border border-green-500/20 space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-sm">
                   <div>
                     <p className="text-xs text-muted-foreground">PROs por ciclo</p>
                     <p className="font-bold">{autoConfig.quantity_per_cycle}</p>
@@ -509,10 +447,15 @@ export function GenerateProsPanel() {
                         : 'Aguardando...'}
                     </p>
                   </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Próxima execução</p>
+                    <p className="font-bold text-xs">{getNextExecution()}</p>
+                  </div>
                 </div>
                 {autoConfig.started_at && (
                   <p className="text-xs text-muted-foreground">
                     Ativa desde {format(new Date(autoConfig.started_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    {' • '}Backend independente — funciona com a aba fechada
                   </p>
                 )}
               </div>
@@ -527,9 +470,10 @@ export function GenerateProsPanel() {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Confirmar Parada</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      A geração automática será interrompida. Total gerado nesta sessão:{' '}
-                      <strong>{(autoConfig.total_generated || 0).toLocaleString('pt-BR')} PROs</strong>. A ação é registrada no log.
+                    <AlertDialogDescription className="space-y-2">
+                      <p>A geração automática será interrompida no backend. O pg_cron continuará verificando, mas não gerará PROs com active=false.</p>
+                      <p>Total gerado nesta sessão:{' '}
+                      <strong>{(autoConfig.total_generated || 0).toLocaleString('pt-BR')} PROs</strong>.</p>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -550,7 +494,7 @@ export function GenerateProsPanel() {
             <History className="w-5 h-5" />
             Log de Execuções
           </CardTitle>
-          <CardDescription>Histórico completo de todas as gerações — manuais e automáticas.</CardDescription>
+          <CardDescription>Histórico completo — manuais e automáticas (backend). Registros gerados pelo servidor, não pelo navegador.</CardDescription>
         </CardHeader>
         <CardContent>
           {logs.length === 0 ? (
@@ -565,7 +509,13 @@ export function GenerateProsPanel() {
                         {log.execution_type === 'manual' ? 'Manual' : 'Automática'}
                       </Badge>
                       <Badge
-                        variant={log.status === 'success' ? 'default' : log.status === 'error' ? 'destructive' : 'secondary'}
+                        variant={
+                          log.status === 'success' ? 'default' 
+                          : log.status === 'error' ? 'destructive' 
+                          : log.status === 'started' ? 'default'
+                          : log.status === 'stopped' ? 'secondary'
+                          : 'secondary'
+                        }
                         className="text-[10px]"
                       >
                         {log.status}
@@ -581,6 +531,9 @@ export function GenerateProsPanel() {
                     )}
                     {log.config_quantity_per_cycle && (
                       <span>Config: {log.config_quantity_per_cycle}/ciclo a cada {log.config_interval_minutes}min</span>
+                    )}
+                    {log.cumulative_total > 0 && (
+                      <span>Acumulado: {log.cumulative_total.toLocaleString('pt-BR')}</span>
                     )}
                     {log.error_message && (
                       <span className="text-destructive">{log.error_message}</span>
