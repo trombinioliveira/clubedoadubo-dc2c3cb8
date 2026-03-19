@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
 
     console.log(`[create-mp-subscription] env=${mpEnv}, plan=${plan_key}, user=${userId}`);
 
-    const baseUrl = Deno.env.get("APP_BASE_URL") || "https://clubedoadubo.lovable.app";
+    const baseUrl = Deno.env.get("APP_BASE_URL") || "https://clubedoadubo.com.br";
 
     const preapprovalPayload = {
       reason: plan.reason,

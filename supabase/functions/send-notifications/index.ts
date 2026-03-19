@@ -339,7 +339,7 @@ Deno.serve(async (req) => {
     const resendKeyRaw = Deno.env.get("RESEND_API_KEY") || "";
     const resendKey = sanitizeSecret(resendKeyRaw);
     const emailFrom = sanitizeSecret(Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>");
-    const baseUrl = sanitizeSecret(Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br");
+    const baseUrl = sanitizeSecret(Deno.env.get("APP_BASE_URL") || "https://clubedoadubo.com.br");
 
     // Temporary diagnostic (safe — never logs the full key)
     const hasNonAscii = /[^\x20-\x7E]/.test(resendKeyRaw);

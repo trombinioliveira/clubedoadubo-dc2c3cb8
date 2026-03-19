@@ -7,10 +7,10 @@ export default function PoliticaPrivacidadePage() {
       <Helmet>
         <title>Clube do Adubo | Política de Privacidade</title>
         <meta name="description" content="Política de Privacidade do Clube do Adubo — saiba como seus dados são coletados, utilizados e protegidos conforme a LGPD." />
-        <link rel="canonical" href="https://www.clubedoadubo.com.br/politica-de-privacidade" />
+        <link rel="canonical" href="https://clubedoadubo.com.br/politica-de-privacidade" />
         <meta property="og:title" content="Clube do Adubo | Política de Privacidade" />
         <meta property="og:description" content="Como o Clube do Adubo protege seus dados pessoais conforme a LGPD." />
-        <meta property="og:url" content="https://www.clubedoadubo.com.br/politica-de-privacidade" />
+        <meta property="og:url" content="https://clubedoadubo.com.br/politica-de-privacidade" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">

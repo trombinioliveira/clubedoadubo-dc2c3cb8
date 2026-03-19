@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
 
     // ── Generate external reference (idempotency key) ──────────────────────
     const external_reference = crypto.randomUUID();
-    const baseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "https://clubedoadubo.lovable.app";
+    const baseUrl = Deno.env.get("APP_BASE_URL") || req.headers.get("origin") || "https://clubedoadubo.com.br";
 
     // ── Mercado Pago API ───────────────────────────────────────────────────
     const mpEnv = Deno.env.get("MP_ENV") || "sandbox";
