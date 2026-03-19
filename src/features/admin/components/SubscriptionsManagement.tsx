@@ -440,8 +440,8 @@ export function SubscriptionsManagement() {
               )}
             </DialogContent>
           </Dialog>
-        </CardContent>
-      </div>
+      </CardContent>
+      </Card>
     </div>
   );
 }
