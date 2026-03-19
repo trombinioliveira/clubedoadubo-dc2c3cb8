@@ -1,5 +1,5 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,16 +11,54 @@ import {
   ArrowRight,
   CheckCircle,
   Calendar,
-  Instagram
+  Instagram,
+  MapPin,
+  ShoppingCart,
+  Loader2,
+  Sprout
 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { usePublicProfile } from '../hooks/usePublicProfile';
+import { useAuth } from '@/lib/auth';
+import { createMPPreference } from '@/lib/publicTransparency';
+import { toast } from 'sonner';
 import logo from '@/assets/logo.webp';
 
 export function PublicProfilePage() {
   const { codigo } = useParams<{ codigo: string }>();
   const { data: profile, isLoading, error } = usePublicProfile(codigo);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleBuyFromReferral = async () => {
+    if (!user) {
+      toast.info('Faça login para participar do ciclo.');
+      navigate(`/auth?ref=${codigo}`);
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const result = await createMPPreference({
+        product_key: 'pro_avulso',
+        quantity: 1,
+        user_id: user.id,
+        referral_code: codigo ?? null,
+      });
+      window.location.href = result.init_point;
+    } catch (err: any) {
+      if (err?.message === 'ADDRESS_INCOMPLETE') {
+        toast.error('Complete seu endereço para continuar.', { description: 'Redirecionando para o perfil...' });
+        setTimeout(() => navigate('/perfil'), 1500);
+      } else {
+        toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
+      }
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -67,12 +105,21 @@ export function PublicProfilePage() {
     4: 'bg-amber-500/20 text-amber-600',
   };
 
-  // Use public_name if available, fallback to publicName from RPC
   const displayName = (profile as any).public_name || profile.publicName;
   const instagram = (profile as any).instagram as string | null;
+  const city = profile.city;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary/5 to-background">
+      <Helmet>
+        <title>{displayName} no Clube do Adubo | Economia Circular</title>
+        <meta name="description" content={`Veja o impacto de ${displayName} no Clube do Adubo. Junte-se ao ciclo de economia circular urbana.`} />
+        <link rel="canonical" href={`https://clubedoadubo.com.br/u/${codigo}`} />
+        <meta property="og:title" content={`${displayName} no Clube do Adubo`} />
+        <meta property="og:description" content={`${displayName} já transformou ${profile.totalWeightKg.toFixed(1)} kg de resíduo em impacto real.`} />
+        <meta property="og:url" content={`https://clubedoadubo.com.br/u/${codigo}`} />
+      </Helmet>
+
       {/* Header */}
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -80,7 +127,7 @@ export function PublicProfilePage() {
             <img src={logo} alt="Clube do Adubo" className="h-8 w-auto" />
             <span className="font-bold text-foreground hidden sm:inline">Clube do Adubo</span>
           </Link>
-          <Link to="/auth">
+          <Link to={`/auth?ref=${codigo}`}>
             <Button variant="outline" size="sm">
               Entrar
             </Button>
@@ -109,9 +156,15 @@ export function PublicProfilePage() {
                   )}
                 </div>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1 flex-wrap">
+                  {city && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {city}
+                    </span>
+                  )}
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    Membro desde {format(new Date(profile.memberSince), "MMMM 'de' yyyy", { locale: ptBR })}
+                    Desde {format(new Date(profile.memberSince), "MMM yyyy", { locale: ptBR })}
                   </span>
                   {instagram && (
                     <a
@@ -141,19 +194,19 @@ export function PublicProfilePage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-muted/50 rounded-xl text-center">
                 <p className="text-3xl font-bold text-foreground">{profile.totalPros}</p>
-                <p className="text-sm text-muted-foreground">PROs Ativos</p>
+                <p className="text-sm text-muted-foreground">Participações no ciclo</p>
               </div>
               <div className="p-4 bg-muted/50 rounded-xl text-center">
                 <p className="text-3xl font-bold text-foreground">{profile.totalWeightKg.toFixed(1)}</p>
-                <p className="text-sm text-muted-foreground">kg de Resíduo</p>
+                <p className="text-sm text-muted-foreground">kg de resíduo processado</p>
               </div>
               <div className="p-4 bg-secondary/10 rounded-xl text-center">
-                <p className="text-3xl font-bold text-secondary">{profile.co2AvoidedKg.toFixed(1)}</p>
-                <p className="text-sm text-muted-foreground">kg CO₂ Evitado</p>
+                <p className="text-3xl font-bold text-secondary">~{profile.co2AvoidedKg.toFixed(1)}</p>
+                <p className="text-sm text-muted-foreground">kg CO₂ evitado*</p>
               </div>
               <div className="p-4 bg-secondary/10 rounded-xl text-center">
-                <p className="text-3xl font-bold text-secondary">{profile.fertilizerKg.toFixed(1)}</p>
-                <p className="text-sm text-muted-foreground">kg de Adubo</p>
+                <p className="text-3xl font-bold text-secondary">~{profile.fertilizerKg.toFixed(1)}</p>
+                <p className="text-sm text-muted-foreground">kg de adubo gerado*</p>
               </div>
             </div>
           </CardContent>
@@ -171,41 +224,51 @@ export function PublicProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-primary/10 rounded-xl text-center">
                   <p className="text-3xl font-bold text-primary">{profile.referralsCount}</p>
-                  <p className="text-sm text-muted-foreground">Pessoas Convidadas</p>
+                  <p className="text-sm text-muted-foreground">Pessoas conectadas</p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-xl text-center">
                   <p className="text-3xl font-bold text-foreground">{profile.networkPros}</p>
-                  <p className="text-sm text-muted-foreground">PROs da Rede</p>
+                  <p className="text-sm text-muted-foreground">Participações da rede</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* CTA */}
-        <Card className="border-2 border-secondary/30 bg-gradient-to-r from-secondary/5 to-transparent">
-          <CardContent className="p-6 text-center">
-            <Award className="w-12 h-12 mx-auto text-secondary mb-3" />
-            <h2 className="text-xl font-bold text-foreground mb-2">
+        {/* CTA — Purchase + Signup */}
+        <Card className="border-2 border-secondary/30 bg-gradient-to-r from-secondary/5 to-transparent mb-4">
+          <CardContent className="p-6 text-center space-y-4">
+            <Award className="w-12 h-12 mx-auto text-secondary" />
+            <h2 className="text-xl font-bold text-foreground">
               Faça parte do ciclo!
             </h2>
-            <p className="text-muted-foreground mb-4">
-              Junte-se a {displayName} e milhares de pessoas transformando resíduos em impacto real.
+            <p className="text-muted-foreground">
+              Junte-se a {displayName} e participe da economia circular com impacto real.
             </p>
-            <Link to="/auth">
-              <Button className="w-full sm:w-auto" size="lg">
-                Começar Agora
-                <ArrowRight className="w-4 h-4 ml-2" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button
+                size="lg"
+                disabled={checkoutLoading}
+                onClick={handleBuyFromReferral}
+              >
+                {checkoutLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
+                Participar por R$ 1
               </Button>
-            </Link>
+              <Link to={`/planos?ref=${codigo}`}>
+                <Button variant="outline" size="lg">
+                  <Sprout className="w-5 h-5 mr-2" />
+                  Ver planos
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
 
         {/* Transparency note */}
         <p className="text-xs text-center text-muted-foreground mt-6">
-          Todas as métricas são derivadas de PROs (Processamento de Resíduo Orgânico) reais e verificáveis.
+          Todas as métricas são derivadas de participações reais e verificáveis no ciclo de economia circular.
           <br />
-          O Clube do Adubo pratica economia circular com transparência total.
+          *Valores estimados com base no peso de resíduo processado. O Clube do Adubo pratica transparência total.
         </p>
       </main>
     </div>

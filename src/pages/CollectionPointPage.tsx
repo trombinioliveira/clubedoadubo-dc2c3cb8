@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -103,15 +104,27 @@ export default function CollectionPointPage() {
 
   const stats = [
     { icon: Scale, label: 'Pesagens realizadas', value: data.totalWeighings.toString() },
-    { icon: Package, label: 'PROs gerados', value: data.totalPros.toString() },
+    { icon: Package, label: 'Participações geradas', value: data.totalPros.toString() },
     { icon: Users, label: 'Participantes', value: data.uniqueUsers.toString() },
     { icon: Recycle, label: 'Resíduos coletados', value: `${data.totalWeightKg.toFixed(1)} kg` },
-    { icon: Leaf, label: 'CO₂ evitado', value: `${data.co2AvoidedKg.toFixed(1)} kg` },
-    { icon: TreePine, label: 'Adubo produzido', value: `${data.fertilizerKg.toFixed(1)} kg` },
+    { icon: Leaf, label: 'CO₂ evitado*', value: `~${data.co2AvoidedKg.toFixed(1)} kg` },
+    { icon: TreePine, label: 'Adubo gerado*', value: `~${data.fertilizerKg.toFixed(1)} kg` },
   ];
+
+  const pageTitle = `${data.name} — Ponto de Coleta | Clube do Adubo`;
+  const pageDescription = `Ponto de coleta ${data.name} em ${data.city}/${data.state}. Já processou ${data.totalWeightKg.toFixed(1)} kg de resíduo orgânico no ciclo de economia circular.`;
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={`https://clubedoadubo.com.br/ponto/${slug}`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={`https://clubedoadubo.com.br/ponto/${slug}`} />
+      </Helmet>
+
       {/* Header */}
       <header className="w-full border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
@@ -172,7 +185,7 @@ export default function CollectionPointPage() {
           <div className="text-center">
             <h2 className="text-xl font-semibold mb-2">Participar por este ponto</h2>
             <p className="text-sm text-muted-foreground">
-              Sua compra será vinculada a este ponto de coleta.
+              Sua participação será vinculada a este ponto de coleta.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -183,7 +196,7 @@ export default function CollectionPointPage() {
               onClick={() => handleBuyFromPoint('pro_avulso', 1)}
             >
               {checkoutLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
-              Comprar 1 PRO (R$ 1)
+              Participar por R$ 1
             </Button>
             <Link to="/planos">
               <Button variant="outline" size="lg">
@@ -285,6 +298,9 @@ export default function CollectionPointPage() {
         <div className="container mx-auto px-4 text-center">
           <p className="text-xs text-muted-foreground">
             Clube do Adubo • Economia Circular Urbana • Impacto real e rastreável
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            *Valores estimados com base no peso de resíduo processado.
           </p>
         </div>
       </footer>
