@@ -83,7 +83,7 @@ export function GenerateProsPanel() {
           .eq('user_id', 'b22080a1-ca50-4770-974d-57c9d198a5dd').eq('status', 'pending'),
         supabase.from('pros').select('id', { count: 'exact', head: true }),
         supabase.from('site_settings').select('value').eq('key', 'auto_gen_config').single(),
-        supabase.from('pro_generation_logs' as any).select('*').order('created_at', { ascending: false }).limit(20),
+        supabase.from('pro_generation_logs' as any).select('*').order('created_at', { ascending: false }).limit(20) as any,
       ]);
 
       setPoolCount(poolRes.count ?? 0);
