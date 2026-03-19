@@ -104,7 +104,7 @@ export function GenerateProsPanel() {
         setAutoInterval(String(val.interval_minutes ?? 10));
       }
 
-      setLogs((logsRes.data ?? []) as GenLog[]);
+      setLogs((logsRes.data ?? []) as unknown as GenLog[]);
     } catch (err) {
       console.error(err);
     } finally {

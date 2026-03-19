@@ -158,9 +158,9 @@ export function QAGoLivePanel() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <ClipboardList className="w-6 h-6" />
-            QA / Go-Live
+            Validação de Lançamento
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Checklist e verificações pré-produção</p>
+          <p className="text-sm text-muted-foreground mt-1">Checklist persistente de verificações pré-produção. O progresso é salvo automaticamente.</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
