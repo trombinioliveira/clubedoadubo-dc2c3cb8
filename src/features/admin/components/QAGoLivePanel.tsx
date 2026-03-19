@@ -59,28 +59,21 @@ export function QAGoLivePanel() {
   const [healthCheck, setHealthCheck] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const [checklist, setChecklist] = useState<Record<string, boolean>>({
-    auth_signup: false,
-    auth_email: false,
-    auth_login: false,
-    auth_reset: false,
-    mobile_iphone: false,
-    mobile_android: false,
-    mobile_ipad: false,
-    pay_avulso: false,
-    pay_plano: false,
-    point_purchase: false,
-    point_attribution: false,
-    admin_generate: false,
-    admin_subscriptions: false,
-    admin_notifications: false,
-    admin_reset_blocked: false,
-    plan_credits: false,
-    plan_conversion: false,
-    mp_env_production: false,
-    mp_token_prod_set: false,
-    mp_webhook_prod: false,
-    mp_checkout_init_point: false,
+  const CHECKLIST_KEY = 'clubedoadubo_qa_checklist';
+  const [checklist, setChecklist] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem(CHECKLIST_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      auth_signup: false, auth_email: false, auth_login: false, auth_reset: false,
+      mobile_iphone: false, mobile_android: false, mobile_ipad: false,
+      pay_avulso: false, pay_plano: false,
+      point_purchase: false, point_attribution: false,
+      admin_generate: false, admin_subscriptions: false, admin_notifications: false, admin_reset_blocked: false,
+      plan_credits: false, plan_conversion: false,
+      mp_env_production: false, mp_token_prod_set: false, mp_webhook_prod: false, mp_checkout_init_point: false,
+    };
   });
 
   const fetchAll = useCallback(async () => {
