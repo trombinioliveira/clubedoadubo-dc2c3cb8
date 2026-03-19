@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import {
@@ -157,9 +157,13 @@ function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordModalProps) {
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isLoading, isAdmin, signIn, signUp } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  // Capture ?ref= from URL (e.g. /auth?ref=ABC123)
+  const refCode = searchParams.get('ref')?.trim().toUpperCase() || '';
+
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(refCode ? 'signup' : 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -264,6 +268,25 @@ export default function Auth() {
         user_id: newUser.id,
         version: '1.0',
       });
+
+      // Associate referral if ?ref= was present
+      if (refCode) {
+        try {
+          const { data: lookupData } = await supabase.rpc('lookup_referral_code', { code: refCode });
+          if (lookupData && lookupData.length > 0) {
+            const referrerProfileId = lookupData[0].profile_id;
+            // Only set referred_by if the new user's profile doesn't already have one
+            await supabase
+              .from('profiles')
+              .update({ referred_by: referrerProfileId })
+              .eq('user_id', newUser.id)
+              .is('referred_by', null);
+          }
+        } catch (refError) {
+          // Silently fail — referral is best-effort, don't block signup
+          console.warn('Referral attribution failed:', refError);
+        }
+      }
     }
 
     if (whatsapp) {
