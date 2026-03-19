@@ -330,9 +330,21 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const resendKey = (Deno.env.get("RESEND_API_KEY") || "").trim();
-    const emailFrom = (Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>").trim();
-    const baseUrl = (Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br").trim();
+    // Robust sanitization: strip ALL non-printable, non-ASCII, BOM, zero-width chars
+    function sanitizeSecret(raw: string): string {
+      // deno-lint-ignore no-control-regex
+      return raw.replace(/[^\x20-\x7E]/g, "").trim();
+    }
+
+    const resendKeyRaw = Deno.env.get("RESEND_API_KEY") || "";
+    const resendKey = sanitizeSecret(resendKeyRaw);
+    const emailFrom = sanitizeSecret(Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>");
+    const baseUrl = sanitizeSecret(Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br");
+
+    // Temporary diagnostic (safe — never logs the full key)
+    const hasNonAscii = /[^\x20-\x7E]/.test(resendKeyRaw);
+    const hasWhitespace = /\s/.test(resendKeyRaw);
+    console.log(`[send-notifications] DIAG: key_raw_len=${resendKeyRaw.length}, key_clean_len=${resendKey.length}, hasNonAscii=${hasNonAscii}, hasWhitespace=${hasWhitespace}, from_len=${emailFrom.length}, prefix=${resendKey.substring(0, 6)}`);
 
     // Fetch queued/pending notifications (both statuses are valid entry points)
     const { data: events, error: fetchErr } = await supabase
