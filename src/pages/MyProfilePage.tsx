@@ -339,7 +339,6 @@ export default function MyProfilePage() {
   // Pending items
   const pendingItems: string[] = [];
   if (!isProfileCompleted) pendingItems.push('Completar dados obrigatórios');
-  if (!emailVerified) pendingItems.push('Verificar e-mail');
   if (!formData.pix_key) pendingItems.push('Cadastrar chave Pix');
 
   // Loading
@@ -453,12 +452,8 @@ export default function MyProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="email">E-mail *</Label>
-                  {emailVerified ? (
+                  {emailVerified && (
                     <Badge variant="default" className="text-xs gap-1"><CheckCircle2 className="w-3 h-3" /> Verificado</Badge>
-                  ) : (
-                    <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => sendOTP('email')} disabled={otpSending || isProfileCompleted}>
-                      Verificar
-                    </Button>
                   )}
                 </div>
                 <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} placeholder="seu@email.com" />
@@ -471,13 +466,9 @@ export default function MyProfilePage() {
                     <Label htmlFor="whatsapp">WhatsApp</Label>
                     <MicroHelp text="Usado para notificações futuras e contato em caso de necessidade." />
                   </div>
-                  {whatsappVerified ? (
+                  {whatsappVerified && (
                     <Badge variant="default" className="text-xs gap-1"><CheckCircle2 className="w-3 h-3" /> Verificado</Badge>
-                  ) : formData.whatsapp.replace(/\D/g, '').length >= 10 ? (
-                    <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => sendOTP('whatsapp')} disabled={otpSending || isProfileCompleted}>
-                      Verificar
-                    </Button>
-                  ) : null}
+                  )}
                 </div>
                 <Input id="whatsapp" value={formData.whatsapp} onChange={e => handleInputChange('whatsapp', e.target.value)} placeholder="(11) 99999-9999" maxLength={15} />
               </div>
