@@ -418,7 +418,9 @@ export function ReferralsPage() {
                       ? 'Converter em participações'
                       : authProfile.commission_preference === 'pix'
                         ? 'Receber via Pix'
-                        : authProfile.commission_preference}
+                        : authProfile.commission_preference === 'mix'
+                          ? 'Parte em participações, parte via Pix'
+                          : authProfile.commission_preference}
                   </span>.
                   Para alterar, acesse <Link to="/perfil" className="text-primary hover:underline">seu perfil</Link>.
                 </p>
