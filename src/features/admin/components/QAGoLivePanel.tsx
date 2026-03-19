@@ -143,7 +143,11 @@ export function QAGoLivePanel() {
   };
 
   const toggleCheck = (key: string) => {
-    setChecklist(prev => ({ ...prev, [key]: !prev[key] }));
+    setChecklist(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem(CHECKLIST_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const envBadgeVariant = envMode === 'production' ? 'destructive' : 'secondary';
