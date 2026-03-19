@@ -14,7 +14,7 @@ const BRAND_COLOR = "#2d6a4f";
 const BRAND_BG = "#f4f7f6";
 const BRAND_NAME = "Clube do Adubo";
 const BRAND_TAGLINE = "A cidade produz resíduo. A gente transforma em vida.";
-const BRAND_URL = "https://www.clubedoadubo.com.br";
+const BRAND_URL = "https://clubedoadubo.com.br";
 
 // ── HTML email wrapper ───────────────────────────────────────────────────────
 function wrapEmail(title: string, body: string, preheader = ""): string {
