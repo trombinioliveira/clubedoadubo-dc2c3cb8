@@ -452,12 +452,8 @@ export default function MyProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="email">E-mail *</Label>
-                  {emailVerified ? (
+                  {emailVerified && (
                     <Badge variant="default" className="text-xs gap-1"><CheckCircle2 className="w-3 h-3" /> Verificado</Badge>
-                  ) : (
-                    <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => sendOTP('email')} disabled={otpSending || isProfileCompleted}>
-                      Verificar
-                    </Button>
                   )}
                 </div>
                 <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} placeholder="seu@email.com" />
