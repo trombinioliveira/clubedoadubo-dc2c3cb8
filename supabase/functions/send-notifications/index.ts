@@ -330,9 +330,9 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const resendKey = Deno.env.get("RESEND_API_KEY") || "";
-    const emailFrom = Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>";
-    const baseUrl = Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br";
+    const resendKey = (Deno.env.get("RESEND_API_KEY") || "").trim();
+    const emailFrom = (Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>").trim();
+    const baseUrl = (Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br").trim();
 
     // Fetch queued/pending notifications (both statuses are valid entry points)
     const { data: events, error: fetchErr } = await supabase
