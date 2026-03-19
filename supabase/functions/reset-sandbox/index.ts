@@ -90,133 +90,160 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Count rows before truncation
+    // ========================================================
+    // TABELAS A LIMPAR (ordem respeita FKs: dependentes primeiro)
+    // ========================================================
+    // PRESERVADAS: profiles, user_roles, commission_levels,
+    //   collection_points, sales_points, impact_missions,
+    //   site_settings (estrutural), reset_logs
+    // ========================================================
+
     const tablesToClean = [
+      // Dependentes de pros/sale_distributions
       "pro_payouts",
+      // Logs e auditoria operacional
+      "pro_generation_logs",
       "subscription_logs",
       "notification_events",
       "export_logs",
       "referral_logs",
+      "audit_issues",
+      "audit_reviews",
+      // Stats e estados derivados
       "referral_stats",
+      // Jornada do usuário
       "terms_acceptance",
       "otp_codes",
       "dreams",
+      // Assinaturas (após subscription_logs)
       "subscriptions",
+      // Créditos e ativações
       "pro_credits",
       "pro_activations",
+      // Distribuições (após pro_payouts)
       "sale_distributions",
+      // FIFO e PROs (após dependentes)
       "fifo_queue",
       "pros",
+      // Financeiro
       "financial_entries",
+      // Operacional de produção/campo
       "distributions",
       "weighings",
       "batches",
+      // Preferências (re-inseridas depois)
       "notification_preferences",
-      "impact_missions",
-      "collection_points",
-      "sales_points",
+      // Auditoria econômica
       "system_ledger",
     ];
 
-    const counts: Record<string, { before: number; after: number }> = {};
+    const counts: Record<string, { before: number }> = {};
 
+    // Count rows before deletion
     for (const table of tablesToClean) {
       const { count } = await adminClient
         .from(table)
         .select("*", { count: "exact", head: true });
-      counts[table] = { before: count || 0, after: 0 };
+      counts[table] = { before: count || 0 };
     }
 
-    // Execute truncation in dependency order using raw SQL via service role
-    // We use individual deletes since Supabase JS doesn't support TRUNCATE
-    // Order: dependents first
+    // ========================================================
+    // EXECUTAR LIMPEZA EM ORDEM SEGURA
+    // ========================================================
 
-    // 1. pro_payouts (depends on pros, sale_distributions)
+    // 1. pro_payouts (FK → pros, sale_distributions)
     await adminClient.from("pro_payouts").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 2. subscription_logs (depends on subscriptions — must come before subscriptions)
+    // 2. pro_generation_logs
+    await adminClient.from("pro_generation_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+    // 3. subscription_logs (FK → subscriptions)
     await adminClient.from("subscription_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 3. notification_events
+    // 4. notification_events
     await adminClient.from("notification_events").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 4. export_logs
+    // 5. export_logs
     await adminClient.from("export_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 5. referral_logs
+    // 6. referral_logs
     await adminClient.from("referral_logs").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 6. referral_stats
+    // 7. audit_issues
+    await adminClient.from("audit_issues").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+    // 8. audit_reviews
+    await adminClient.from("audit_reviews").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+    // 9. referral_stats
     await adminClient.from("referral_stats").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 7. terms_acceptance
+    // 10. terms_acceptance
     await adminClient.from("terms_acceptance").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 8. otp_codes
+    // 11. otp_codes
     await adminClient.from("otp_codes").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 9. dreams
+    // 12. dreams
     await adminClient.from("dreams").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 10. subscriptions (after subscription_logs)
+    // 13. subscriptions
     await adminClient.from("subscriptions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 11. pro_credits (créditos de teste — sem FK dependente)
+    // 14. pro_credits
     await adminClient.from("pro_credits").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 12. pro_activations (ativações de teste — PK é external_reference, não uuid id)
+    // 15. pro_activations
     await adminClient.from("pro_activations").delete().gte("external_reference", "00000000-0000-0000-0000-000000000000");
-    // 13. sale_distributions (depends on financial_entries)
+    // 16. sale_distributions
     await adminClient.from("sale_distributions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 14. fifo_queue (depends on pros)
+    // 17. fifo_queue
     await adminClient.from("fifo_queue").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 15. pros (depends on batches, collection_points, dreams)
+    // 18. pros
     await adminClient.from("pros").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 16. financial_entries
+    // 19. financial_entries
     await adminClient.from("financial_entries").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 17. distributions (depends on sales_points)
+    // 20. distributions
     await adminClient.from("distributions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 18. weighings (depends on collection_points)
+    // 21. weighings
     await adminClient.from("weighings").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 19. batches
+    // 22. batches
     await adminClient.from("batches").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 20. notification_preferences
+    // 23. notification_preferences
     await adminClient.from("notification_preferences").delete().gte("user_id", "00000000-0000-0000-0000-000000000000");
-    // 21. impact_missions
-    await adminClient.from("impact_missions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 22. collection_points
-    await adminClient.from("collection_points").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 23. sales_points
-    await adminClient.from("sales_points").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    // 24. system_ledger (trilha de auditoria de teste — limpa por último)
+    // 24. system_ledger
     await adminClient.from("system_ledger").delete().gte("id", "00000000-0000-0000-0000-000000000000");
 
-    // Re-insert seeds
-    const seeds: string[] = [];
+    // ========================================================
+    // RESETAR CAMPOS OPERACIONAIS NOS PROFILES
+    // Zera saldos, créditos, contadores — preserva identidade
+    // ========================================================
+    const { error: profileResetErr } = await adminClient
+      .from("profiles")
+      .update({
+        internal_balance: 0,
+        fertilizer_credits: 0,
+        has_viewed_fifo: false,
+        commission_preference: "pro",
+        external_transaction_id: null,
+        profile_completed_at: null,
+        profile_deadline: null,
+      })
+      .gte("id", "00000000-0000-0000-0000-000000000000");
 
-    // Seed: commission_levels (clear and re-insert)
-    await adminClient.from("commission_levels").delete().gte("id", "00000000-0000-0000-0000-000000000000");
-    const { error: clErr } = await adminClient.from("commission_levels").insert([
-      { level_number: 1, label: "Iniciante", min_referrals: 0, max_referrals: 2, rate_percent: 5, is_active: true },
-      { level_number: 2, label: "Ativo", min_referrals: 3, max_referrals: 9, rate_percent: 10, is_active: true },
-      { level_number: 3, label: "Embaixador", min_referrals: 10, max_referrals: 24, rate_percent: 15, is_active: true },
-      { level_number: 4, label: "Líder", min_referrals: 25, max_referrals: null, rate_percent: 20, is_active: true },
-    ]);
-    if (!clErr) seeds.push("commission_levels (4 níveis)");
+    // ========================================================
+    // DESLIGAR AUTOMAÇÃO DE PROS (auto_gen_config → inativo)
+    // ========================================================
+    await adminClient
+      .from("site_settings")
+      .upsert(
+        {
+          key: "auto_gen_config",
+          value: {
+            status: "inactive",
+            quantity_per_cycle: 0,
+            interval_minutes: 0,
+            activated_by: null,
+            activated_at: null,
+            total_generated: 0,
+            last_execution: null,
+            last_error: null,
+          },
+          updated_by: user.id,
+        },
+        { onConflict: "key" }
+      );
 
-    // Seed: 1 collection_point
-    const { error: cpErr } = await adminClient.from("collection_points").insert({
-      name: "Ponto de Coleta Teste",
-      address: "Rua Teste, 123",
-      city: "São Paulo",
-      state: "SP",
-      is_active: true,
-      has_public_page: true,
-      slug: "ponto-teste",
-      description: "Ponto de coleta para testes",
-    });
-    if (!cpErr) seeds.push("collection_points (1 ponto teste)");
-
-    // Seed: 1 sales_point
-    const { error: spErr } = await adminClient.from("sales_points").insert({
-      name: "Ponto de Venda Teste",
-      address: "Av. Teste, 456",
-      is_active: true,
-      contact_name: "Contato Teste",
-    });
-    if (!spErr) seeds.push("sales_points (1 ponto teste)");
-
-    // Ensure site_settings seeds
-    const settingsSeeds = [
+    // ========================================================
+    // GARANTIR SITE SETTINGS ESTRUTURAIS (sem recriar env_mode)
+    // ========================================================
+    const structuralSettings = [
       { key: "missions_enabled", value: { enabled: true } },
       { key: "collective_impact_enabled", value: { enabled: true } },
       { key: "public_transparency_enabled", value: { enabled: true } },
@@ -224,40 +251,80 @@ Deno.serve(async (req) => {
       { key: "public_sales_enabled", value: { enabled: true } },
       { key: "public_collection_points_enabled", value: { enabled: true } },
       { key: "public_kpis_enabled", value: { enabled: true } },
-      { key: "env_mode", value: { mode: "sandbox" } },
+      // env_mode NÃO é resetado — operador controla manualmente
     ];
 
-    for (const s of settingsSeeds) {
+    for (const s of structuralSettings) {
       await adminClient
         .from("site_settings")
         .upsert({ key: s.key, value: s.value }, { onConflict: "key" });
     }
-    seeds.push("site_settings (toggles resetados)");
 
-    // Re-initialize notification_preferences and referral_stats for existing profiles
+    // ========================================================
+    // REINICIALIZAR DADOS DERIVADOS DE PROFILES EXISTENTES
+    // ========================================================
+    const seeds: string[] = [];
+
     const { data: profiles } = await adminClient.from("profiles").select("user_id");
     if (profiles && profiles.length > 0) {
       const npInserts = profiles.map((p) => ({ user_id: p.user_id }));
       await adminClient.from("notification_preferences").insert(npInserts).select();
       await adminClient.from("referral_stats").insert(npInserts).select();
-      seeds.push(`notification_preferences (${profiles.length} perfis)`);
-      seeds.push(`referral_stats (${profiles.length} perfis)`);
+      seeds.push(`notification_preferences reinicializado (${profiles.length} perfis)`);
+      seeds.push(`referral_stats zerado (${profiles.length} perfis)`);
     }
 
-    // Log the reset
-    const details = { counts, seeds, idempotency_key };
+    seeds.push("auto_gen_config → inativo");
+    seeds.push("site_settings estruturais preservados");
+    seeds.push("profiles: saldos/créditos/contadores zerados");
+    if (!profileResetErr) {
+      seeds.push(`profiles operacionais resetados (${profiles?.length || 0} perfis)`);
+    }
+
+    // ========================================================
+    // REGISTRO DO RESET
+    // ========================================================
+    const preserved = [
+      "profiles (identidade + acesso)",
+      "user_roles (papéis)",
+      "commission_levels (regras de comissão)",
+      "collection_points (cadastro estrutural)",
+      "sales_points (cadastro estrutural)",
+      "impact_missions (configuração)",
+      "site_settings (configuração do site)",
+      "reset_logs (histórico de resets)",
+    ];
+
+    const details = {
+      counts,
+      seeds,
+      preserved,
+      idempotency_key,
+      automation_disabled: true,
+      profile_fields_reset: [
+        "internal_balance → 0",
+        "fertilizer_credits → 0",
+        "has_viewed_fifo → false",
+        "commission_preference → pro",
+        "external_transaction_id → null",
+        "profile_completed_at → null",
+        "profile_deadline → null",
+      ],
+    };
+
     await adminClient.from("reset_logs").insert({
       admin_user_id: user.id,
-      mode: "soft_reset",
+      mode: "pre_go_live",
       details,
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Reset sandbox concluído com sucesso",
+        message: "Reset pré-go-live concluído. Ambiente operacional limpo, usuários preservados, automação desligada.",
         counts,
         seeds,
+        preserved,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
