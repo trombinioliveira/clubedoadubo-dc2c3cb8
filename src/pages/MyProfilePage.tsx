@@ -339,7 +339,6 @@ export default function MyProfilePage() {
   // Pending items
   const pendingItems: string[] = [];
   if (!isProfileCompleted) pendingItems.push('Completar dados obrigatórios');
-  if (!emailVerified) pendingItems.push('Verificar e-mail');
   if (!formData.pix_key) pendingItems.push('Cadastrar chave Pix');
 
   // Loading
