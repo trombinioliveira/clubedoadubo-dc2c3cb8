@@ -4,11 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, GripVertical, Loader2 } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Plus, Pencil, Trash2, Loader2, AlertTriangle, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -39,19 +43,17 @@ const typeColors: Record<string, string> = {
 };
 
 const emptyMission = {
-  title: '',
-  description: '',
-  emoji: '🌱',
-  type: 'habit',
-  reward_pros: 1,
-  is_active: true,
-  sort_order: 0,
+  title: '', description: '', emoji: '🌱', type: 'habit',
+  reward_pros: 1, is_active: true, sort_order: 0,
 };
 
 export function SiteManagement() {
   const queryClient = useQueryClient();
   const [editingMission, setEditingMission] = useState<Partial<Mission> | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [envConfirmOpen, setEnvConfirmOpen] = useState(false);
+  const [envConfirmText, setEnvConfirmText] = useState('');
+  const [pendingEnvMode, setPendingEnvMode] = useState<string | null>(null);
 
   // ─ Generic setting fetcher ─
   const useSetting = (key: string, defaultVal = true) => useQuery({
@@ -92,7 +94,52 @@ export function SiteManagement() {
   const togglePubPoints = useToggleSetting('public_collection_points_enabled');
   const togglePubKpis = useToggleSetting('public_kpis_enabled');
 
-  // Missions query
+  // Environment mode
+  const { data: envMode, isLoading: envLoading } = useQuery({
+    queryKey: ['site-settings', 'env_mode'],
+    queryFn: async () => {
+      const { data } = await supabase.from('site_settings').select('value').eq('key', 'env_mode').single();
+      return (data?.value as any)?.mode ?? 'sandbox';
+    },
+  });
+
+  const envModeMutation = useMutation({
+    mutationFn: async (mode: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('site_settings').upsert({
+        key: 'env_mode',
+        value: { mode },
+        updated_by: user?.id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['site-settings'] });
+      toast.success('Ambiente alterado com sucesso');
+      setEnvConfirmOpen(false);
+      setEnvConfirmText('');
+      setPendingEnvMode(null);
+    },
+    onError: (err: Error) => toast.error('Erro: ' + err.message),
+  });
+
+  const handleEnvModeChange = (newMode: string) => {
+    setPendingEnvMode(newMode);
+    setEnvConfirmText('');
+    setEnvConfirmOpen(true);
+  };
+
+  const confirmEnvChange = () => {
+    if (!pendingEnvMode) return;
+    const requiredText = pendingEnvMode === 'production' ? 'PRODUCTION' : 'SANDBOX';
+    if (envConfirmText !== requiredText) {
+      toast.error(`Digite "${requiredText}" para confirmar`);
+      return;
+    }
+    envModeMutation.mutate(pendingEnvMode);
+  };
+
+  // Missions
   const { data: missions = [], isLoading: missionsLoading } = useQuery({
     queryKey: ['admin-missions'],
     queryFn: async () => {
@@ -105,72 +152,45 @@ export function SiteManagement() {
   const toggleModule = useMutation({
     mutationFn: async (enabled: boolean) => {
       const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase
-        .from('site_settings')
-        .update({ value: { enabled }, updated_by: user?.id })
-        .eq('key', 'missions_enabled');
+      const { error } = await supabase.from('site_settings')
+        .update({ value: { enabled }, updated_by: user?.id }).eq('key', 'missions_enabled');
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-      toast.success('Módulo atualizado');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['site-settings'] }); toast.success('Módulo atualizado'); },
   });
 
-  // Save mission (create or update)
   const saveMission = useMutation({
     mutationFn: async (mission: Partial<Mission>) => {
       if (mission.id) {
-        const { error } = await supabase
-          .from('impact_missions')
-          .update({
-            title: mission.title!,
-            description: mission.description!,
-            emoji: mission.emoji!,
-            type: mission.type!,
-            reward_pros: mission.reward_pros!,
-            is_active: mission.is_active!,
-            sort_order: mission.sort_order!,
-          })
-          .eq('id', mission.id);
+        const { error } = await supabase.from('impact_missions').update({
+          title: mission.title!, description: mission.description!, emoji: mission.emoji!,
+          type: mission.type!, reward_pros: mission.reward_pros!, is_active: mission.is_active!, sort_order: mission.sort_order!,
+        }).eq('id', mission.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from('impact_missions')
-          .insert({
-            title: mission.title!,
-            description: mission.description!,
-            emoji: mission.emoji!,
-            type: mission.type!,
-            reward_pros: mission.reward_pros!,
-            is_active: mission.is_active ?? true,
-            sort_order: mission.sort_order ?? missions.length + 1,
-          });
+        const { error } = await supabase.from('impact_missions').insert({
+          title: mission.title!, description: mission.description!, emoji: mission.emoji!,
+          type: mission.type!, reward_pros: mission.reward_pros!, is_active: mission.is_active ?? true,
+          sort_order: mission.sort_order ?? missions.length + 1,
+        });
         if (error) throw error;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-missions'] });
-      setDialogOpen(false);
-      setEditingMission(null);
-      toast.success('Missão salva');
+      setDialogOpen(false); setEditingMission(null); toast.success('Missão salva');
     },
     onError: () => toast.error('Erro ao salvar missão'),
   });
 
-  // Delete mission
   const deleteMission = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('impact_missions').delete().eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-missions'] });
-      toast.success('Missão removida');
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-missions'] }); toast.success('Missão removida'); },
   });
 
-  // Toggle individual mission active
   const toggleMission = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase.from('impact_missions').update({ is_active }).eq('id', id);
@@ -179,17 +199,11 @@ export function SiteManagement() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-missions'] }),
   });
 
-  const openCreate = () => {
-    setEditingMission({ ...emptyMission, sort_order: missions.length + 1 });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (m: Mission) => {
-    setEditingMission({ ...m });
-    setDialogOpen(true);
-  };
+  const openCreate = () => { setEditingMission({ ...emptyMission, sort_order: missions.length + 1 }); setDialogOpen(true); };
+  const openEdit = (m: Mission) => { setEditingMission({ ...m }); setDialogOpen(true); };
 
   const isLoading = settingsLoading || missionsLoading;
+  const isProduction = envMode === 'production';
 
   return (
     <div className="space-y-6">
@@ -198,14 +212,106 @@ export function SiteManagement() {
         <span className="font-bold">ℹ️</span>
         <span>
           <strong>Site</strong> — Controla módulos visíveis na área logada, no painel público de transparência, missões e o modo do ambiente (sandbox/production).
+          Mudanças no ambiente afetam todo o sistema.
         </span>
       </div>
+
+      {/* === AMBIENTE === */}
+      <Card className={isProduction ? 'border-destructive/30' : 'border-amber-500/30'}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Shield className="w-5 h-5" />
+            Ambiente do Sistema
+          </CardTitle>
+          <CardDescription>
+            Controla se o sistema está em modo de testes (sandbox) ou modo real (production).
+            Em production, o Reset Sandbox fica bloqueado e o Mercado Pago usa chaves reais.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-sm font-medium">Ambiente atual:</p>
+              <Badge variant={isProduction ? 'destructive' : 'secondary'} className="text-base mt-1 px-3 py-1">
+                {envLoading ? '...' : envMode}
+              </Badge>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            {!isProduction ? (
+              <Button variant="destructive" onClick={() => handleEnvModeChange('production')} className="gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                Mudar para Production
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => handleEnvModeChange('sandbox')} className="gap-2">
+                Voltar para Sandbox
+              </Button>
+            )}
+          </div>
+
+          {isProduction && (
+            <p className="text-xs text-destructive">
+              ⚠️ O sistema está em modo produção. Reset Sandbox está bloqueado. Mercado Pago usa chaves de produção.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Env mode confirmation dialog */}
+      <AlertDialog open={envConfirmOpen} onOpenChange={setEnvConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Confirmar Mudança de Ambiente
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>Você está prestes a mudar o ambiente para <strong>{pendingEnvMode}</strong>.</p>
+              {pendingEnvMode === 'production' ? (
+                <div className="p-3 bg-destructive/10 rounded-lg text-sm space-y-1">
+                  <p>• O Reset Sandbox será <strong>bloqueado</strong></p>
+                  <p>• O Mercado Pago usará <strong>chaves de produção</strong></p>
+                  <p>• Todas as transações serão <strong>reais</strong></p>
+                </div>
+              ) : (
+                <div className="p-3 bg-amber-500/10 rounded-lg text-sm space-y-1">
+                  <p>• O Reset Sandbox será <strong>desbloqueado</strong></p>
+                  <p>• O Mercado Pago voltará para <strong>modo teste</strong></p>
+                </div>
+              )}
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">
+                  Digite <strong>{pendingEnvMode === 'production' ? 'PRODUCTION' : 'SANDBOX'}</strong> para confirmar:
+                </Label>
+                <Input
+                  value={envConfirmText}
+                  onChange={(e) => setEnvConfirmText(e.target.value)}
+                  placeholder={pendingEnvMode === 'production' ? 'PRODUCTION' : 'SANDBOX'}
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setEnvConfirmText(''); setPendingEnvMode(null); }}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmEnvChange}
+              disabled={envModeMutation.isPending}
+              className={pendingEnvMode === 'production' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+            >
+              {envModeMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* === MÓDULOS === */}
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Módulos da Área Logada</CardTitle>
-          <CardDescription>
-            Ative ou desative módulos visíveis na área logada dos usuários.
-          </CardDescription>
+          <CardDescription>Ative ou desative módulos visíveis na área logada dos usuários.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
@@ -225,7 +331,7 @@ export function SiteManagement() {
             <div>
               <Label className="text-base font-medium">Impacto Ambiental Coletivo</Label>
               <p className="text-sm text-muted-foreground">
-                {collectiveImpactEnabled ? 'Card de impacto coletivo visível na área logada' : 'Card de impacto coletivo oculto para todos'}
+                {collectiveImpactEnabled ? 'Card de impacto coletivo visível' : 'Card de impacto coletivo oculto'}
               </p>
             </div>
             <Switch
@@ -237,7 +343,7 @@ export function SiteManagement() {
         </CardContent>
       </Card>
 
-      {/* Public Panel Toggles */}
+      {/* === PÚBLICO === */}
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Painel Público de Transparência</CardTitle>
@@ -246,42 +352,34 @@ export function SiteManagement() {
         <CardContent className="space-y-4">
           {[
             { key: 'public_transparency_enabled', label: 'Painel Público (geral)', desc: 'Habilita ou desabilita o painel completo', data: pubTransparency, toggle: togglePubTransparency },
-            { key: 'public_kpis_enabled', label: 'KPIs Públicos', desc: 'Indicadores do ciclo (PROs, kg, vendas)', data: pubKpis, toggle: togglePubKpis },
-            { key: 'public_fifo_enabled', label: 'Fila Pública do Ciclo', desc: 'Tabela paginada da fila pública', data: pubFifo, toggle: togglePubFifo },
-            { key: 'public_sales_enabled', label: 'Vendas Públicas', desc: 'Listagem de entradas financeiras públicas', data: pubSales, toggle: togglePubSales },
-            { key: 'public_collection_points_enabled', label: 'Pontos de Coleta', desc: 'Lista de pontos ativos no painel', data: pubPoints, toggle: togglePubPoints },
+            { key: 'public_kpis_enabled', label: 'KPIs Públicos', desc: 'Indicadores do ciclo', data: pubKpis, toggle: togglePubKpis },
+            { key: 'public_fifo_enabled', label: 'Fila Pública do Ciclo', desc: 'Tabela paginada da fila', data: pubFifo, toggle: togglePubFifo },
+            { key: 'public_sales_enabled', label: 'Vendas Públicas', desc: 'Entradas financeiras públicas', data: pubSales, toggle: togglePubSales },
+            { key: 'public_collection_points_enabled', label: 'Pontos de Coleta', desc: 'Lista de pontos ativos', data: pubPoints, toggle: togglePubPoints },
           ].map(({ key, label, desc, data, toggle }) => (
             <div key={key} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
               <div>
                 <Label className="text-base font-medium">{label}</Label>
                 <p className="text-sm text-muted-foreground">{data ? desc + ' — ativo' : desc + ' — desativado'}</p>
               </div>
-              <Switch
-                checked={!!data}
-                onCheckedChange={(checked) => toggle.mutate(checked)}
-                disabled={toggle.isPending}
-              />
+              <Switch checked={!!data} onCheckedChange={(checked) => toggle.mutate(checked)} disabled={toggle.isPending} />
             </div>
           ))}
         </CardContent>
       </Card>
 
-      {/* Missions list */}
+      {/* === MISSÕES === */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Missões Cadastradas</CardTitle>
             <CardDescription>{missions.length} missão(ões)</CardDescription>
           </div>
-          <Button onClick={openCreate} size="sm">
-            <Plus className="w-4 h-4 mr-2" /> Nova Missão
-          </Button>
+          <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-2" /> Nova Missão</Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
+            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
           ) : (
             <Table>
               <TableHeader>
@@ -308,30 +406,17 @@ export function SiteManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={typeColors[m.type]}>
-                        {typeLabels[m.type] || m.type}
-                      </Badge>
+                      <Badge variant="outline" className={typeColors[m.type]}>{typeLabels[m.type] || m.type}</Badge>
                     </TableCell>
                     <TableCell className="text-center font-mono">+{m.reward_pros}</TableCell>
                     <TableCell className="text-center">
-                      <Switch
-                        checked={m.is_active}
-                        onCheckedChange={(checked) => toggleMission.mutate({ id: m.id, is_active: checked })}
-                      />
+                      <Switch checked={m.is_active} onCheckedChange={(checked) => toggleMission.mutate({ id: m.id, is_active: checked })} />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive"
-                          onClick={() => {
-                            if (confirm('Remover esta missão?')) deleteMission.mutate(m.id);
-                          }}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(m)}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="text-destructive"
+                          onClick={() => { if (confirm('Remover esta missão?')) deleteMission.mutate(m.id); }}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -344,7 +429,7 @@ export function SiteManagement() {
         </CardContent>
       </Card>
 
-      {/* Create / Edit Dialog */}
+      {/* Mission Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -355,36 +440,21 @@ export function SiteManagement() {
               <div className="grid grid-cols-[80px_1fr] gap-4">
                 <div>
                   <Label>Emoji</Label>
-                  <Input
-                    value={editingMission.emoji || ''}
-                    onChange={(e) => setEditingMission({ ...editingMission, emoji: e.target.value })}
-                    className="text-center text-2xl"
-                  />
+                  <Input value={editingMission.emoji || ''} onChange={(e) => setEditingMission({ ...editingMission, emoji: e.target.value })} className="text-center text-2xl" />
                 </div>
                 <div>
                   <Label>Título</Label>
-                  <Input
-                    value={editingMission.title || ''}
-                    onChange={(e) => setEditingMission({ ...editingMission, title: e.target.value })}
-                    placeholder="Nome da missão"
-                  />
+                  <Input value={editingMission.title || ''} onChange={(e) => setEditingMission({ ...editingMission, title: e.target.value })} placeholder="Nome da missão" />
                 </div>
               </div>
               <div>
                 <Label>Descrição</Label>
-                <Input
-                  value={editingMission.description || ''}
-                  onChange={(e) => setEditingMission({ ...editingMission, description: e.target.value })}
-                  placeholder="Breve descrição"
-                />
+                <Input value={editingMission.description || ''} onChange={(e) => setEditingMission({ ...editingMission, description: e.target.value })} placeholder="Breve descrição" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Tipo</Label>
-                  <Select
-                    value={editingMission.type || 'habit'}
-                    onValueChange={(v) => setEditingMission({ ...editingMission, type: v })}
-                  >
+                  <Select value={editingMission.type || 'habit'} onValueChange={(v) => setEditingMission({ ...editingMission, type: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="habit">Hábito Diário</SelectItem>
@@ -396,37 +466,20 @@ export function SiteManagement() {
                 </div>
                 <div>
                   <Label>Recompensa (PROs)</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={editingMission.reward_pros || 1}
-                    onChange={(e) => setEditingMission({ ...editingMission, reward_pros: parseInt(e.target.value) || 1 })}
-                  />
+                  <Input type="number" min={1} value={editingMission.reward_pros || 1} onChange={(e) => setEditingMission({ ...editingMission, reward_pros: parseInt(e.target.value) || 1 })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Ordem</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={editingMission.sort_order || 0}
-                    onChange={(e) => setEditingMission({ ...editingMission, sort_order: parseInt(e.target.value) || 0 })}
-                  />
+                  <Input type="number" min={0} value={editingMission.sort_order || 0} onChange={(e) => setEditingMission({ ...editingMission, sort_order: parseInt(e.target.value) || 0 })} />
                 </div>
                 <div className="flex items-end gap-2 pb-1">
-                  <Switch
-                    checked={editingMission.is_active ?? true}
-                    onCheckedChange={(checked) => setEditingMission({ ...editingMission, is_active: checked })}
-                  />
+                  <Switch checked={editingMission.is_active ?? true} onCheckedChange={(checked) => setEditingMission({ ...editingMission, is_active: checked })} />
                   <Label>Ativa</Label>
                 </div>
               </div>
-              <Button
-                className="w-full"
-                onClick={() => saveMission.mutate(editingMission)}
-                disabled={!editingMission.title || !editingMission.description || saveMission.isPending}
-              >
+              <Button className="w-full" onClick={() => saveMission.mutate(editingMission)} disabled={!editingMission.title || !editingMission.description || saveMission.isPending}>
                 {saveMission.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 {editingMission.id ? 'Salvar Alterações' : 'Criar Missão'}
               </Button>
