@@ -7,10 +7,10 @@ export default function NaturezaProPage() {
       <Helmet>
         <title>Clube do Adubo | Natureza do PRO</title>
         <meta name="description" content="Entenda a natureza do PRO — unidade operacional ambiental do Clube do Adubo, vinculada ao processamento real de 100g de resíduo orgânico." />
-        <link rel="canonical" href="https://www.clubedoadubo.com.br/natureza-do-pro" />
+        <link rel="canonical" href="https://clubedoadubo.com.br/natureza-do-pro" />
         <meta property="og:title" content="Clube do Adubo | Natureza do PRO" />
         <meta property="og:description" content="O PRO é uma unidade operacional ambiental, não um investimento financeiro." />
-        <meta property="og:url" content="https://www.clubedoadubo.com.br/natureza-do-pro" />
+        <meta property="og:url" content="https://clubedoadubo.com.br/natureza-do-pro" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">

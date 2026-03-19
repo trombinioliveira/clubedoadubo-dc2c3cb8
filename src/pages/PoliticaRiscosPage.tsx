@@ -7,10 +7,10 @@ export default function PoliticaRiscosPage() {
       <Helmet>
         <title>Clube do Adubo | Política de Riscos</title>
         <meta name="description" content="Política de Riscos do Clube do Adubo — entenda os riscos associados à participação no ciclo de economia circular." />
-        <link rel="canonical" href="https://www.clubedoadubo.com.br/politica-de-riscos" />
+        <link rel="canonical" href="https://clubedoadubo.com.br/politica-de-riscos" />
         <meta property="og:title" content="Clube do Adubo | Política de Riscos" />
         <meta property="og:description" content="Riscos associados ao ciclo de economia circular do Clube do Adubo." />
-        <meta property="og:url" content="https://www.clubedoadubo.com.br/politica-de-riscos" />
+        <meta property="og:url" content="https://clubedoadubo.com.br/politica-de-riscos" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">

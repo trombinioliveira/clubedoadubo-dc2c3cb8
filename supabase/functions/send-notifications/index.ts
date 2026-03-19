@@ -14,7 +14,7 @@ const BRAND_COLOR = "#2d6a4f";
 const BRAND_BG = "#f4f7f6";
 const BRAND_NAME = "Clube do Adubo";
 const BRAND_TAGLINE = "A cidade produz resíduo. A gente transforma em vida.";
-const BRAND_URL = "https://www.clubedoadubo.com.br";
+const BRAND_URL = "https://clubedoadubo.com.br";
 
 // ── HTML email wrapper ───────────────────────────────────────────────────────
 function wrapEmail(title: string, body: string, preheader = ""): string {
@@ -339,7 +339,7 @@ Deno.serve(async (req) => {
     const resendKeyRaw = Deno.env.get("RESEND_API_KEY") || "";
     const resendKey = sanitizeSecret(resendKeyRaw);
     const emailFrom = sanitizeSecret(Deno.env.get("EMAIL_FROM") || "Clube do Adubo <contato@clubedoadubo.com.br>");
-    const baseUrl = sanitizeSecret(Deno.env.get("APP_BASE_URL") || "https://www.clubedoadubo.com.br");
+    const baseUrl = sanitizeSecret(Deno.env.get("APP_BASE_URL") || "https://clubedoadubo.com.br");
 
     // Temporary diagnostic (safe — never logs the full key)
     const hasNonAscii = /[^\x20-\x7E]/.test(resendKeyRaw);
