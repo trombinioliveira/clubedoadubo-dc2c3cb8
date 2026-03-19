@@ -283,7 +283,7 @@ export function ReferralsPage() {
               </div>
               {impact.co2AvoidedKg > 0 && (
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  🌿 Sua onda já ajudou a evitar <span className="font-semibold text-foreground">{impact.co2AvoidedKg.toFixed(1)} kg de CO₂</span> — calculado com base nos resíduos que sua rede processou no ciclo.
+                  🌿 Sua onda já ajudou a evitar <span className="font-semibold text-foreground">{impact.co2AvoidedKg.toFixed(1)} kg de CO₂</span> — estimativa baseada no peso de resíduos que sua rede processou no ciclo (fator: 2,5 kg CO₂/kg).
                 </p>
               )}
             </>
