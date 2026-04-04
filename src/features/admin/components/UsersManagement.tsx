@@ -118,7 +118,50 @@ export function UsersManagement() {
     fetchUsers();
   };
 
-  // Apply all filters
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  const deleteUser = async (userId: string, userName: string) => {
+    setDeletingUserId(userId);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        return;
+      }
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'himgmfvanxftyxbzxjsu';
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/delete-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpbWdtZnZhbnhmdHl4Ynp4anN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODQ0OTEsImV4cCI6MjA4NDk2MDQ5MX0.CFiQuaAWiuKDJ8qMlLHdCwrLqZp6yySI68nB9p5zuf8',
+          },
+          body: JSON.stringify({ user_id: userId }),
+        }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.error || 'Erro ao deletar usuário');
+        return;
+      }
+
+      toast.success(`Usuário "${userName}" deletado com sucesso`);
+      fetchUsers();
+    } catch (err) {
+      console.error('Delete user error:', err);
+      toast.error('Erro inesperado ao deletar usuário');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+
   const filteredProfiles = profiles.filter(p => {
     // Search filter
     const matchesSearch = 
