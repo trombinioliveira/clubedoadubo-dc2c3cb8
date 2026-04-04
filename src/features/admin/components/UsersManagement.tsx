@@ -544,6 +544,48 @@ export function UsersManagement() {
                               </div>
                             </DialogContent>
                           </Dialog>
+                          {/* Delete User */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                                disabled={
+                                  deletingUserId === profile.user_id ||
+                                  (userRoles[profile.user_id] || []).includes('admin')
+                                }
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Deletar usuário permanentemente?</AlertDialogTitle>
+                                <AlertDialogDescription className="space-y-2">
+                                  <p>
+                                    Você está prestes a deletar <strong>{profile.full_name}</strong> ({profile.email}).
+                                  </p>
+                                  <p>
+                                    Isso vai remover permanentemente o perfil, PROs, sonhos, assinaturas, 
+                                    créditos, histórico financeiro e todos os dados associados a este usuário.
+                                  </p>
+                                  <p className="font-semibold text-destructive">
+                                    Esta ação é irreversível.
+                                  </p>
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => deleteUser(profile.user_id, profile.full_name)}
+                                >
+                                  Sim, deletar permanentemente
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
