@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { Search, Shield, Filter, MessageCircle, Mail, Eye, X } from 'lucide-react';
+import { Search, Shield, Filter, MessageCircle, Mail, Eye, X, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ExportCSVButton } from '@/components/shared/ExportCSVButton';
@@ -117,7 +118,50 @@ export function UsersManagement() {
     fetchUsers();
   };
 
-  // Apply all filters
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  const deleteUser = async (userId: string, userName: string) => {
+    setDeletingUserId(userId);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        return;
+      }
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'himgmfvanxftyxbzxjsu';
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/delete-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpbWdtZnZhbnhmdHl4Ynp4anN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODQ0OTEsImV4cCI6MjA4NDk2MDQ5MX0.CFiQuaAWiuKDJ8qMlLHdCwrLqZp6yySI68nB9p5zuf8',
+          },
+          body: JSON.stringify({ user_id: userId }),
+        }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.error || 'Erro ao deletar usuário');
+        return;
+      }
+
+      toast.success(`Usuário "${userName}" deletado com sucesso`);
+      fetchUsers();
+    } catch (err) {
+      console.error('Delete user error:', err);
+      toast.error('Erro inesperado ao deletar usuário');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+
   const filteredProfiles = profiles.filter(p => {
     // Search filter
     const matchesSearch = 
@@ -500,6 +544,48 @@ export function UsersManagement() {
                               </div>
                             </DialogContent>
                           </Dialog>
+                          {/* Delete User */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                                disabled={
+                                  deletingUserId === profile.user_id ||
+                                  (userRoles[profile.user_id] || []).includes('admin')
+                                }
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Deletar usuário permanentemente?</AlertDialogTitle>
+                                <AlertDialogDescription className="space-y-2">
+                                  <p>
+                                    Você está prestes a deletar <strong>{profile.full_name}</strong> ({profile.email}).
+                                  </p>
+                                  <p>
+                                    Isso vai remover permanentemente o perfil, PROs, sonhos, assinaturas, 
+                                    créditos, histórico financeiro e todos os dados associados a este usuário.
+                                  </p>
+                                  <p className="font-semibold text-destructive">
+                                    Esta ação é irreversível.
+                                  </p>
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => deleteUser(profile.user_id, profile.full_name)}
+                                >
+                                  Sim, deletar permanentemente
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
