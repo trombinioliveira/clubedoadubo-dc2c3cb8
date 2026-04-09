@@ -18,9 +18,6 @@ import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { usePublicProfile } from '../hooks/usePublicProfile';
-import { useAuth } from '@/lib/auth';
-import { createMPPreference } from '@/lib/publicTransparency';
-import { toast } from 'sonner';
 import logo from '@/assets/logo.webp';
 
 export function PublicProfilePage() {
