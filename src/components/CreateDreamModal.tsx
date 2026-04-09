@@ -17,11 +17,32 @@ interface CreateDreamModalProps {
   onConfirm: (title: string, targetAmount: number) => void;
 }
 
-const SUGGESTED_GOALS = [
-  { title: 'Viagem de fim de semana', amount: 300 },
-  { title: 'Presente especial', amount: 150 },
-  { title: 'Curso ou workshop', amount: 500 },
-  { title: 'Equipamento novo', amount: 800 },
+const INSPIRATION_TIERS = [
+  {
+    emoji: '🌱',
+    label: 'Começando',
+    range: 'Sonhos de R$ 2 a R$ 20 — sinta o ciclo funcionando cedo.',
+    examples: 'Um café especial, um presente simbólico',
+  },
+  {
+    emoji: '📱',
+    label: 'Conforto',
+    range: 'Sonhos de R$ 50 a R$ 500 — rotina e conforto no dia a dia.',
+    examples: 'Conta de celular, livro, assinatura',
+    defaultAmount: 500,
+  },
+  {
+    emoji: '✈️',
+    label: 'Qualidade de vida',
+    range: 'Sonhos de R$ 500 a R$ 2.000 — experiências e melhorias.',
+    examples: 'Viagem curta, curso, equipamento',
+  },
+  {
+    emoji: '🏠',
+    label: 'Projetos maiores',
+    range: 'Sonhos a partir de R$ 2.000 — construções de longo prazo.',
+    examples: 'Reforma, entrada de um bem, projeto pessoal',
+  },
 ];
 
 export const CreateDreamModal = ({ open, onOpenChange, onConfirm }: CreateDreamModalProps) => {
@@ -45,16 +66,11 @@ export const CreateDreamModal = ({ open, onOpenChange, onConfirm }: CreateDreamM
     onOpenChange(false);
   };
 
-  const handleSuggestionClick = (suggestion: typeof SUGGESTED_GOALS[0]) => {
-    setTitle(suggestion.title);
-    setTargetAmount(suggestion.amount);
-  };
-
   const prosNeeded = Math.ceil(targetAmount / 2);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         {step === 'create' && (
           <>
             <DialogHeader>
@@ -70,23 +86,30 @@ export const CreateDreamModal = ({ open, onOpenChange, onConfirm }: CreateDreamM
             </DialogHeader>
 
             <div className="space-y-5 py-4">
-              {/* Suggestions */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Sugestões</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {SUGGESTED_GOALS.map((suggestion) => (
-                    <button
-                      key={suggestion.title}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="p-3 text-left rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors"
+              {/* Inspiration tiers */}
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-sm font-semibold text-foreground">Inspirações para a sua jornada</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Cada jornada é única. Estas referências existem para inspirar possibilidades, não para virar regra.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {INSPIRATION_TIERS.map((tier) => (
+                    <div
+                      key={tier.label}
+                      className="p-3 rounded-lg border border-border bg-muted/30"
                     >
-                      <p className="text-sm font-medium text-foreground truncate">{suggestion.title}</p>
-                      <p className="text-xs text-muted-foreground">R$ {suggestion.amount.toFixed(2)}</p>
-                    </button>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{tier.emoji}</span>
+                        <span className="text-sm font-semibold text-foreground">{tier.label}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{tier.range}</p>
+                      <p className="text-xs text-muted-foreground/70 italic mt-1">{tier.examples}</p>
+                    </div>
                   ))}
                 </div>
               </div>
-
               {/* Custom title */}
               <div className="space-y-2">
                 <Label htmlFor="dream-title">Qual é o seu sonho?</Label>
