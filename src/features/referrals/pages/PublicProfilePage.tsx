@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,52 +12,21 @@ import {
   CheckCircle,
   Calendar,
   Instagram,
-  MapPin,
-  ShoppingCart,
-  Loader2,
-  Sprout
+  MapPin
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { usePublicProfile } from '../hooks/usePublicProfile';
-import { useAuth } from '@/lib/auth';
-import { createMPPreference } from '@/lib/publicTransparency';
-import { toast } from 'sonner';
 import logo from '@/assets/logo.webp';
 
 export function PublicProfilePage() {
   const { codigo } = useParams<{ codigo: string }>();
   const { data: profile, isLoading, error } = usePublicProfile(codigo);
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const handleBuyFromReferral = async () => {
-    if (!user) {
-      toast.info('Faça login para participar do ciclo.');
-      navigate(`/auth?ref=${codigo}`);
-      return;
-    }
-    setCheckoutLoading(true);
-    try {
-      const result = await createMPPreference({
-        product_key: 'pro_avulso',
-        quantity: 1,
-        user_id: user.id,
-        referral_code: codigo ?? null,
-      });
-      window.location.href = result.init_point;
-    } catch (err: any) {
-      if (err?.message === 'ADDRESS_INCOMPLETE') {
-        toast.error('Complete seu endereço para continuar.', { description: 'Redirecionando para o perfil...' });
-        setTimeout(() => navigate('/perfil'), 1500);
-      } else {
-        toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
-      }
-    } finally {
-      setCheckoutLoading(false);
-    }
+  const handleJoinFree = () => {
+    navigate(`/auth?ref=${codigo}`);
   };
 
   if (isLoading) {
@@ -248,18 +217,11 @@ export function PublicProfilePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
                 size="lg"
-                disabled={checkoutLoading}
-                onClick={handleBuyFromReferral}
+                onClick={handleJoinFree}
               >
-                {checkoutLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
-                Participar por R$ 1
+                <img src={logo} alt="" className="w-5 h-5 mr-2 rounded-full object-cover" />
+                Participar gratuitamente
               </Button>
-              <Link to={`/planos?ref=${codigo}`}>
-                <Button variant="outline" size="lg">
-                  <Sprout className="w-5 h-5 mr-2" />
-                  Ver planos
-                </Button>
-              </Link>
             </div>
           </CardContent>
         </Card>
