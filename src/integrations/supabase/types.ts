@@ -331,6 +331,33 @@ export type Database = {
         }
         Relationships: []
       }
+      feedbacks: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          page_url: string
+          rating: string
+          user_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          page_url: string
+          rating: string
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          page_url?: string
+          rating?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       fifo_queue: {
         Row: {
           created_at: string
