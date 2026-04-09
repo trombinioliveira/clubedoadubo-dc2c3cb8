@@ -119,6 +119,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => {
             fetchProfile(session.user.id);
             fetchRoles(session.user.id);
+            // Handle pending referral attribution (from signup with email confirmation)
+            handlePendingReferral(session.user.id);
           }, 0);
         } else {
           setProfile(null);
