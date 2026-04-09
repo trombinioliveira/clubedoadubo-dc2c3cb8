@@ -63,6 +63,9 @@ const App = () => (
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
+            {/* Convite — standalone public page (no header/footer) */}
+            <Route path="/convite" element={<ConvitePage />} />
+
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/planos" element={<LandingCompra />} />
