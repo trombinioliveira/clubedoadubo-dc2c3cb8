@@ -78,46 +78,36 @@ function useParticipacaoData(userId: string | undefined) {
   const query = useQuery({
     queryKey: ['minha-participacao', userId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_fifo_queue_public');
+      const { data, error } = await supabase.rpc('get_user_fifo_summary', {
+        p_user_id: userId ?? null,
+      } as any);
       if (error) throw error;
 
-      const queue = (data || []) as unknown as QueueEntry[];
-
-      const myEntries = userId ? queue.filter(q => q.pro_user_id === userId) : [];
-      const globalByStatus = {
-        pending: queue.filter(q => q.queue_status === 'pending').length,
-        processing: queue.filter(q => q.queue_status === 'processing').length,
-        ready: queue.filter(q => q.queue_status === 'ready').length,
-        sold: queue.filter(q => q.queue_status === 'sold').length,
-        paid: queue.filter(q => q.queue_status === 'paid').length,
-      };
+      const result = data as any;
+      const globalByStatus = result.global as Record<string, number>;
+      const myEntriesRaw = (result.my_entries || []) as QueueEntry[];
 
       const myByStatus = {
-        pending: myEntries.filter(q => q.queue_status === 'pending').length,
-        processing: myEntries.filter(q => q.queue_status === 'processing').length,
-        ready: myEntries.filter(q => q.queue_status === 'ready').length,
-        sold: myEntries.filter(q => q.queue_status === 'sold').length,
-        paid: myEntries.filter(q => q.queue_status === 'paid').length,
+        pending: myEntriesRaw.filter(q => q.queue_status === 'pending').length,
+        processing: myEntriesRaw.filter(q => q.queue_status === 'processing').length,
+        ready: myEntriesRaw.filter(q => q.queue_status === 'ready').length,
+        sold: myEntriesRaw.filter(q => q.queue_status === 'sold').length,
+        paid: myEntriesRaw.filter(q => q.queue_status === 'paid').length,
       };
 
-      const myUnpaid = myEntries
+      const myUnpaid = myEntriesRaw
         .filter(e => e.queue_status !== 'paid')
         .sort((a, b) => a.queue_position - b.queue_position);
 
-      const firstPosition = myUnpaid.length > 0 ? myUnpaid[0].queue_position : null;
-      const aheadCount = firstPosition
-        ? queue.filter(q => q.queue_position < firstPosition && q.queue_status !== 'paid').length
-        : 0;
-
       return {
-        queue,
-        myEntries,
+        queue: myEntriesRaw,
+        myEntries: myEntriesRaw,
         myUnpaid,
         globalByStatus,
         myByStatus,
-        totalGlobal: queue.length,
-        firstPosition,
-        aheadCount,
+        totalGlobal: globalByStatus.total || 0,
+        firstPosition: result.first_position,
+        aheadCount: result.ahead_count || 0,
       };
     },
     enabled: true,
