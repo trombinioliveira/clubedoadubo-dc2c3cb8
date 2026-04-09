@@ -26,9 +26,7 @@ import logo from '@/assets/logo.webp';
 export function PublicProfilePage() {
   const { codigo } = useParams<{ codigo: string }>();
   const { data: profile, isLoading, error } = usePublicProfile(codigo);
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const handleJoinFree = () => {
     navigate(`/auth?ref=${codigo}`);
