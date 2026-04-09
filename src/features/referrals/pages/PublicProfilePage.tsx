@@ -12,10 +12,7 @@ import {
   CheckCircle,
   Calendar,
   Instagram,
-  MapPin,
-  ShoppingCart,
-  Loader2,
-  Sprout
+  MapPin
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
