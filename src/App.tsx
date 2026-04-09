@@ -36,6 +36,13 @@ import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
 
+// Experiência pages
+import { ExperienciaLayout } from "@/features/experiencia/components/ExperienciaLayout";
+import ExpHomePage from "@/features/experiencia/pages/ExpHomePage";
+import ExpCicloPage from "@/features/experiencia/pages/ExpCicloPage";
+import ExpTransparenciaPage from "@/features/experiencia/pages/ExpTransparenciaPage";
+import ExpParticiparPage from "@/features/experiencia/pages/ExpParticiparPage";
+
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
