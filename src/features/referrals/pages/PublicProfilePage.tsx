@@ -37,6 +37,12 @@ export function PublicProfilePage() {
   const navigate = useNavigate();
 
   const handleJoin = () => {
+    // Persist referral code to localStorage + cookie for reliability
+    if (codigo) {
+      localStorage.setItem('referrer_code', codigo);
+      document.cookie = `referrer_code=${codigo}; path=/; max-age=2592000; SameSite=Lax`;
+      console.log('[Referral] Saved referrer_code to localStorage & cookie:', codigo);
+    }
     navigate(`/auth?ref=${codigo}`);
   };
 

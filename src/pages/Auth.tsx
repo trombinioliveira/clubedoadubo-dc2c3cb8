@@ -160,8 +160,20 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const { user, isLoading, isAdmin, signIn, signUp } = useAuth();
 
-  // Capture ?ref= from URL (e.g. /auth?ref=ABC123)
-  const refCode = searchParams.get('ref')?.trim().toUpperCase() || '';
+  // Capture ?ref= from URL, localStorage, or cookie (robust persistence)
+  const urlRef = searchParams.get('ref')?.trim().toUpperCase() || '';
+  const storedRef = localStorage.getItem('referrer_code')?.trim().toUpperCase() || '';
+  const cookieRef = document.cookie.match(/referrer_code=([^;]+)/)?.[1]?.trim().toUpperCase() || '';
+  const refCode = urlRef || storedRef || cookieRef;
+  
+  // Persist the ref code if found in URL but not yet stored
+  React.useEffect(() => {
+    if (refCode) {
+      localStorage.setItem('referrer_code', refCode);
+      document.cookie = `referrer_code=${refCode}; path=/; max-age=2592000; SameSite=Lax`;
+      console.log('[Referral] Auth page - refCode captured:', refCode, { source: urlRef ? 'url' : storedRef ? 'localStorage' : 'cookie' });
+    }
+  }, [refCode]);
 
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(refCode ? 'signup' : 'signin');
   const [email, setEmail] = useState('');
