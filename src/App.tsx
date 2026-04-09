@@ -50,6 +50,12 @@ import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
+const ExperienciaRedirect = () => {
+  const location = useLocation();
+  const sub = location.pathname.replace('/experiencia', '') || '';
+  return <Navigate to={`/inicio${sub}`} replace />;
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
