@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useReferralData } from '../hooks/useReferralData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import {
   AlertCircle, RefreshCw, ArrowRight, Copy, Link2, ExternalLink,
   Sparkles, Users, Leaf, Waves, Sprout, ChevronDown, ChevronUp,
-  HelpCircle, Recycle, TrendingUp, Shield
+  HelpCircle, Recycle, TrendingUp, Shield, Eye, EyeOff, DollarSign
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
@@ -100,13 +102,27 @@ export function ReferralsPage() {
     referralLink,
   } = useReferralData();
   const [showAllNetwork, setShowAllNetwork] = useState(false);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+
+  // Fetch commission levels for the detail panel
+  const { data: commissionLevels } = useQuery({
+    queryKey: ['commission-levels'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('commission_levels')
+        .select('*')
+        .eq('is_active', true)
+        .order('level_number', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const currentLevel = stats?.current_level || 1;
   const levelInfo = levelHuman[currentLevel] || levelHuman[1];
   const tierRates: Record<number, number> = { 1: 5, 2: 7, 3: 10, 4: 15 };
   const currentRate = tierRates[currentLevel] || 5;
 
-  // Copy link helper
   const copyLink = () => {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
@@ -318,39 +334,116 @@ export function ReferralsPage() {
             </div>
 
             <div className="space-y-2">
-              {visibleNetwork.map(user => (
-                <Card key={user.id} className={user.isActive ? '' : 'opacity-70'}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                          {user.fullName.charAt(0)}
+              {visibleNetwork.map(user => {
+                const isExpanded = expandedUserId === user.id;
+                return (
+                  <Card key={user.id} className={user.isActive ? '' : 'opacity-70'}>
+                    <CardContent className="p-4 space-y-0">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                            {user.fullName.charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground text-sm truncate">
+                              {safeDisplayName(user.fullName)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Entrou em {format(new Date(user.joinedAt), 'MMM/yyyy', { locale: ptBR })}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-foreground text-sm truncate">
-                            {safeDisplayName(user.fullName)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Entrou em {format(new Date(user.joinedAt), 'MMM/yyyy', { locale: ptBR })}
-                          </p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {user.isActive ? (
+                            <Badge variant="default" className="text-xs">Participando</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs">Cadastrado</Badge>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1 text-xs h-7 px-2"
+                            onClick={() => setExpandedUserId(isExpanded ? null : user.id)}
+                          >
+                            {isExpanded ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            {isExpanded ? 'Fechar' : 'Ver'}
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {user.isActive ? (
-                          <Badge variant="default" className="text-xs">Participando</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">Cadastrado</Badge>
-                        )}
-                        {user.prosCount > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            {user.prosCount} {user.prosCount === 1 ? 'participação' : 'participações'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+
+                      {/* Expanded detail panel */}
+                      {isExpanded && (
+                        <div className="mt-4 pt-4 border-t border-border/50 space-y-4">
+                          {/* Stats grid */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="p-3 bg-muted/50 rounded-lg text-center">
+                              <p className="text-lg font-bold text-foreground">{user.prosCount}</p>
+                              <p className="text-[11px] text-muted-foreground">Participações</p>
+                            </div>
+                            <div className="p-3 bg-muted/50 rounded-lg text-center">
+                              <p className="text-lg font-bold text-foreground">{(user.totalWeightGrams / 1000).toFixed(1)} kg</p>
+                              <p className="text-[11px] text-muted-foreground">Resíduos</p>
+                            </div>
+                            <div className="p-3 bg-muted/50 rounded-lg text-center">
+                              <p className="text-lg font-bold text-primary">{user.paidPros}</p>
+                              <p className="text-[11px] text-muted-foreground">Pagos</p>
+                            </div>
+                          </div>
+
+                          {/* Commission levels table */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="w-4 h-4 text-primary" />
+                              <p className="text-sm font-medium text-foreground">Comissão por nível</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              O retorno que você recebe das vendas geradas por essa pessoa depende do seu nível atual na onda.
+                            </p>
+                            <div className="bg-muted/30 rounded-lg overflow-hidden">
+                              {(commissionLevels || []).map((level) => {
+                                const isMyLevel = level.level_number === currentLevel;
+                                return (
+                                  <div
+                                    key={level.id}
+                                    className={`flex items-center justify-between px-3 py-2 text-sm ${
+                                      isMyLevel ? 'bg-primary/10 border-l-2 border-primary' : 'border-l-2 border-transparent'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-base">{levelHuman[level.level_number]?.emoji || '🌱'}</span>
+                                      <span className={isMyLevel ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
+                                        {level.label}
+                                      </span>
+                                      {isMyLevel && (
+                                        <Badge variant="default" className="text-[9px] px-1 py-0 h-4">Seu nível</Badge>
+                                      )}
+                                    </div>
+                                    <span className={`font-mono text-sm ${isMyLevel ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
+                                      {Number(level.rate_percent).toFixed(0)}%
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                              {(!commissionLevels || commissionLevels.length === 0) && (
+                                <div className="px-3 py-4 text-center text-xs text-muted-foreground">
+                                  <p>Níveis: Iniciante 5% · Ativo 7% · Embaixador 10% · Líder 15%</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Last activity */}
+                          {user.lastActivity && (
+                            <p className="text-xs text-muted-foreground">
+                              Última atividade: {format(new Date(user.lastActivity), "dd/MM/yyyy", { locale: ptBR })}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
             {referredUsers.length > 5 && (
