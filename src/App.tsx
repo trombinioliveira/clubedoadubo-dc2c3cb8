@@ -73,6 +73,14 @@ const App = () => (
             {/* Convite — standalone public page (no header/footer) */}
             <Route path="/convite" element={<ConvitePage />} />
 
+            {/* Experiência — standalone logged-in experience */}
+            <Route path="/experiencia" element={<ExperienciaLayout />}>
+              <Route index element={<ExpHomePage />} />
+              <Route path="ciclo" element={<ExpCicloPage />} />
+              <Route path="transparencia" element={<ExpTransparenciaPage />} />
+              <Route path="participar" element={<ExpParticiparPage />} />
+            </Route>
+
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/planos" element={<LandingCompra />} />
