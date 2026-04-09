@@ -36,6 +36,13 @@ import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
 
+// Experiência pages
+import { ExperienciaLayout } from "@/features/experiencia/components/ExperienciaLayout";
+import ExpHomePage from "@/features/experiencia/pages/ExpHomePage";
+import ExpCicloPage from "@/features/experiencia/pages/ExpCicloPage";
+import ExpTransparenciaPage from "@/features/experiencia/pages/ExpTransparenciaPage";
+import ExpParticiparPage from "@/features/experiencia/pages/ExpParticiparPage";
+
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
@@ -65,6 +72,14 @@ const App = () => (
             {/* Public pages with PublicLayout (header + footer) */}
             {/* Convite — standalone public page (no header/footer) */}
             <Route path="/convite" element={<ConvitePage />} />
+
+            {/* Experiência — standalone logged-in experience */}
+            <Route path="/experiencia" element={<ExperienciaLayout />}>
+              <Route index element={<ExpHomePage />} />
+              <Route path="ciclo" element={<ExpCicloPage />} />
+              <Route path="transparencia" element={<ExpTransparenciaPage />} />
+              <Route path="participar" element={<ExpParticiparPage />} />
+            </Route>
 
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
