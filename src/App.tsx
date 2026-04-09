@@ -34,6 +34,7 @@ import CicloPage from "./pages/CicloPage";
 import AssinaturaPage from "./pages/AssinaturaPage";
 import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
+import ConvitePage from "./pages/ConvitePage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -62,6 +63,9 @@ const App = () => (
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
+            {/* Convite — standalone public page (no header/footer) */}
+            <Route path="/convite" element={<ConvitePage />} />
+
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/planos" element={<LandingCompra />} />
