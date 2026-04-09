@@ -121,6 +121,30 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // ── Authenticate caller ────────────────────────────────────────────────
+    const authHeader = req.headers.get("Authorization");
+    let authenticatedUserId: string | null = null;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      const supabaseAuth = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+      if (!claimsError && claimsData?.claims?.sub) {
+        authenticatedUserId = claimsData.claims.sub as string;
+      }
+    }
+
+    if (!authenticatedUserId) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // ── Parse & validate body ──────────────────────────────────────────────
     let raw: unknown;
     try {
@@ -140,7 +164,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { product_key, quantity, user_id, referral_code, collection_point_slug } = parsed.data;
+    const { product_key, quantity, referral_code, collection_point_slug } = parsed.data;
+    // Force user_id to be the authenticated user — prevent spoofing
+    const user_id = authenticatedUserId;
 
     // ── Validate product ───────────────────────────────────────────────────
     const product = PRODUCTS[product_key];
