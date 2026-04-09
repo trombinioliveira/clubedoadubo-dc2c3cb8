@@ -33,31 +33,8 @@ export function PublicProfilePage() {
   const navigate = useNavigate();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const handleBuyFromReferral = async () => {
-    if (!user) {
-      toast.info('Faça login para participar do ciclo.');
-      navigate(`/auth?ref=${codigo}`);
-      return;
-    }
-    setCheckoutLoading(true);
-    try {
-      const result = await createMPPreference({
-        product_key: 'pro_avulso',
-        quantity: 1,
-        user_id: user.id,
-        referral_code: codigo ?? null,
-      });
-      window.location.href = result.init_point;
-    } catch (err: any) {
-      if (err?.message === 'ADDRESS_INCOMPLETE') {
-        toast.error('Complete seu endereço para continuar.', { description: 'Redirecionando para o perfil...' });
-        setTimeout(() => navigate('/perfil'), 1500);
-      } else {
-        toast.error('Não foi possível iniciar o pagamento. Tente novamente.');
-      }
-    } finally {
-      setCheckoutLoading(false);
-    }
+  const handleJoinFree = () => {
+    navigate(`/auth?ref=${codigo}`);
   };
 
   if (isLoading) {
