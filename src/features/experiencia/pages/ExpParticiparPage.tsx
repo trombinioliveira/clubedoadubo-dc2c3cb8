@@ -4,13 +4,13 @@ import { Eye, Sprout, Package } from 'lucide-react';
 const options = [
   {
     icon: <Eye className="w-6 h-6" />,
-    title: 'Acompanhar o projeto',
-    description: 'Receber atualizações e observar o ciclo',
+    title: 'Acompanhar',
+    description: 'Entrar no projeto e observar como o ciclo evolui',
   },
   {
     icon: <Sprout className="w-6 h-6" />,
-    title: 'Participar com resíduos',
-    description: 'Contribuir com matéria orgânica',
+    title: 'Contribuir com resíduos',
+    description: 'Participar enviando matéria orgânica',
   },
   {
     icon: <Package className="w-6 h-6" />,
@@ -24,10 +24,10 @@ const ExpParticiparPage = () => {
     <div className="space-y-16">
       <section className="space-y-4">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#2d2d2d' }}>
-          Como seria participar
+          Como você poderia participar
         </h1>
         <p className="text-base leading-relaxed max-w-2xl" style={{ color: '#5a5a5a' }}>
-          Aqui você pode entender, de forma simples, como funcionaria sua participação no ciclo.
+          Mesmo nesta fase inicial, já é possível entender como a participação acontece.
         </p>
       </section>
 

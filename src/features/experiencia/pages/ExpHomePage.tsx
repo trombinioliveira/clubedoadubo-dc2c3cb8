@@ -4,25 +4,25 @@ import { Leaf, Search, Recycle } from 'lucide-react';
 
 const cards = [
   {
-    emoji: <Leaf className="w-6 h-6" style={{ color: '#4a7c3f' }} />,
+    icon: <Leaf className="w-6 h-6" style={{ color: '#4a7c3f' }} />,
     title: 'Entender o ciclo',
-    text: 'Veja como o processo funciona do início ao fim',
+    text: 'Veja como resíduos entram, são transformados e retornam como adubo.',
     button: 'Ver o ciclo',
-    to: '/experiencia/ciclo',
+    to: '/inicio/ciclo',
   },
   {
-    emoji: <Search className="w-6 h-6" style={{ color: '#4a7c3f' }} />,
+    icon: <Search className="w-6 h-6" style={{ color: '#4a7c3f' }} />,
     title: 'Ver a transparência',
-    text: 'Acompanhe o que já está acontecendo',
+    text: 'Acompanhe o que já está acontecendo no projeto.',
     button: 'Ver dados',
-    to: '/experiencia/transparencia',
+    to: '/inicio/transparencia',
   },
   {
-    emoji: <Recycle className="w-6 h-6" style={{ color: '#4a7c3f' }} />,
+    icon: <Recycle className="w-6 h-6" style={{ color: '#4a7c3f' }} />,
     title: 'Simular participação',
-    text: 'Entenda como seria participar na prática',
+    text: 'Entenda como você participaria na prática.',
     button: 'Simular',
-    to: '/experiencia/participar',
+    to: '/inicio/participar',
   },
 ];
 
@@ -38,10 +38,10 @@ const ExpHomePage = () => {
         </h1>
         <div className="space-y-3 max-w-2xl">
           <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
-            Essa é a primeira rodada real do Clube do Adubo.
+            Você entrou na primeira rodada real do Clube do Adubo.
           </p>
           <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
-            Você pode explorar no seu ritmo. Não existe um caminho obrigatório — a ideia é entender como essa experiência faz sentido para você.
+            Aqui você pode explorar como o sistema funciona na prática. Não existe um caminho obrigatório — a ideia é entender se isso faz sentido para você.
           </p>
         </div>
       </section>
@@ -49,7 +49,7 @@ const ExpHomePage = () => {
       {/* Cards */}
       <section className="space-y-6">
         <h2 className="text-xl font-semibold" style={{ color: '#2d2d2d' }}>
-          Por onde começar
+          O que você pode fazer agora
         </h2>
         <div className="grid sm:grid-cols-3 gap-4">
           {cards.map((card) => (
@@ -59,7 +59,7 @@ const ExpHomePage = () => {
               style={{ backgroundColor: 'white', borderColor: '#e8e5de' }}
             >
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#4a7c3f12' }}>
-                {card.emoji}
+                {card.icon}
               </div>
               <div className="space-y-1">
                 <h3 className="font-semibold text-sm" style={{ color: '#2d2d2d' }}>{card.title}</h3>
@@ -67,7 +67,7 @@ const ExpHomePage = () => {
               </div>
               <button
                 onClick={() => navigate(card.to)}
-                className="text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+                className="text-sm font-medium px-4 py-2 rounded-xl transition-colors hover:opacity-80"
                 style={{ color: '#4a7c3f', backgroundColor: '#4a7c3f10' }}
               >
                 {card.button}

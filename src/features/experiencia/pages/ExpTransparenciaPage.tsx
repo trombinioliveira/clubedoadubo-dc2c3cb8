@@ -2,10 +2,10 @@ import React from 'react';
 import { Scale, Leaf, Users, Activity } from 'lucide-react';
 
 const metrics = [
-  { icon: <Scale className="w-5 h-5" />, label: 'Volume de resíduos processados', value: '—', note: 'Em coleta' },
-  { icon: <Leaf className="w-5 h-5" />, label: 'Quantidade de adubo gerado', value: '—', note: 'Aguardando ciclo' },
-  { icon: <Users className="w-5 h-5" />, label: 'Número de participantes', value: '—', note: 'Rodada inicial' },
-  { icon: <Activity className="w-5 h-5" />, label: 'Status atual do projeto', value: 'Primeira rodada', note: 'Ativo' },
+  { icon: <Scale className="w-5 h-5" />, label: 'Resíduos processados', value: '120 kg', note: 'Acumulado' },
+  { icon: <Leaf className="w-5 h-5" />, label: 'Adubo gerado', value: '40 kg', note: 'Acumulado' },
+  { icon: <Users className="w-5 h-5" />, label: 'Participantes', value: '12', note: 'Pessoas' },
+  { icon: <Activity className="w-5 h-5" />, label: 'Status do projeto', value: 'Primeira rodada', note: 'Em andamento' },
 ];
 
 const ExpTransparenciaPage = () => {
@@ -13,11 +13,16 @@ const ExpTransparenciaPage = () => {
     <div className="space-y-16">
       <section className="space-y-4">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#2d2d2d' }}>
-          Transparência do processo
+          O que já está acontecendo
         </h1>
-        <p className="text-base leading-relaxed max-w-2xl" style={{ color: '#5a5a5a' }}>
-          Essa área existe para mostrar, de forma aberta, o que está acontecendo no projeto.
-        </p>
+        <div className="space-y-3 max-w-2xl">
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            Essa área mostra, de forma direta, o estado atual do projeto.
+          </p>
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            Como estamos em fase inicial, os dados ainda são simples — mas a ideia é evoluir isso com o tempo.
+          </p>
+        </div>
       </section>
 
       {/* Metrics */}

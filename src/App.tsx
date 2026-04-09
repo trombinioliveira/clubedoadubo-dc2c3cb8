@@ -74,12 +74,14 @@ const App = () => (
             <Route path="/convite" element={<ConvitePage />} />
 
             {/* Experiência — standalone logged-in experience */}
-            <Route path="/experiencia" element={<ExperienciaLayout />}>
+            <Route path="/inicio" element={<ExperienciaLayout />}>
               <Route index element={<ExpHomePage />} />
               <Route path="ciclo" element={<ExpCicloPage />} />
               <Route path="transparencia" element={<ExpTransparenciaPage />} />
               <Route path="participar" element={<ExpParticiparPage />} />
             </Route>
+            {/* Legacy redirect */}
+            <Route path="/experiencia/*" element={<ExperienciaRedirect />} />
 
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
