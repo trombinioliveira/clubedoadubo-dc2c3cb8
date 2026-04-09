@@ -102,11 +102,21 @@ export function ReferralsPage() {
     referralLink,
   } = useReferralData();
   const [showAllNetwork, setShowAllNetwork] = useState(false);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
-  const currentLevel = stats?.current_level || 1;
-  const levelInfo = levelHuman[currentLevel] || levelHuman[1];
-  const tierRates: Record<number, number> = { 1: 5, 2: 7, 3: 10, 4: 15 };
-  const currentRate = tierRates[currentLevel] || 5;
+  // Fetch commission levels for the detail panel
+  const { data: commissionLevels } = useQuery({
+    queryKey: ['commission-levels'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('commission_levels')
+        .select('*')
+        .eq('is_active', true)
+        .order('level_number', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   // Copy link helper
   const copyLink = () => {
