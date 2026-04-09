@@ -49,7 +49,7 @@ const ConvitePage = () => {
                 onClick={handleParticipar}
                 className="bg-[#4a7c3f] hover:bg-[#3d6834] text-white px-8 py-6 text-base rounded-xl shadow-lg shadow-[#4a7c3f]/20 transition-all hover:shadow-xl hover:shadow-[#4a7c3f]/30"
               >
-                Quero participar
+                Entrar na rodada inicial
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
               <button
@@ -124,7 +124,7 @@ const ConvitePage = () => {
             ))}
           </ul>
           <p className="text-[#5a6b5c] text-base leading-relaxed">
-            Você não precisa saber nada antes. A ideia é justamente descobrir usando.
+            👉 Você não precisa saber nada antes. A ideia é justamente descobrir usando.
           </p>
         </section>
 
@@ -206,6 +206,56 @@ const ConvitePage = () => {
 
         <div className="max-w-3xl mx-auto px-6"><hr className="border-[#e5e8e3]" /></div>
 
+        {/* What exists inside the system */}
+        <section className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[#e8f0e4] flex items-center justify-center">
+              <Sprout className="w-5 h-5 text-[#4a7c3f]" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-[#2d3a2e]">O que existe dentro do sistema</h2>
+          </div>
+          <p className="text-[#5a6b5c] text-base leading-relaxed mb-8">
+            Ao entrar, você não encontra só uma explicação — mas algumas formas de participação que estão sendo construídas:
+          </p>
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-lg font-semibold text-[#2d3a2e] mb-2">Acompanhar o impacto</h3>
+              <p className="text-[#5a6b5c] text-base leading-relaxed">
+                Você consegue visualizar como o ciclo está acontecendo ao longo do tempo — entendendo o volume de resíduos transformados e o efeito coletivo gerado.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#2d3a2e] mb-2">Compartilhar com outras pessoas</h3>
+              <p className="text-[#5a6b5c] text-base leading-relaxed mb-2">
+                Existe a possibilidade de convidar outras pessoas para conhecer o sistema.
+              </p>
+              <p className="text-[#5a6b5c] text-base leading-relaxed">
+                Isso ajuda o ciclo a crescer e permite acompanhar como sua participação se conecta com outras.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#2d3a2e] mb-2">Participar da construção de valor</h3>
+              <p className="text-[#5a6b5c] text-base leading-relaxed mb-2">
+                À medida que o sistema evolui, surgem formas de participação que podem gerar valor ao longo do tempo.
+              </p>
+              <p className="text-[#5a6b5c] text-base leading-relaxed">
+                A proposta é que isso aconteça de forma simples, sem exigir operação no dia a dia.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#2d3a2e] mb-2">Conectar com objetivos pessoais</h3>
+              <p className="text-[#5a6b5c] text-base leading-relaxed">
+                Mais do que acompanhar o sistema, a ideia é que cada pessoa encontre um sentido próprio na participação.
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-[#8a9a8c] italic border-l-2 border-[#d4ddd2] pl-4 mt-8">
+            Nada disso está completamente finalizado. Essa rodada existe justamente para entender o que faz sentido, o que não faz e como isso deve evoluir.
+          </p>
+        </section>
+
+        <div className="max-w-3xl mx-auto px-6"><hr className="border-[#e5e8e3]" /></div>
+
         {/* Impact */}
         <section className="max-w-3xl mx-auto px-6 py-16 md:py-24">
           <div className="flex items-center gap-3 mb-6">
@@ -242,7 +292,7 @@ const ConvitePage = () => {
           </div>
           <ul className="space-y-3">
             {[
-              'pessoas interessadas em meio ambiente e resíduos',
+              'pessoas interessadas em meio ambiente',
               'curiosos sobre soluções práticas',
               'quem valoriza transparência',
               'quem gosta de acompanhar projetos desde o início',
