@@ -118,7 +118,11 @@ export function ReferralsPage() {
     },
   });
 
-  // Copy link helper
+  const currentLevel = stats?.current_level || 1;
+  const levelInfo = levelHuman[currentLevel] || levelHuman[1];
+  const tierRates: Record<number, number> = { 1: 5, 2: 7, 3: 10, 4: 15 };
+  const currentRate = tierRates[currentLevel] || 5;
+
   const copyLink = () => {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
