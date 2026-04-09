@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useReferralData } from '../hooks/useReferralData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import {
   AlertCircle, RefreshCw, ArrowRight, Copy, Link2, ExternalLink,
   Sparkles, Users, Leaf, Waves, Sprout, ChevronDown, ChevronUp,
-  HelpCircle, Recycle, TrendingUp, Shield
+  HelpCircle, Recycle, TrendingUp, Shield, Eye, EyeOff, DollarSign
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
