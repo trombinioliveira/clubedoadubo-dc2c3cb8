@@ -5,22 +5,22 @@ const steps = [
   {
     number: '1',
     title: 'Entrada de resíduos',
-    text: 'Resíduos orgânicos são coletados e pesados em pontos definidos.',
+    text: 'Pessoas e locais geram resíduos orgânicos que são coletados e direcionados.',
   },
   {
     number: '2',
     title: 'Processo de transformação',
-    text: 'O material passa por compostagem ou vermicompostagem até se tornar adubo.',
+    text: 'Esses resíduos são coletados e passam por um processo de transformação controlado.',
   },
   {
     number: '3',
     title: 'Geração de adubo',
-    text: 'O adubo é embalado, pesado e registrado no sistema com rastreabilidade.',
+    text: 'O resultado é adubo — registrado, pesado e rastreável no sistema.',
   },
   {
     number: '4',
     title: 'Retorno ao ciclo',
-    text: 'Cada venda distribui valor e inicia um novo ciclo de transformação.',
+    text: 'O adubo retorna para o território, e o ciclo recomeça de forma contínua e rastreável.',
   },
 ];
 
@@ -29,11 +29,22 @@ const ExpCicloPage = () => {
     <div className="space-y-16">
       <section className="space-y-4">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#2d2d2d' }}>
-          Como o ciclo funciona
+          Como o ciclo funciona na prática
         </h1>
-        <p className="text-base leading-relaxed max-w-2xl" style={{ color: '#5a5a5a' }}>
-          De forma simples, o projeto organiza um fluxo contínuo: resíduos entram, são transformados e retornam como adubo.
-        </p>
+        <div className="space-y-3 max-w-2xl">
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            O Clube do Adubo organiza um fluxo simples:
+          </p>
+          <ol className="list-decimal list-inside space-y-1 text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            <li>Pessoas e locais geram resíduos orgânicos</li>
+            <li>Esses resíduos são coletados e direcionados</li>
+            <li>O material passa por um processo de transformação</li>
+            <li>O resultado é adubo, que retorna para o território</li>
+          </ol>
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            A ideia é criar um ciclo contínuo e rastreável.
+          </p>
+        </div>
       </section>
 
       {/* Visual flow */}

@@ -14,8 +14,7 @@ export const FeedbackModal = ({ open, onClose }: FeedbackModalProps) => {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = () => {
-    // Future: send to Supabase
-    console.log({ clarity, comment, wouldContinue });
+    console.log({ clarity, comment, wouldContinue, page: window.location.pathname });
     setSubmitted(true);
   };
 
@@ -34,7 +33,7 @@ export const FeedbackModal = ({ open, onClose }: FeedbackModalProps) => {
   const clarityOptions = [
     { value: 'clear', label: 'Sim, ficou claro' },
     { value: 'partial', label: 'Mais ou menos' },
-    { value: 'unclear', label: 'Não entendi bem' },
+    { value: 'unclear', label: 'Não entendi' },
   ];
 
   const continueOptions = [
@@ -70,7 +69,7 @@ export const FeedbackModal = ({ open, onClose }: FeedbackModalProps) => {
         ) : (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold" style={{ color: '#2d2d2d' }}>
-              Sua percepção aqui ajuda muito
+              Isso fez sentido para você?
             </h3>
 
             {/* Q1 */}
@@ -102,7 +101,7 @@ export const FeedbackModal = ({ open, onClose }: FeedbackModalProps) => {
             {/* Q2 */}
             <div className="space-y-2">
               <p className="text-sm font-medium" style={{ color: '#4a4a4a' }}>
-                Se quiser, pode contar um pouco mais
+                O que você percebeu aqui?
               </p>
               <textarea
                 value={comment}
@@ -113,8 +112,6 @@ export const FeedbackModal = ({ open, onClose }: FeedbackModalProps) => {
                   borderColor: '#ddd',
                   backgroundColor: 'white',
                   color: '#2d2d2d',
-                  // @ts-ignore
-                  '--tw-ring-color': '#4a7c3f40',
                 }}
                 placeholder="Algo que gostou, não entendeu, ou mudaria..."
               />
@@ -123,7 +120,7 @@ export const FeedbackModal = ({ open, onClose }: FeedbackModalProps) => {
             {/* Q3 */}
             <div className="space-y-2">
               <p className="text-sm font-medium" style={{ color: '#4a4a4a' }}>
-                Você seguiria a partir daqui?
+                Você continuaria a partir daqui?
               </p>
               <div className="flex flex-wrap gap-2">
                 {continueOptions.map((opt) => (

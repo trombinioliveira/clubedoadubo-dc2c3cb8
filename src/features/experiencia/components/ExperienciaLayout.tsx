@@ -1,27 +1,34 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Leaf, Menu, X, MessageCircle, User } from 'lucide-react';
+import { Leaf, Menu, X, MessageCircle, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FeedbackModal } from './FeedbackModal';
+import { useAuth } from '@/lib/auth';
 
 export const ExperienciaLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const navItems = [
-    { to: '/experiencia', label: 'Início', end: true },
-    { to: '/experiencia/ciclo', label: 'O ciclo', end: false },
-    { to: '/experiencia/transparencia', label: 'Transparência', end: false },
-    { to: '/experiencia/participar', label: 'Participar', end: false },
+    { to: '/inicio', label: 'Início', end: true },
+    { to: '/inicio/ciclo', label: 'O ciclo', end: false },
+    { to: '/inicio/transparencia', label: 'Transparência', end: false },
+    { to: '/inicio/participar', label: 'Participar', end: false },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF7' }}>
       {/* Nav bar */}
       <header className="sticky top-0 z-50 w-full border-b" style={{ backgroundColor: 'rgba(250,250,247,0.9)', borderColor: '#e8e5de', backdropFilter: 'blur(12px)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <button onClick={() => navigate('/experiencia')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <button onClick={() => navigate('/inicio')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#4a7c3f' }}>
               <Leaf className="w-4 h-4 text-white" />
             </div>
@@ -37,9 +44,7 @@ export const ExperienciaLayout = () => {
                 className={({ isActive }) =>
                   cn(
                     'px-3 py-1.5 rounded-full text-sm transition-colors',
-                    isActive
-                      ? 'font-medium'
-                      : 'hover:bg-black/5'
+                    isActive ? 'font-medium' : 'hover:bg-black/5'
                   )
                 }
                 style={({ isActive }) => ({
@@ -53,9 +58,13 @@ export const ExperienciaLayout = () => {
           </nav>
 
           <div className="flex items-center gap-2">
-            <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm hover:bg-black/5 transition-colors" style={{ color: '#6b6b6b' }}>
-              <User className="w-4 h-4" />
-              <span>Minha conta</span>
+            <button
+              onClick={handleSignOut}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm hover:bg-black/5 transition-colors"
+              style={{ color: '#6b6b6b' }}
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sair</span>
             </button>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -89,9 +98,13 @@ export const ExperienciaLayout = () => {
                 {item.label}
               </NavLink>
             ))}
-            <button className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-sm w-full hover:bg-black/5" style={{ color: '#4a4a4a' }}>
-              <User className="w-4 h-4" />
-              Minha conta
+            <button
+              onClick={() => { setMenuOpen(false); handleSignOut(); }}
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-sm w-full hover:bg-black/5"
+              style={{ color: '#4a4a4a' }}
+            >
+              <LogOut className="w-4 h-4" />
+              Sair
             </button>
           </div>
         )}
