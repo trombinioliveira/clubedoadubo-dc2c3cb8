@@ -160,8 +160,20 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const { user, isLoading, isAdmin, signIn, signUp } = useAuth();
 
-  // Capture ?ref= from URL (e.g. /auth?ref=ABC123)
-  const refCode = searchParams.get('ref')?.trim().toUpperCase() || '';
+  // Capture ?ref= from URL, localStorage, or cookie (robust persistence)
+  const urlRef = searchParams.get('ref')?.trim().toUpperCase() || '';
+  const storedRef = localStorage.getItem('referrer_code')?.trim().toUpperCase() || '';
+  const cookieRef = document.cookie.match(/referrer_code=([^;]+)/)?.[1]?.trim().toUpperCase() || '';
+  const refCode = urlRef || storedRef || cookieRef;
+  
+  // Persist the ref code if found in URL but not yet stored
+  React.useEffect(() => {
+    if (refCode) {
+      localStorage.setItem('referrer_code', refCode);
+      document.cookie = `referrer_code=${refCode}; path=/; max-age=2592000; SameSite=Lax`;
+      console.log('[Referral] Auth page - refCode captured:', refCode, { source: urlRef ? 'url' : storedRef ? 'localStorage' : 'cookie' });
+    }
+  }, [refCode]);
 
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(refCode ? 'signup' : 'signin');
   const [email, setEmail] = useState('');
@@ -262,30 +274,97 @@ export default function Auth() {
       return;
     }
 
-    const { data: { user: newUser } } = await supabase.auth.getUser();
-    if (newUser) {
+    // Try to get user - may work even with email confirmation pending
+    let newUserId: string | null = null;
+    
+    // Attempt 1: getUser()
+    try {
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) newUserId = newUser.id;
+    } catch {
+      console.warn('[Referral] getUser() failed after signup');
+    }
+    
+    // Attempt 2: getSession() fallback
+    if (!newUserId) {
+      try {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        if (newSession?.user) newUserId = newSession.user.id;
+      } catch {
+        console.warn('[Referral] getSession() also failed after signup');
+      }
+    }
+
+    if (newUserId) {
+      // Terms acceptance
       await supabase.from('terms_acceptance').insert({
-        user_id: newUser.id,
+        user_id: newUserId,
         version: '1.0',
       });
 
-      // Associate referral if ?ref= was present
+      // Associate referral with retry
       if (refCode) {
-        try {
-          const { data: lookupData } = await supabase.rpc('lookup_referral_code', { code: refCode });
-          if (lookupData && lookupData.length > 0) {
-            const referrerProfileId = lookupData[0].profile_id;
-            // Only set referred_by if the new user's profile doesn't already have one
-            await supabase
-              .from('profiles')
-              .update({ referred_by: referrerProfileId })
-              .eq('user_id', newUser.id)
-              .is('referred_by', null);
+        console.log('[Referral] Attempting referral attribution for refCode:', refCode, 'newUserId:', newUserId);
+        const attemptReferralAttribution = async (attempt: number): Promise<void> => {
+          try {
+            const { data: lookupData, error: lookupError } = await supabase.rpc('lookup_referral_code', { code: refCode });
+            console.log('[Referral] lookup_referral_code result:', { lookupData, lookupError, attempt });
+            
+            if (lookupData && lookupData.length > 0) {
+              const referrerProfileId = lookupData[0].profile_id;
+              
+              // Prevent self-referral
+              const { data: ownProfile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('user_id', newUserId!)
+                .maybeSingle();
+              
+              if (ownProfile && ownProfile.id === referrerProfileId) {
+                console.warn('[Referral] Self-referral blocked');
+                return;
+              }
+              
+              const { error: updateError, count } = await supabase
+                .from('profiles')
+                .update({ referred_by: referrerProfileId })
+                .eq('user_id', newUserId!)
+                .is('referred_by', null)
+                .select('id');
+              
+              if (updateError) {
+                console.error('[Referral] Update failed:', updateError);
+                if (attempt < 3) {
+                  console.log(`[Referral] Retrying in ${attempt * 1000}ms...`);
+                  await new Promise(r => setTimeout(r, attempt * 1000));
+                  return attemptReferralAttribution(attempt + 1);
+                }
+              } else {
+                console.log('[Referral] ✅ Attribution successful! referrer:', referrerProfileId);
+                // Clear stored referral code after successful attribution
+                localStorage.removeItem('referrer_code');
+                document.cookie = 'referrer_code=; path=/; max-age=0';
+              }
+            } else {
+              console.warn('[Referral] No profile found for refCode:', refCode);
+            }
+          } catch (refError) {
+            console.error('[Referral] Attribution error:', refError);
+            if (attempt < 3) {
+              await new Promise(r => setTimeout(r, attempt * 1000));
+              return attemptReferralAttribution(attempt + 1);
+            }
           }
-        } catch (refError) {
-          // Silently fail — referral is best-effort, don't block signup
-          console.warn('Referral attribution failed:', refError);
-        }
+        };
+        
+        await attemptReferralAttribution(1);
+      }
+    } else {
+      console.warn('[Referral] Could not get user after signup - referral will be attributed on first login');
+      // Store refCode for attribution on first login
+      if (refCode) {
+        localStorage.setItem('pending_referral_code', refCode);
+        console.log('[Referral] Stored pending_referral_code for first login:', refCode);
       }
     }
 

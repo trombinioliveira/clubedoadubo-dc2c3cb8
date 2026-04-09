@@ -96,6 +96,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Handle pending referral from signup where user wasn't available yet
+  const handlePendingReferral = async (userId: string) => {
+    const pendingRef = localStorage.getItem('pending_referral_code') || localStorage.getItem('referrer_code');
+    if (!pendingRef) return;
+    
+    console.log('[Referral] Found pending referral on login:', pendingRef);
+    try {
+      const { data: lookupData } = await supabase.rpc('lookup_referral_code', { code: pendingRef.toUpperCase() });
+      if (lookupData && lookupData.length > 0) {
+        const referrerProfileId = lookupData[0].profile_id;
+        
+        // Check not self-referral
+        const { data: ownProfile } = await supabase
+          .from('profiles')
+          .select('id, referred_by')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        if (ownProfile?.id === referrerProfileId) {
+          console.warn('[Referral] Self-referral blocked on login');
+        } else if (ownProfile && !ownProfile.referred_by) {
+          const { error } = await supabase
+            .from('profiles')
+            .update({ referred_by: referrerProfileId })
+            .eq('user_id', userId)
+            .is('referred_by', null);
+          
+          if (!error) {
+            console.log('[Referral] ✅ Pending referral attributed on login! referrer:', referrerProfileId);
+          } else {
+            console.error('[Referral] Failed to attribute pending referral:', error);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[Referral] Pending referral error:', err);
+    } finally {
+      localStorage.removeItem('pending_referral_code');
+      localStorage.removeItem('referrer_code');
+      document.cookie = 'referrer_code=; path=/; max-age=0';
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = auth.onAuthStateChange(
@@ -119,6 +162,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => {
             fetchProfile(session.user.id);
             fetchRoles(session.user.id);
+            // Handle pending referral attribution (from signup with email confirmation)
+            handlePendingReferral(session.user.id);
           }, 0);
         } else {
           setProfile(null);
