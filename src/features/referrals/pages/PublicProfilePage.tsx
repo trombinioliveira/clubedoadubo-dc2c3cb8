@@ -225,18 +225,11 @@ export function PublicProfilePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
                 size="lg"
-                disabled={checkoutLoading}
-                onClick={handleBuyFromReferral}
+                onClick={handleJoinFree}
               >
-                {checkoutLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
-                Participar por R$ 1
+                <img src={logo} alt="" className="w-5 h-5 mr-2 rounded-full object-cover" />
+                Participar gratuitamente
               </Button>
-              <Link to={`/planos?ref=${codigo}`}>
-                <Button variant="outline" size="lg">
-                  <Sprout className="w-5 h-5 mr-2" />
-                  Ver planos
-                </Button>
-              </Link>
             </div>
           </CardContent>
         </Card>
