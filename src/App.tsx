@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 // @ts-ignore - QueryClient type drift
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { AppLayout, PublicLayout } from "@/components/layout";
 import { ProtectedRoute } from "@/components/shared";
@@ -36,25 +36,12 @@ import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
 
-// Experiência pages
-import { ExperienciaLayout } from "@/features/experiencia/components/ExperienciaLayout";
-import ExpHomePage from "@/features/experiencia/pages/ExpHomePage";
-import ExpCicloPage from "@/features/experiencia/pages/ExpCicloPage";
-import ExpTransparenciaPage from "@/features/experiencia/pages/ExpTransparenciaPage";
-import ExpParticiparPage from "@/features/experiencia/pages/ExpParticiparPage";
-
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
 import { FifoQueuePage } from "@/features/fifo";
 import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
-
-const ExperienciaRedirect = () => {
-  const location = useLocation();
-  const sub = location.pathname.replace('/experiencia', '') || '';
-  return <Navigate to={`/inicio${sub}`} replace />;
-};
 
 const queryClient = new QueryClient();
 
@@ -78,16 +65,6 @@ const App = () => (
             {/* Public pages with PublicLayout (header + footer) */}
             {/* Convite — standalone public page (no header/footer) */}
             <Route path="/convite" element={<ConvitePage />} />
-
-            {/* Experiência — standalone logged-in experience */}
-            <Route path="/inicio" element={<ExperienciaLayout />}>
-              <Route index element={<ExpHomePage />} />
-              <Route path="ciclo" element={<ExpCicloPage />} />
-              <Route path="transparencia" element={<ExpTransparenciaPage />} />
-              <Route path="participar" element={<ExpParticiparPage />} />
-            </Route>
-            {/* Legacy redirect */}
-            <Route path="/experiencia/*" element={<ExperienciaRedirect />} />
 
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
