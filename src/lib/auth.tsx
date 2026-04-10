@@ -102,41 +102,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!pendingRef) return;
     
     console.log('[Referral] Found pending referral on login:', pendingRef);
-    try {
-      const { data: lookupData } = await supabase.rpc('lookup_referral_code', { code: pendingRef.toUpperCase() });
-      if (lookupData && lookupData.length > 0) {
+    
+    // Retry up to 5 times with increasing delay — profile may not exist yet after email confirmation
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        const { data: lookupData } = await supabase.rpc('lookup_referral_code', { code: pendingRef.toUpperCase() });
+        if (!lookupData || lookupData.length === 0) {
+          console.warn('[Referral] No profile found for pending refCode:', pendingRef);
+          break; // Invalid code, no point retrying
+        }
+        
         const referrerProfileId = lookupData[0].profile_id;
         
-        // Check not self-referral
+        // Check not self-referral and profile exists
         const { data: ownProfile } = await supabase
           .from('profiles')
           .select('id, referred_by')
           .eq('user_id', userId)
           .maybeSingle();
         
-        if (ownProfile?.id === referrerProfileId) {
+        if (!ownProfile) {
+          // Profile not created yet by trigger — wait and retry
+          console.log(`[Referral] Profile not found yet, retry ${attempt}/5...`);
+          await new Promise(r => setTimeout(r, attempt * 1000));
+          continue;
+        }
+        
+        if (ownProfile.id === referrerProfileId) {
           console.warn('[Referral] Self-referral blocked on login');
-        } else if (ownProfile && !ownProfile.referred_by) {
-          const { error } = await supabase
+          break;
+        }
+        
+        if (ownProfile.referred_by) {
+          console.log('[Referral] Already attributed to:', ownProfile.referred_by);
+          break;
+        }
+        
+        const { error } = await supabase
             .from('profiles')
             .update({ referred_by: referrerProfileId })
             .eq('user_id', userId)
             .is('referred_by', null);
-          
-          if (!error) {
-            console.log('[Referral] ✅ Pending referral attributed on login! referrer:', referrerProfileId);
-          } else {
-            console.error('[Referral] Failed to attribute pending referral:', error);
-          }
+        
+        if (!error) {
+          console.log('[Referral] ✅ Pending referral attributed on login! referrer:', referrerProfileId);
+        } else {
+          console.error('[Referral] Failed to attribute pending referral:', error);
+        }
+        break; // Done — success or explicit failure
+      } catch (err) {
+        console.error(`[Referral] Pending referral attempt ${attempt} error:`, err);
+        if (attempt < 5) {
+          await new Promise(r => setTimeout(r, attempt * 1000));
         }
       }
-    } catch (err) {
-      console.error('[Referral] Pending referral error:', err);
-    } finally {
-      localStorage.removeItem('pending_referral_code');
-      localStorage.removeItem('referrer_code');
-      document.cookie = 'referrer_code=; path=/; max-age=0';
     }
+    
+    // Always clean up after all attempts
+    localStorage.removeItem('pending_referral_code');
+    localStorage.removeItem('referrer_code');
+    document.cookie = 'referrer_code=; path=/; max-age=0';
   };
 
   useEffect(() => {
