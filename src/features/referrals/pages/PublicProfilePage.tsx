@@ -97,10 +97,10 @@ export function PublicProfilePage() {
       <Helmet>
         <title>Entrar no ciclo com {firstName} | Clube do Adubo</title>
         <meta name="description" content={`${firstName} já faz parte do Clube do Adubo. Entre no ciclo e faça parte dessa transformação real.`} />
-        <link rel="canonical" href={`https://clubedoadubo.com.br/u/${codigo}`} />
+        <link rel="canonical" href={`https://www.clubedoadubo.com.br/u/${codigo}`} />
         <meta property="og:title" content={`Entrar no ciclo com ${firstName} | Clube do Adubo`} />
         <meta property="og:description" content={`${firstName} já faz parte do Clube do Adubo. Participe e faça parte dessa transformação real.`} />
-        <meta property="og:url" content={`https://clubedoadubo.com.br/u/${codigo}`} />
+        <meta property="og:url" content={`https://www.clubedoadubo.com.br/u/${codigo}`} />
       </Helmet>
 
       {/* Header */}

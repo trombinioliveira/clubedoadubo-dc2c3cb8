@@ -129,7 +129,7 @@ export function useReferralData() {
     isLoading: statsLoading || referredLoading || prosLoading,
     referralCode: profile?.referral_code,
     referralLink: profile?.referral_code 
-      ? `https://clubedoadubo.com.br/u/${profile.referral_code}`
+      ? `https://www.clubedoadubo.com.br/u/${profile.referral_code}`
       : null,
   };
 }
