@@ -59,6 +59,17 @@ export function useReferralData() {
       if (profilesError) throw profilesError;
       if (!profiles || profiles.length === 0) return [];
 
+      const fallbackUsers = profiles.map((p) => ({
+        id: p.id,
+        fullName: p.full_name,
+        joinedAt: p.created_at,
+        prosCount: 0,
+        totalWeightGrams: 0,
+        paidPros: 0,
+        isActive: false,
+        lastActivity: p.last_login_at,
+      })) satisfies ReferredUser[];
+
       // For each referred user, get their PRO stats
       const userIds = profiles.map(p => p.user_id);
       
@@ -66,8 +77,11 @@ export function useReferralData() {
         .from('pros')
         .select('user_id, weight_grams, status')
         .in('user_id', userIds);
-      
-      if (prosError) throw prosError;
+
+      if (prosError) {
+        console.warn('[Referral] Could not load network PRO stats, showing referred users without PRO aggregation.', prosError);
+        return fallbackUsers;
+      }
 
       // Aggregate PRO data per user
       const prosMap = new Map<string, { count: number; weight: number; paid: number }>();
