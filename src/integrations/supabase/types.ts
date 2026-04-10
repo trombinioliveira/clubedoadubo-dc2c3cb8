@@ -1637,6 +1637,7 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_my_referred_users: { Args: { p_user_id: string }; Returns: Json }
       get_next_fifo_position: { Args: never; Returns: number }
       get_public_profile_data: {
         Args: { p_referral_code: string }
