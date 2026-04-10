@@ -41,6 +41,7 @@ export function usePublicProfile(referralCode: string | undefined) {
       return data as unknown as PublicProfileData;
     },
     enabled: !!referralCode,
-    retry: false,
+    retry: 2,
+    retryDelay: 1000,
   });
 }

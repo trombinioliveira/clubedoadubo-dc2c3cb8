@@ -2,6 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 
+interface ReferredUserRow {
+  id: string;
+  full_name: string;
+  joined_at: string;
+  last_activity: string | null;
+  pros_count: number;
+  total_weight_grams: number;
+  paid_pros: number;
+  is_active: boolean;
+}
+
 export interface ReferralImpact {
   totalReferrals: number;
   activeReferrals: number;
@@ -45,69 +56,32 @@ export function useReferralData() {
 
   // Fetch users referred by the current user
   const { data: referredUsers, isLoading: referredLoading } = useQuery({
-    queryKey: ['referred-users', profile?.id],
+    queryKey: ['referred-users', user?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!user?.id) return [];
       
-      // Get profiles referred by this user
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, user_id, full_name, created_at, last_login_at')
-        .eq('referred_by', profile.id)
-        .order('created_at', { ascending: false });
+      // Use SECURITY DEFINER RPC to bypass RLS and get referred users safely
+      const { data, error } = await supabase.rpc('get_my_referred_users', { p_user_id: user.id });
       
-      if (profilesError) throw profilesError;
-      if (!profiles || profiles.length === 0) return [];
-
-      const fallbackUsers = profiles.map((p) => ({
-        id: p.id,
-        fullName: p.full_name,
-        joinedAt: p.created_at,
-        prosCount: 0,
-        totalWeightGrams: 0,
-        paidPros: 0,
-        isActive: false,
-        lastActivity: p.last_login_at,
-      })) satisfies ReferredUser[];
-
-      // For each referred user, get their PRO stats
-      const userIds = profiles.map(p => p.user_id);
-      
-      const { data: pros, error: prosError } = await supabase
-        .from('pros')
-        .select('user_id, weight_grams, status')
-        .in('user_id', userIds);
-
-      if (prosError) {
-        console.warn('[Referral] Could not load network PRO stats, showing referred users without PRO aggregation.', prosError);
-        return fallbackUsers;
+      if (error) {
+        console.error('[Referral] get_my_referred_users RPC error:', error);
+        throw error;
       }
-
-      // Aggregate PRO data per user
-      const prosMap = new Map<string, { count: number; weight: number; paid: number }>();
-      pros?.forEach(pro => {
-        const current = prosMap.get(pro.user_id) || { count: 0, weight: 0, paid: 0 };
-        current.count++;
-        current.weight += pro.weight_grams;
-        if (pro.status === 'paid') current.paid++;
-        prosMap.set(pro.user_id, current);
-      });
-
-      return profiles.map(p => {
-        const proData = prosMap.get(p.user_id) || { count: 0, weight: 0, paid: 0 };
-        return {
-          id: p.id,
-          fullName: p.full_name,
-          joinedAt: p.created_at,
-          prosCount: proData.count,
-          totalWeightGrams: proData.weight,
-          paidPros: proData.paid,
-          isActive: proData.count > 0,
-          lastActivity: p.last_login_at,
-        } as ReferredUser;
-      });
+      
+      if (!data || !Array.isArray(data) || data.length === 0) return [];
+      
+      return (data as unknown as ReferredUserRow[]).map((row) => ({
+        id: row.id,
+        fullName: row.full_name,
+        joinedAt: row.joined_at,
+        prosCount: row.pros_count,
+        totalWeightGrams: row.total_weight_grams,
+        paidPros: row.paid_pros,
+        isActive: row.is_active,
+        lastActivity: row.last_activity,
+      } as ReferredUser));
     },
-    enabled: !!profile?.id,
+    enabled: !!user?.id,
   });
 
   // Fetch user's own PROs for impact calculation
