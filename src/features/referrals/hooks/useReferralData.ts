@@ -70,7 +70,7 @@ export function useReferralData() {
       
       if (!data || !Array.isArray(data) || data.length === 0) return [];
       
-      return (data as ReferredUserRow[]).map((row) => ({
+      return (data as unknown as ReferredUserRow[]).map((row) => ({
         id: row.id,
         fullName: row.full_name,
         joinedAt: row.joined_at,
