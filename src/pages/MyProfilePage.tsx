@@ -165,7 +165,7 @@ export default function MyProfilePage() {
 
   const isProfileCompleted = profile?.profile_completed_at !== null;
   const referralCode = profile?.referral_code;
-  const referralLink = referralCode ? `https://clubedoadubo.com.br/u/${referralCode}` : null;
+  const referralLink = referralCode ? `https://www.clubedoadubo.com.br/u/${referralCode}` : null;
 
   // Load profile data
   useEffect(() => {
