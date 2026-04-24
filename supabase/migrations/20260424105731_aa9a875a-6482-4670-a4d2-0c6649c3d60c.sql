@@ -1,0 +1,2 @@
+-- Add missing index on pros.collection_point_id to fix timeout on get_collection_point_public
+CREATE INDEX IF NOT EXISTS idx_pros_collection_point_id ON public.pros (collection_point_id) WHERE collection_point_id IS NOT NULL;
