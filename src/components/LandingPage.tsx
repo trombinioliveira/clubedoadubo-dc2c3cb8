@@ -65,8 +65,114 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* ═══ D) SISTEMA JÁ ATIVO E AUDITÁVEL ═══ */}
+      {/* ═══ J) POR QUE CRIAMOS ═══ */}
       <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-6">
+              Por que criamos o Clube do Adubo?
+            </h2>
+
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
+              Toneladas de resíduo orgânico são descartadas todos os dias nas cidades.
+              Ao mesmo tempo, existe demanda real por adubo orgânico.
+              Criamos um sistema que conecta essas duas pontas: transforma resíduo em adubo, registra a venda e distribui o valor aos participantes.
+              Sem promessas mágicas. Só transparência.
+            </p>
+
+            <p className="text-sm text-foreground font-medium italic mb-6">
+              Transparência não é um detalhe. Ela sustenta o ciclo.
+            </p>
+
+            <Link to="/transparencia" className="text-sm text-primary hover:underline">
+              Entenda o projeto →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ G) COMO FUNCIONA O CICLO ═══ */}
+      <section className="py-12 sm:py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center mb-8 sm:mb-10">
+              Como funciona o ciclo
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              {[
+                'Resíduo orgânico é coletado e processado. Vira adubo real.',
+                'Você entra no ciclo ativando PROs (cada PRO registra 100g).',
+                'O adubo é vendido. O valor só existe quando a venda é registrada.',
+                'Esse valor é distribuído pela regra pública do Clube (fila) — e você acompanha tudo no painel, incluindo o que foi destinado à sua participação.',
+              ].map((text, i) => (
+                <Card key={i}>
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full earth-gradient text-primary-foreground text-sm font-bold flex-shrink-0">
+                        {i + 1}
+                      </span>
+                      <p className="text-sm sm:text-base text-foreground pt-0.5">{text}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground">
+              Sem atalhos. Tudo rastreável.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ H) SONHOS E JORNADA ═══ */}
+      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-4">
+              Sonhos viram jornada.
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Dentro do Clube, você cria sonhos e acompanha sua evolução no ciclo.
+              Cada PRO registra 100g de resíduo orgânico entrando no ciclo — de forma pública e rastreável.
+            </p>
+
+            <ul className="text-sm sm:text-base text-foreground space-y-2 mb-6 max-w-md mx-auto text-left">
+              <li className="flex items-start gap-2">
+                <Sprout className="w-4 h-4 text-primary mt-1 shrink-0" />
+                Crie seus sonhos e metas dentro do Clube
+              </li>
+              <li className="flex items-start gap-2">
+                <Sprout className="w-4 h-4 text-primary mt-1 shrink-0" />
+                Acompanhe seu progresso com clareza e transparência
+              </li>
+              <li className="flex items-start gap-2">
+                <Sprout className="w-4 h-4 text-primary mt-1 shrink-0" />
+                Veja o ciclo acontecer no painel público, etapa por etapa
+              </li>
+            </ul>
+
+            <p className="text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Quando há venda registrada, o valor é distribuído pela regra pública do Clube — e isso alimenta sua jornada: você acompanha e avança nos seus sonhos e metas.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link to="/auth">
+                <Button variant="hero" size="lg">
+                  Criar minha jornada
+                </Button>
+              </Link>
+              <Link to="/auth" className="text-sm text-primary hover:underline">
+                Já tenho conta → Entrar
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ D) SISTEMA JÁ ATIVO E AUDITÁVEL ═══ */}
+      <section className="py-12 sm:py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center mb-2">
@@ -113,7 +219,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
       </section>
 
       {/* ═══ E) METAS PÚBLICAS POR FASE ═══ */}
-      <section className="py-12 sm:py-16 md:py-24">
+      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center mb-8 sm:mb-10">
@@ -154,88 +260,8 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* ═══ G) COMO FUNCIONA O CICLO ═══ */}
-      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center mb-8 sm:mb-10">
-              Como funciona o ciclo
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {[
-                'Resíduo orgânico é coletado e processado. Vira adubo real.',
-                'Você entra no ciclo ativando PROs (cada PRO registra 100g).',
-                'O adubo é vendido. O valor só existe quando a venda é registrada.',
-                'Esse valor é distribuído pela regra pública do Clube (fila) — e você acompanha tudo no painel, incluindo o que foi destinado à sua participação.',
-              ].map((text, i) => (
-                <Card key={i}>
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-3">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full earth-gradient text-primary-foreground text-sm font-bold flex-shrink-0">
-                        {i + 1}
-                      </span>
-                      <p className="text-sm sm:text-base text-foreground pt-0.5">{text}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <p className="text-center text-sm text-muted-foreground">
-              Sem atalhos. Tudo rastreável.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ H) SONHOS E JORNADA ═══ */}
-      <section className="py-12 sm:py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Sonhos viram jornada.
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Dentro do Clube, você cria sonhos e acompanha sua evolução no ciclo.
-              Cada PRO registra 100g de resíduo orgânico entrando no ciclo — de forma pública e rastreável.
-            </p>
-
-            <ul className="text-sm sm:text-base text-foreground space-y-2 mb-6 max-w-md mx-auto text-left">
-              <li className="flex items-start gap-2">
-                <Sprout className="w-4 h-4 text-primary mt-1 shrink-0" />
-                Crie seus sonhos e metas dentro do Clube
-              </li>
-              <li className="flex items-start gap-2">
-                <Sprout className="w-4 h-4 text-primary mt-1 shrink-0" />
-                Acompanhe seu progresso com clareza e transparência
-              </li>
-              <li className="flex items-start gap-2">
-                <Sprout className="w-4 h-4 text-primary mt-1 shrink-0" />
-                Veja o ciclo acontecer no painel público, etapa por etapa
-              </li>
-            </ul>
-
-            <p className="text-sm text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Quando há venda registrada, o valor é distribuído pela regra pública do Clube — e isso alimenta sua jornada: você acompanha e avança nos seus sonhos e metas.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/auth">
-                <Button variant="hero" size="lg">
-                  Criar minha jornada
-                </Button>
-              </Link>
-              <Link to="/auth" className="text-sm text-primary hover:underline">
-                Já tenho conta → Entrar
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ═══ I) FAQ CURTO ═══ */}
-      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
+      <section className="py-12 sm:py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
@@ -274,32 +300,6 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 Ver FAQ completo →
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ J) POR QUE CRIAMOS ═══ */}
-      <section className="py-12 sm:py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-6">
-              Por que criamos o Clube do Adubo?
-            </h2>
-
-            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
-              Toneladas de resíduo orgânico são descartadas todos os dias nas cidades.
-              Ao mesmo tempo, existe demanda real por adubo orgânico.
-              Criamos um sistema que conecta essas duas pontas: transforma resíduo em adubo, registra a venda e distribui o valor pela regra pública.
-              Sem promessas mágicas. Só transparência.
-            </p>
-
-            <p className="text-sm text-foreground font-medium italic mb-6">
-              Transparência não é um detalhe. Ela sustenta o ciclo.
-            </p>
-
-            <Link to="/transparencia" className="text-sm text-primary hover:underline">
-              Entenda o projeto →
-            </Link>
           </div>
         </div>
       </section>
