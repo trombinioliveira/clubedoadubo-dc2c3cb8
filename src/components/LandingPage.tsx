@@ -43,7 +43,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
                 R$ 1 coloca você dentro do ciclo com 1 PRO. 100g de resíduo orgânico viram adubo — e você acompanha cada etapa publicamente.
               </p>
               <p className="text-sm sm:text-base text-foreground leading-relaxed mt-2">
-                Quando a venda de 100g de adubo é registrada, o valor da venda é distribuído pela regra pública do Clube.
+                Quando a venda de 100g de adubo é registrada, o valor da venda é distribuído aos participantes pela regra pública do Clube.
               </p>
             </div>
 
