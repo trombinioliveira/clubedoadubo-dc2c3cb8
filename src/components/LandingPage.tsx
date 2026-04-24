@@ -34,13 +34,13 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             </h1>
 
             <p className="text-sm sm:text-base text-muted-foreground mb-6">
-              Você acompanha com dados públicos e rastreáveis.
+              Você acompanha tudo com dados públicos e rastreáveis.
             </p>
 
             {/* A2) PONTE */}
             <div className="bg-card border border-border rounded-xl p-5 sm:p-6 mb-8 text-left sm:text-center max-w-2xl mx-auto">
               <p className="text-sm sm:text-base text-foreground leading-relaxed">
-                R$ 1 coloca você dentro do ciclo com 1 PRO. 100g de resíduo orgânico viram adubo — e você acompanha cada etapa publicamente.
+                R$ 1 coloca você dentro do ciclo com 1 PRO. 100g de resíduo orgânico viram adubo e você acompanha cada etapa publicamente.
               </p>
               <p className="text-sm sm:text-base text-foreground leading-relaxed mt-2">
                 Quando a venda de 100g de adubo é registrada, o valor da venda é distribuído aos participantes pela regra pública do Clube.
