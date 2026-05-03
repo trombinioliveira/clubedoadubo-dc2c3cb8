@@ -35,6 +35,8 @@ import AssinaturaPage from "./pages/AssinaturaPage";
 import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
+import CheckinPage from "./pages/CheckinPage";
+import PointPublicPage from "./pages/PointPublicPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -61,6 +63,8 @@ const App = () => (
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
+            <Route path="/checkin/:pointSlug" element={<CheckinPage />} />
+            <Route path="/p/:pointSlug" element={<PointPublicPage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
             {/* Convite — standalone public page (no header/footer) */}
