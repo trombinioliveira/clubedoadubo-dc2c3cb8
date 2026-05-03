@@ -923,7 +923,7 @@ export type Database = {
           collection_point_id: string | null
           created_at: string
           dream_id: string | null
-          fifo_position: number
+          fifo_position: number | null
           id: string
           paid_at: string | null
           pro_type: string | null
@@ -939,7 +939,7 @@ export type Database = {
           collection_point_id?: string | null
           created_at?: string
           dream_id?: string | null
-          fifo_position: number
+          fifo_position?: number | null
           id?: string
           paid_at?: string | null
           pro_type?: string | null
@@ -955,7 +955,7 @@ export type Database = {
           collection_point_id?: string | null
           created_at?: string
           dream_id?: string | null
-          fifo_position?: number
+          fifo_position?: number | null
           id?: string
           paid_at?: string | null
           pro_type?: string | null
@@ -1367,6 +1367,93 @@ export type Database = {
         }
         Relationships: []
       }
+      user_checkins: {
+        Row: {
+          collection_point_id: string
+          created_at: string
+          id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          collection_point_id: string
+          created_at?: string
+          id?: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          collection_point_id?: string
+          created_at?: string
+          id?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_checkins_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "collection_points"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_checkins_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "public_collection_points_list"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_point_connections: {
+        Row: {
+          collection_point_id: string
+          created_at: string
+          first_checkin_at: string
+          id: string
+          last_checkin_at: string
+          total_checkins: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          collection_point_id: string
+          created_at?: string
+          first_checkin_at?: string
+          id?: string
+          last_checkin_at?: string
+          total_checkins?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          collection_point_id?: string
+          created_at?: string
+          first_checkin_at?: string
+          id?: string
+          last_checkin_at?: string
+          total_checkins?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_point_connections_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "collection_points"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_point_connections_collection_point_id_fkey"
+            columns: ["collection_point_id"]
+            isOneToOne: false
+            referencedRelation: "public_collection_points_list"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1639,6 +1726,7 @@ export type Database = {
       }
       get_my_referred_users: { Args: { p_user_id: string }; Returns: Json }
       get_next_fifo_position: { Args: never; Returns: number }
+      get_point_checkin_stats: { Args: { p_slug: string }; Returns: Json }
       get_public_profile_data: {
         Args: { p_referral_code: string }
         Returns: Json
@@ -1692,6 +1780,7 @@ export type Database = {
         Args: { p_financial_entry_id: string }
         Returns: Json
       }
+      register_checkin: { Args: { p_slug: string }; Returns: Json }
       system_health_check: { Args: never; Returns: Json }
     }
     Enums: {
