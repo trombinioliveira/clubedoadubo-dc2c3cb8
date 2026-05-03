@@ -134,33 +134,36 @@ export default function CheckinPage() {
 
     setSubmitting(true);
     try {
-      const email = synthEmail(wa);
-      const password = synthPassword(wa);
+      // Edge function: cria/confirma usuário, faz login, registra check-in
+      const { data, error } = await supabase.functions.invoke("checkin-auth", {
+        body: { name: name.trim(), whatsapp: wa, point_slug: pointSlug },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.detail || data.error);
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (signInError) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: name.trim(), whatsapp: wa, source: "checkin", point_slug: pointSlug },
-            emailRedirectTo: `${window.location.origin}/checkin/${pointSlug}`,
-          },
+      // Aplica a sessão retornada
+      if (data?.session?.access_token && data?.session?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
         });
-        if (signUpError) throw signUpError;
-        await supabase.auth.signInWithPassword({ email, password });
       }
 
+      const r = data.checkin as CheckinResult;
+      setResult(r);
+
+      // Pega referral_code agora que estamos logados
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase
+        const { data: prof } = await supabase
           .from("profiles")
-          .update({ full_name: name.trim(), whatsapp: wa })
-          .eq("user_id", user.id);
+          .select("referral_code")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (prof?.referral_code) setReferralCode(prof.referral_code);
       }
 
-      await doCheckin();
+      setStep("connection");
     } catch (err: any) {
       console.error("[checkin] error", err);
       toast.error(err?.message || "Erro ao fazer check");
