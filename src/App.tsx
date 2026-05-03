@@ -35,6 +35,8 @@ import AssinaturaPage from "./pages/AssinaturaPage";
 import JornadaPage from "./pages/JornadaPage";
 import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
+import CheckinPage from "./pages/CheckinPage";
+import PointPublicPage from "./pages/PointPublicPage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
