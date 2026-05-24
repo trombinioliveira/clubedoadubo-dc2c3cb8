@@ -30,7 +30,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight">
               A cidade produz resíduo.<br />
               A gente transforma em vida.<br />
-              <span className="text-primary">Participe do ciclo. Construa sua jornada. Realize sonhos.</span>
+              <span className="text-primary">Participando desse ciclo, você constrói sua jornada e </span>
             </h1>
 
             <p className="text-sm sm:text-base text-muted-foreground mb-6">
@@ -40,7 +40,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             {/* A2) PONTE */}
             <div className="bg-card border border-border rounded-xl p-5 sm:p-6 mb-8 text-left sm:text-center max-w-2xl mx-auto">
               <p className="text-sm sm:text-base text-foreground leading-relaxed">
-                R$ 1 coloca você dentro do ciclo com 1 PRO. 100g de resíduo orgânico viram adubo e você acompanha cada etapa publicamente.
+                Com a sua participação gratuita, 100g de resíduo orgânico viram adubo e você acompanha cada etapa publicamente.
               </p>
               <p className="text-sm sm:text-base text-foreground leading-relaxed mt-2">
                 Quando a venda de 100g de adubo é registrada, o valor da venda é distribuído aos participantes pela regra pública do Clube.
@@ -96,12 +96,12 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center mb-8 sm:mb-10">
-              Como funciona o ciclo
+              Como funciona o Clube
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               {[
-                'Resíduo orgânico é coletado e processado. Vira adubo real.',
+                "Você entra no ciclo ativando seus PROs \n\n100g de resíduo orgânico = 1 PRO\n\n",
                 'Você entra no ciclo ativando PROs (cada PRO registra 100g).',
                 'O adubo é vendido. O valor só existe quando a venda é registrada.',
                 'Esse valor é distribuído pela regra pública do Clube (fila) — e você acompanha tudo no painel, incluindo o que foi destinado à sua participação.',
