@@ -30,7 +30,7 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4 sm:mb-6 leading-tight">
               A cidade produz resíduo.<br />
               A gente transforma em vida.<br />
-              <span className="text-primary">Participando desse ciclo, você constrói sua jornada e </span>
+              <span className="text-primary">Participando desse ciclo, você constrói sua jornada e realiza seus sonhos</span>
             </h1>
 
             <p className="text-sm sm:text-base text-muted-foreground mb-6">
