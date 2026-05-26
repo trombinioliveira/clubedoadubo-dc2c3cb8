@@ -40,10 +40,10 @@ export const LandingPage = ({ onGetStarted }: LandingPageProps) => {
             {/* A2) PONTE */}
             <div className="bg-card border border-border rounded-xl p-5 sm:p-6 mb-8 text-left sm:text-center max-w-2xl mx-auto">
               <p className="text-sm sm:text-base text-foreground leading-relaxed">
-                Com a sua participação gratuita, 100g de resíduo orgânico viram adubo e você acompanha cada etapa publicamente.
+                Com a sua entrada gratuita, 100g de resíduo orgânico viram adubo e você acompanha cada etapa publicamente.
               </p>
               <p className="text-sm sm:text-base text-foreground leading-relaxed mt-2">
-                Quando a venda de 100g de adubo é registrada, o valor da venda é distribuído aos participantes pela regra pública do Clube.
+                Quando a venda dessas 100g de adubo é registrada, o valor da venda é distribuído aos participantes pela regra pública do Clube.
               </p>
             </div>
 
