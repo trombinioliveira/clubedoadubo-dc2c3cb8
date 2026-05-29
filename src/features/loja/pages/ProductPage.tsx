@@ -77,7 +77,9 @@ export default function ProductPage() {
                 <span className="text-base font-medium text-muted-foreground"> / {product.unitLabel}</span>
               )}
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">{product.minLabel}</p>
+            {product.minLabel && (
+              <p className="mt-1 text-sm text-muted-foreground">{product.minLabel}</p>
+            )}
 
             {!product.recurring && (
               <div className="mt-5">
@@ -100,7 +102,9 @@ export default function ProductPage() {
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">Pedido mínimo: {min} {min > 1 ? "unidades" : "unidade"}.</p>
+                {min > 1 && (
+                  <p className="mt-2 text-xs text-muted-foreground">Pedido mínimo: {min} {min > 1 ? "unidades" : "unidade"}.</p>
+                )}
               </div>
             )}
 
