@@ -104,7 +104,30 @@ export default function LojaAdminPage() {
       {/* Produtos */}
       <section className="mb-10">
         <h2 className="mb-4 text-xl font-bold">Produtos</h2>
-        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+
+        {/* Cards (mobile) */}
+        <div className="space-y-3 md:hidden">
+          {products.map((p) => (
+            <div key={p.id} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-semibold">{p.name}</p>
+                  <p className="text-sm text-muted-foreground">{p.unitLabel}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{p.minLabel}</p>
+                </div>
+                <p className="shrink-0 font-bold text-primary">
+                  {formatBRL(p.unitPrice)}{p.recurring && "/mês"}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => openEdit(p)}>
+                <Pencil className="mr-1 h-4 w-4" /> Editar preço
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* Tabela (desktop) */}
+        <div className="hidden overflow-x-auto rounded-xl border border-border bg-card md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -139,7 +162,27 @@ export default function LojaAdminPage() {
       {/* Pedidos */}
       <section>
         <h2 className="mb-4 text-xl font-bold">Pedidos recentes</h2>
-        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+
+        {/* Cards (mobile) */}
+        <div className="space-y-3 md:hidden">
+          {MOCK_ORDERS.map((o) => (
+            <div key={o.id} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold">{o.id}</p>
+                <Badge className={statusColor[o.status]}>{o.status}</Badge>
+              </div>
+              <p className="mt-1 font-medium">{o.customer}</p>
+              <p className="text-sm text-muted-foreground">{o.items}</p>
+              <div className="mt-2 flex items-center justify-between border-t border-border pt-2">
+                <span className="text-sm text-muted-foreground">{o.date}</span>
+                <span className="font-bold">{formatBRL(o.total)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tabela (desktop) */}
+        <div className="hidden overflow-x-auto rounded-xl border border-border bg-card md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -166,6 +209,7 @@ export default function LojaAdminPage() {
           </Table>
         </div>
       </section>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
