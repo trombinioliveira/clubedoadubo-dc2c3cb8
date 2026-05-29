@@ -21,7 +21,7 @@ function LojaHeader() {
 
   const isLinkActive = (to: string) => {
     const [path, hash] = to.split("#");
-    if (location.pathname !== path) return location.pathname.startsWith(to.split("#")[0]) && to.includes("/produto/") ? location.pathname === path : false;
+    if (location.pathname !== path) return false;
     if (hash) return location.hash === `#${hash}`;
     return !location.hash;
   };
