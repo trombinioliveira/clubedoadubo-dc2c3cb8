@@ -52,7 +52,7 @@ export default function LojaPage() {
 
       {/* Produtos */}
       <section id="produtos" className="container mx-auto px-4 py-12 md:py-16">
-        <h2 className="mb-8 text-2xl font-bold md:text-3xl">Nossos produtos</h2>
+        <h2 className="mb-8 text-2xl font-bold md:text-3xl">Adubos Orgânicos</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PRODUCTS.map((product) => (
             <Link
