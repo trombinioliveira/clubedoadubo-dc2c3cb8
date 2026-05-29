@@ -107,7 +107,7 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Frete</span>
-                <span>{shipping === 0 ? "Grátis" : formatBRL(shipping)}</span>
+                <span>A combinar</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
                 <span>Total</span>
