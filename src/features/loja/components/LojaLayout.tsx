@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, Leaf } from "lucide-react";
 import logoImage from "@/assets/logo.webp";
 import { CartProvider, useCart } from "../CartContext";
@@ -19,12 +19,20 @@ function LojaHeader() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isLinkActive = (to: string) => {
+    const [path, hash] = to.split("#");
+    if (location.pathname !== path) return false;
+    if (hash) return location.hash === `#${hash}`;
+    return !location.hash;
+  };
+
   const handleNav = (to: string) => (e: React.MouseEvent) => {
     const [path, hash] = to.split("#");
     if (!hash) return;
     e.preventDefault();
     if (location.pathname === path) {
       document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+      window.history.replaceState(null, "", to);
     } else {
       navigate(to);
     }
@@ -43,9 +51,9 @@ function LojaHeader() {
 
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           {NAV_LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} onClick={handleNav(l.to)} className={({ isActive }) => isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
+            <Link key={l.to} to={l.to} onClick={handleNav(l.to)} className={isLinkActive(l.to) ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
               {l.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
@@ -79,9 +87,9 @@ function LojaHeader() {
               <nav className="mt-6 flex flex-col gap-1">
                 {NAV_LINKS.map((l) => (
                   <SheetClose asChild key={l.to}>
-                    <NavLink to={l.to} end={l.end} onClick={handleNav(l.to)} className={({ isActive }) => `rounded-lg px-3 py-3 text-base font-medium ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
+                    <Link to={l.to} onClick={handleNav(l.to)} className={`rounded-lg px-3 py-3 text-base font-medium ${isLinkActive(l.to) ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
                       {l.label}
-                    </NavLink>
+                    </Link>
                   </SheetClose>
                 ))}
                 <SheetClose asChild>
