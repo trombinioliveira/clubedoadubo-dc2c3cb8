@@ -73,6 +73,15 @@ const App = () => (
             {/* Convite — standalone public page (no header/footer) */}
             <Route path="/convite" element={<ConvitePage />} />
 
+            {/* Loja virtual — layout próprio, separado do Clube */}
+            <Route path="/loja" element={<LojaLayout />}>
+              <Route index element={<LojaPage />} />
+              <Route path="produto/:slug" element={<ProductPage />} />
+              <Route path="carrinho" element={<CartPage />} />
+              <Route path="admin" element={<LojaAdminPage />} />
+            </Route>
+
+
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/planos" element={<LandingCompra />} />
