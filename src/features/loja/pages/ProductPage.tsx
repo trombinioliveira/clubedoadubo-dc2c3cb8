@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Minus, Plus, Check } from "lucide-react";
 import { getProductBySlug, formatBRL } from "../data/products";
 import { useCart } from "../CartContext";
+import { SealGrid } from "../components/seals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -63,6 +64,9 @@ export default function ProductPage() {
         <div className="flex flex-col">
           <h1 className="text-2xl font-extrabold md:text-3xl">{product.name}</h1>
           <p className="mt-3 text-muted-foreground">{product.description}</p>
+
+          <SealGrid layout="scroll" className="mt-5 sm:hidden" />
+          <SealGrid className="mt-5 hidden grid-cols-4 sm:grid lg:grid-cols-4" size="sm" />
 
           <div className="mt-6 rounded-xl border border-border bg-card p-5">
             <p className="text-3xl font-extrabold text-primary">

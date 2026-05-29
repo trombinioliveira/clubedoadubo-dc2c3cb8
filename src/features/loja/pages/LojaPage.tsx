@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Leaf, Truck, RefreshCw } from "lucide-react";
 import { PRODUCTS, formatBRL } from "../data/products";
+import { SealsSection, SealStrip } from "../components/seals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -80,6 +81,7 @@ export default function LojaPage() {
                 <p className="mt-1 flex-1 text-sm text-muted-foreground">
                   {product.shortDescription}
                 </p>
+                <SealStrip className="mt-3" />
                 <div className="mt-4 flex items-end justify-between">
                   <div>
                     <p className="text-xl font-extrabold text-primary">
@@ -97,6 +99,10 @@ export default function LojaPage() {
           ))}
         </div>
       </section>
+
+      {/* Selos — diferenciação artesanal */}
+      <SealsSection />
+
 
       {/* Sobre — o que fazemos */}
       <section id="sobre" className="border-t border-border bg-card">
