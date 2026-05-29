@@ -130,7 +130,6 @@ function LojaFooter() {
         <p>© {new Date().getFullYear()} Clube do Adubo — Loja Virtual</p>
         <div className="flex gap-6">
           <Link to="/loja" className="hover:text-foreground">Produtos</Link>
-          <Link to="/" className="hover:text-foreground">Voltar ao Clube</Link>
         </div>
       </div>
     </footer>
