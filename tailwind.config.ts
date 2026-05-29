@@ -62,6 +62,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        seal: {
+          deep: "hsl(var(--seal-deep))",
+          moss: "hsl(var(--seal-moss))",
+          beige: "hsl(var(--seal-beige))",
+          cream: "hsl(var(--seal-cream))",
+          ink: "hsl(var(--seal-ink))",
+        },
         status: {
           processing: "hsl(var(--status-processing))",
           ready: "hsl(var(--status-ready))",
