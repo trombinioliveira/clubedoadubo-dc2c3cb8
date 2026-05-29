@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-const SHIPPING_FLAT = 24.9;
+const WHATSAPP_NUMBER = "5512996682454";
 
 export default function CartPage() {
   const { items, getProduct, updateQuantity, removeItem, subtotal, clear } = useCart();
@@ -23,15 +23,46 @@ export default function CartPage() {
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
     setPlacing(true);
-    setTimeout(() => {
-      setPlacing(false);
-      clear();
-      toast.success("Pedido registrado (demonstração)", {
-        description: "Esta é a vitrine visual. O checkout real será ativado com o Shopify.",
-      });
-      navigate("/loja");
-    }, 1200);
+
+    const form = e.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
+    const nome = String(data.get("nome") ?? "").trim();
+    const whatsapp = String(data.get("whatsapp") ?? "").trim();
+    const cep = String(data.get("cep") ?? "").trim();
+    const endereco = String(data.get("endereco") ?? "").trim();
+
+    const linhas = items.map((i) => {
+      const p = getProduct(i.productId);
+      if (!p) return "";
+      return `• ${i.quantity}x ${p.name} (${p.unitLabel}) — ${formatBRL(p.unitPrice * i.quantity)}`;
+    }).filter(Boolean);
+
+    const mensagem = [
+      "Olá! Gostaria de finalizar meu pedido no Clube do Adubo:",
+      "",
+      ...linhas,
+      "",
+      `Subtotal: ${formatBRL(subtotal)}`,
+      "Frete: a combinar",
+      "",
+      "Dados de entrega:",
+      `Nome: ${nome}`,
+      `WhatsApp: ${whatsapp}`,
+      `CEP: ${cep}`,
+      `Endereço: ${endereco}`,
+    ].join("\n");
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank");
+
+    setPlacing(false);
+    clear();
+    toast.success("Redirecionando para o WhatsApp", {
+      description: "Finalize seu pedido na conversa que abrimos para você.",
+    });
+    navigate("/loja");
   };
+
 
   if (items.length === 0) {
     return (
