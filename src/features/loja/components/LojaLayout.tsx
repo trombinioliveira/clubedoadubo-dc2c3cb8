@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Leaf, ShoppingCart, Menu } from "lucide-react";
 import { CartProvider, useCart } from "../CartContext";
 import {
