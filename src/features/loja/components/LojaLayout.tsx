@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Leaf, ShoppingCart, Menu } from "lucide-react";
+import { ShoppingCart, Menu, Leaf } from "lucide-react";
+import logoImage from "@/assets/logo.webp";
 import { CartProvider, useCart } from "../CartContext";
 import {
   Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle,
