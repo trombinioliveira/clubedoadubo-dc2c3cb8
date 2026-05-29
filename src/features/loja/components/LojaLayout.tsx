@@ -32,11 +32,12 @@ function LojaHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between gap-2 px-4">
-        <Link to="/loja" className="flex items-center gap-2 text-base font-bold sm:text-lg">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full earth-gradient text-primary-foreground">
-            <Leaf className="h-5 w-5" />
-          </span>
-          <span className="truncate">Loja do Adubo</span>
+        <Link to="/loja" className="flex items-center gap-2 sm:gap-3">
+          <img src={logoImage} alt="Clube do Adubo" className="h-9 w-9 sm:h-10 sm:w-10 object-contain" />
+          <div className="flex flex-col">
+            <span className="font-bold text-foreground text-sm sm:text-base leading-tight">Clube do Adubo</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
