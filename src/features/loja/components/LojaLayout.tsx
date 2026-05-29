@@ -10,6 +10,7 @@ import {
 const NAV_LINKS = [
   { to: "/loja#produtos", label: "Produtos", end: false },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
+  { to: "/loja#sobre", label: "Sobre", end: false },
 ];
 
 function LojaHeader() {
