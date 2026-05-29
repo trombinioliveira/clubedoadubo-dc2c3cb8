@@ -114,6 +114,15 @@ function LojaFooter() {
 }
 
 export function LojaLayout() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  }, [location]);
+
   return (
     <CartProvider>
       <div className="flex min-h-screen flex-col bg-background">
