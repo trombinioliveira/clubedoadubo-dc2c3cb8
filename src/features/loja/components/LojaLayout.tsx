@@ -51,9 +51,9 @@ function LojaHeader() {
 
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           {NAV_LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} onClick={handleNav(l.to)} className={({ isActive }) => isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
+            <Link key={l.to} to={l.to} onClick={handleNav(l.to)} className={isLinkActive(l.to) ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
               {l.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
