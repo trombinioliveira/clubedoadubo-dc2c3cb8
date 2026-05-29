@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Leaf, ShoppingCart, Menu } from "lucide-react";
 import { CartProvider, useCart } from "../CartContext";
 import {
@@ -7,13 +7,26 @@ import {
 } from "@/components/ui/sheet";
 
 const NAV_LINKS = [
-  { to: "/loja", label: "Produtos", end: true },
+  { to: "/loja#produtos", label: "Produtos", end: false },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
 ];
 
 function LojaHeader() {
   const { totalItems } = useCart();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNav = (to: string) => (e: React.MouseEvent) => {
+    const [path, hash] = to.split("#");
+    if (!hash) return;
+    e.preventDefault();
+    if (location.pathname === path) {
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(to);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md">
@@ -27,7 +40,7 @@ function LojaHeader() {
 
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           {NAV_LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
+            <NavLink key={l.to} to={l.to} end={l.end} onClick={handleNav(l.to)} className={({ isActive }) => isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
               {l.label}
             </NavLink>
           ))}
@@ -62,7 +75,7 @@ function LojaHeader() {
               <nav className="mt-6 flex flex-col gap-1">
                 {NAV_LINKS.map((l) => (
                   <SheetClose asChild key={l.to}>
-                    <NavLink to={l.to} end={l.end} className={({ isActive }) => `rounded-lg px-3 py-3 text-base font-medium ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
+                    <NavLink to={l.to} end={l.end} onClick={handleNav(l.to)} className={({ isActive }) => `rounded-lg px-3 py-3 text-base font-medium ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
                       {l.label}
                     </NavLink>
                   </SheetClose>
@@ -101,6 +114,15 @@ function LojaFooter() {
 }
 
 export function LojaLayout() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  }, [location]);
+
   return (
     <CartProvider>
       <div className="flex min-h-screen flex-col bg-background">
