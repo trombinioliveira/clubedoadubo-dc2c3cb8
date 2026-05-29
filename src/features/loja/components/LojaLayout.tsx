@@ -10,6 +10,7 @@ import {
 const NAV_LINKS = [
   { to: "/loja#produtos", label: "Produtos", end: false },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
+  { to: "/loja#sobre", label: "Sobre", end: false },
 ];
 
 function LojaHeader() {
@@ -46,9 +47,6 @@ function LojaHeader() {
               {l.label}
             </NavLink>
           ))}
-          <Link to="/" className="text-muted-foreground hover:text-foreground">
-            Clube do Adubo
-          </Link>
         </nav>
 
         <div className="flex items-center gap-1">
@@ -89,11 +87,6 @@ function LojaHeader() {
                 <SheetClose asChild>
                   <Link to="/loja/carrinho" className="rounded-lg px-3 py-3 text-base font-medium text-foreground hover:bg-muted">
                     Carrinho{totalItems > 0 ? ` (${totalItems})` : ""}
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link to="/" className="mt-2 rounded-lg px-3 py-3 text-base font-medium text-muted-foreground hover:bg-muted">
-                    ← Voltar ao Clube do Adubo
                   </Link>
                 </SheetClose>
               </nav>

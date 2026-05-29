@@ -97,6 +97,24 @@ export default function LojaPage() {
           ))}
         </div>
       </section>
+
+      {/* Sobre — o que fazemos */}
+      <section id="sobre" className="border-t border-border bg-card">
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-2xl font-bold md:text-3xl">O que fazemos</h2>
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
+              Transformamos resíduos orgânicos urbanos em adubo de verdade. A cidade
+              produz resíduo, a gente processa e devolve à terra em forma de adubos
+              granulados e líquidos — fechando o ciclo da economia circular urbana.
+            </p>
+            <p className="mt-3 text-base text-muted-foreground md:text-lg">
+              Cada compra aqui leva esse adubo até a sua casa, com entrega para todo o
+              Brasil, e ajuda a manter o ciclo girando.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
