@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Minus, Plus, Check } from "lucide-react";
 import { getProductBySlug, formatBRL } from "../data/products";
 import { useCart } from "../CartContext";
+import { SealGrid } from "../components/seals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
