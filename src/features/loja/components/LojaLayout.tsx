@@ -12,7 +12,6 @@ const NAV_LINKS = [
 
 function LojaHeader() {
   const { totalItems } = useCart();
-  const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
