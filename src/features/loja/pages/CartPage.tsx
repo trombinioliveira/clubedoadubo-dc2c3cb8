@@ -22,7 +22,6 @@ export default function CartPage() {
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
-    setPlacing(true);
 
     const form = e.currentTarget as HTMLFormElement;
     const data = new FormData(form);
@@ -30,6 +29,26 @@ export default function CartPage() {
     const whatsapp = String(data.get("whatsapp") ?? "").trim();
     const cep = String(data.get("cep") ?? "").trim();
     const endereco = String(data.get("endereco") ?? "").trim();
+
+    // Validação do WhatsApp: 10 ou 11 dígitos (DDD + número)
+    const whatsappDigits = whatsapp.replace(/\D/g, "");
+    if (whatsappDigits.length < 10 || whatsappDigits.length > 11) {
+      toast.error("WhatsApp inválido", {
+        description: "Informe o número com DDD, ex: (11) 99999-9999.",
+      });
+      return;
+    }
+
+    // Validação do CEP: 8 dígitos
+    const cepDigits = cep.replace(/\D/g, "");
+    if (cepDigits.length !== 8) {
+      toast.error("CEP inválido", {
+        description: "Informe um CEP com 8 dígitos, ex: 00000-000.",
+      });
+      return;
+    }
+
+    setPlacing(true);
 
     const linhas = items.map((i) => {
       const p = getProduct(i.productId);
