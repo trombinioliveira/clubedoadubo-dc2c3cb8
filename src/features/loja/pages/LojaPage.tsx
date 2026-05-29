@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Leaf, Truck, RefreshCw } from "lucide-react";
 import { PRODUCTS, formatBRL } from "../data/products";
+import { SealsSection, SealStrip } from "../components/seals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
