@@ -75,7 +75,7 @@ function LojaHeader() {
               <nav className="mt-6 flex flex-col gap-1">
                 {NAV_LINKS.map((l) => (
                   <SheetClose asChild key={l.to}>
-                    <NavLink to={l.to} end={l.end} className={({ isActive }) => `rounded-lg px-3 py-3 text-base font-medium ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
+                    <NavLink to={l.to} end={l.end} onClick={handleNav(l.to)} className={({ isActive }) => `rounded-lg px-3 py-3 text-base font-medium ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
                       {l.label}
                     </NavLink>
                   </SheetClose>
