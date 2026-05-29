@@ -170,19 +170,19 @@ export default function CartPage() {
             <h2 className="text-lg font-bold">Entrega</h2>
             <div>
               <Label htmlFor="nome">Nome completo</Label>
-              <Input id="nome" required placeholder="Seu nome" />
+              <Input id="nome" name="nome" required placeholder="Seu nome" />
             </div>
             <div>
               <Label htmlFor="whatsapp">WhatsApp com DDD</Label>
-              <Input id="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
+              <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
             </div>
             <div>
               <Label htmlFor="cep">CEP</Label>
-              <Input id="cep" required placeholder="00000-000" />
+              <Input id="cep" name="cep" required placeholder="00000-000" />
             </div>
             <div>
               <Label htmlFor="endereco">Endereço</Label>
-              <Input id="endereco" required placeholder="Rua, número, bairro, cidade/UF" />
+              <Input id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade/UF" />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={placing}>
               {placing ? "Processando..." : "Finalizar pedido"}
