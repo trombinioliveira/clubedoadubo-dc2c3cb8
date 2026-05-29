@@ -78,7 +78,11 @@ const App = () => (
               <Route index element={<LojaPage />} />
               <Route path="produto/:slug" element={<ProductPage />} />
               <Route path="carrinho" element={<CartPage />} />
-              <Route path="admin" element={<LojaAdminPage />} />
+              <Route path="admin" element={
+                <ProtectedRoute requireStaff>
+                  <LojaAdminPage />
+                </ProtectedRoute>
+              } />
             </Route>
 
 

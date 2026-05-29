@@ -9,7 +9,6 @@ import {
 const NAV_LINKS = [
   { to: "/loja", label: "Produtos", end: true },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
-  { to: "/loja/admin", label: "Admin", end: false },
 ];
 
 function LojaHeader() {
