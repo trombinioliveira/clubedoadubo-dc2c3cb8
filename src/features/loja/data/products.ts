@@ -32,20 +32,6 @@ export interface Product {
 
 export const PRODUCTS: Product[] = [
   {
-    id: "granulado-05kg",
-    slug: "adubo-granulado",
-    name: "Adubo Granulado Orgânico",
-    category: "granulado",
-    shortDescription: "Sacos de 0,5 kg de adubo granulado 100% orgânico.",
-    description:
-      "Adubo granulado produzido a partir do processamento de resíduos orgânicos do Clube do Adubo. Liberação gradual de nutrientes, ideal para hortas, jardins e vasos. Vendido em sacos de 0,5 kg, com pedido mínimo de 2 kg (4 sacos).",
-    image: granuladoImg,
-    unitLabel: "saco de 0,5 kg",
-    minQuantity: 4,
-    unitPrice: 12.9,
-    minLabel: "Mínimo 2 kg (4 sacos)",
-  },
-  {
     id: "liquido-05l",
     slug: "adubo-liquido",
     name: "Adubo Líquido Orgânico",
@@ -59,6 +45,20 @@ export const PRODUCTS: Product[] = [
     unitPrice: 18.9,
     minLabel: "Mínimo 2 L (4 garrafas)",
     badge: "Mais vendido",
+  },
+  {
+    id: "granulado-05kg",
+    slug: "adubo-granulado",
+    name: "Adubo Granulado Orgânico",
+    category: "granulado",
+    shortDescription: "Sacos de 0,5 kg de adubo granulado 100% orgânico.",
+    description:
+      "Adubo granulado produzido a partir do processamento de resíduos orgânicos do Clube do Adubo. Liberação gradual de nutrientes, ideal para hortas, jardins e vasos. Vendido em sacos de 0,5 kg, com pedido mínimo de 2 kg (4 sacos).",
+    image: granuladoImg,
+    unitLabel: "saco de 0,5 kg",
+    minQuantity: 4,
+    unitPrice: 12.9,
+    minLabel: "Mínimo 2 kg (4 sacos)",
   },
   {
     id: "assinatura-mensal",
