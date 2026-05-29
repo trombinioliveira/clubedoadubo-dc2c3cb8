@@ -17,7 +17,7 @@ export default function CartPage() {
 
   const hasOnlySubscription =
     items.length > 0 && items.every((i) => getProduct(i.productId)?.recurring);
-  const shipping = items.length === 0 || hasOnlySubscription ? 0 : SHIPPING_FLAT;
+  const shipping = 0;
   const total = subtotal + shipping;
 
   const handleCheckout = (e: React.FormEvent) => {
