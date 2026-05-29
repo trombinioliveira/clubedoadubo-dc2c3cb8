@@ -45,6 +45,9 @@ import { ReferralsPage, PublicProfilePage } from "@/features/referrals";
 import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
+// Loja (vitrine virtual)
+import { LojaLayout, LojaPage, ProductPage, CartPage, LojaAdminPage } from "@/features/loja";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -69,6 +72,15 @@ const App = () => (
             {/* Public pages with PublicLayout (header + footer) */}
             {/* Convite — standalone public page (no header/footer) */}
             <Route path="/convite" element={<ConvitePage />} />
+
+            {/* Loja virtual — layout próprio, separado do Clube */}
+            <Route path="/loja" element={<LojaLayout />}>
+              <Route index element={<LojaPage />} />
+              <Route path="produto/:slug" element={<ProductPage />} />
+              <Route path="carrinho" element={<CartPage />} />
+              <Route path="admin" element={<LojaAdminPage />} />
+            </Route>
+
 
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
