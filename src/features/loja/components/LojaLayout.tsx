@@ -19,12 +19,20 @@ function LojaHeader() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isLinkActive = (to: string) => {
+    const [path, hash] = to.split("#");
+    if (location.pathname !== path) return location.pathname.startsWith(to.split("#")[0]) && to.includes("/produto/") ? location.pathname === path : false;
+    if (hash) return location.hash === `#${hash}`;
+    return !location.hash;
+  };
+
   const handleNav = (to: string) => (e: React.MouseEvent) => {
     const [path, hash] = to.split("#");
     if (!hash) return;
     e.preventDefault();
     if (location.pathname === path) {
       document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+      window.history.replaceState(null, "", to);
     } else {
       navigate(to);
     }
