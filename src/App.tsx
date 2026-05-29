@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 // @ts-ignore - QueryClient type drift
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { AppLayout, PublicLayout } from "@/components/layout";
 import { ProtectedRoute } from "@/components/shared";
@@ -85,9 +85,11 @@ const App = () => (
               } />
             </Route>
 
+            {/* Raiz redireciona para a loja */}
+            <Route path="/" element={<Navigate to="/loja" replace />} />
 
             <Route element={<PublicLayout />}>
-              <Route path="/" element={<Index />} />
+              <Route path="/inicio" element={<Index />} />
               <Route path="/planos" element={<LandingCompra />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/transparencia" element={<TransparenciaPage />} />
