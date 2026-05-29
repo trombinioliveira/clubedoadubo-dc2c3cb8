@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, Leaf } from "lucide-react";
 import logoImage from "@/assets/logo.webp";
 import { CartProvider, useCart } from "../CartContext";
