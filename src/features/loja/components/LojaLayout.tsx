@@ -5,7 +5,7 @@ import logoImage from "@/assets/logo.webp";
 import { CartProvider, useCart } from "../CartContext";
 
 const NAV_LINKS = [
-  { to: "/loja#produtos", label: "Produtos", end: false },
+  { to: "/loja#produtos", label: "Adubos Orgânicos", end: false },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
   { to: "/loja#sobre", label: "Sobre", end: false },
 ];
