@@ -40,16 +40,17 @@ function LojaHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-2 px-4">
-        <Link to="/loja" className="flex items-center gap-2 sm:gap-3">
-          <img src={logoImage} alt="Clube do Adubo" className="h-9 w-9 sm:h-10 sm:w-10 object-contain" />
+      {/* Desktop */}
+      <div className="container mx-auto hidden h-16 items-center justify-between gap-2 px-4 md:flex">
+        <Link to="/loja" className="flex items-center gap-3">
+          <img src={logoImage} alt="Clube do Adubo" className="h-10 w-10 object-contain" />
           <div className="flex flex-col">
-            <span className="font-bold text-foreground text-sm sm:text-base leading-tight">Clube do Adubo</span>
-            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
+            <span className="font-bold text-foreground text-base leading-tight">Clube do Adubo</span>
+            <span className="text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+        <nav className="flex items-center gap-6 text-sm font-medium">
           {NAV_LINKS.map((l) => (
             <Link key={l.to} to={l.to} onClick={handleNav(l.to)} className={isLinkActive(l.to) ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
               {l.label}
@@ -57,8 +58,27 @@ function LojaHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1">
-          <Link to="/loja/carrinho" aria-label="Carrinho" className="relative flex h-10 w-10 items-center justify-center rounded-full bg-muted hover:bg-muted/70">
+        <Link to="/loja/carrinho" aria-label="Carrinho" className="relative flex h-10 w-10 items-center justify-center rounded-full bg-muted hover:bg-muted/70">
+          <ShoppingCart className="h-5 w-5" />
+          {totalItems > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 text-xs font-bold text-secondary-foreground">
+              {totalItems}
+            </span>
+          )}
+        </Link>
+      </div>
+
+      {/* Mobile — logo centralizado, nav abaixo, tudo fixo */}
+      <div className="flex flex-col items-center gap-2 px-4 py-3 md:hidden">
+        <div className="relative flex w-full items-center justify-center">
+          <Link to="/loja" className="flex flex-col items-center gap-1">
+            <img src={logoImage} alt="Clube do Adubo" className="h-9 w-9 object-contain" />
+            <div className="flex flex-col items-center text-center">
+              <span className="font-bold text-foreground text-sm leading-tight">Clube do Adubo</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">Economia Circular Urbana</span>
+            </div>
+          </Link>
+          <Link to="/loja/carrinho" aria-label="Carrinho" className="absolute right-0 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-muted hover:bg-muted/70">
             <ShoppingCart className="h-5 w-5" />
             {totalItems > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 text-xs font-bold text-secondary-foreground">
@@ -66,41 +86,15 @@ function LojaHeader() {
               </span>
             )}
           </Link>
-
-          {/* Menu mobile */}
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <button aria-label="Abrir menu" className="flex h-10 w-10 items-center justify-center rounded-full bg-muted hover:bg-muted/70 md:hidden">
-                <Menu className="h-5 w-5" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72">
-              <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <img src={logoImage} alt="Clube do Adubo" className="h-6 w-6 object-contain" />
-                  <span className="flex flex-col text-left leading-tight">
-                    <span className="text-sm font-bold">Clube do Adubo</span>
-                    <span className="text-[10px] font-normal text-muted-foreground">Economia Circular Urbana</span>
-                  </span>
-                </SheetTitle>
-              </SheetHeader>
-              <nav className="mt-6 flex flex-col gap-1">
-                {NAV_LINKS.map((l) => (
-                  <SheetClose asChild key={l.to}>
-                    <Link to={l.to} onClick={handleNav(l.to)} className={`rounded-lg px-3 py-3 text-base font-medium ${isLinkActive(l.to) ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"}`}>
-                      {l.label}
-                    </Link>
-                  </SheetClose>
-                ))}
-                <SheetClose asChild>
-                  <Link to="/loja/carrinho" className="rounded-lg px-3 py-3 text-base font-medium text-foreground hover:bg-muted">
-                    Carrinho{totalItems > 0 ? ` (${totalItems})` : ""}
-                  </Link>
-                </SheetClose>
-              </nav>
-            </SheetContent>
-          </Sheet>
         </div>
+
+        <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm font-medium">
+          {NAV_LINKS.map((l) => (
+            <Link key={l.to} to={l.to} onClick={handleNav(l.to)} className={isLinkActive(l.to) ? "text-primary" : "text-muted-foreground hover:text-foreground"}>
+              {l.label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </header>
   );
