@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import logoImage from "@/assets/logo.webp";
@@ -10,16 +10,43 @@ const NAV_LINKS = [
   { to: "/loja#sobre", label: "Sobre", end: false },
 ];
 
+const SECTION_IDS = ["produtos", "sobre"];
+
 function LojaHeader() {
   const { totalItems } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  // Scroll spy — destaca o link da seção visível enquanto rola a página
+  useEffect(() => {
+    if (location.pathname !== "/loja") {
+      setActiveSection(null);
+      return;
+    }
+    const sections = SECTION_IDS
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el);
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) setActiveSection(visible[0].target.id);
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: [0, 0.25, 0.5, 1] }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [location.pathname]);
 
   const isLinkActive = (to: string) => {
     const [path, hash] = to.split("#");
     if (location.pathname !== path) return false;
-    if (hash) return location.hash === `#${hash}`;
-    return !location.hash;
+    if (hash) return activeSection === hash;
+    return !activeSection;
   };
 
   const handleNav = (to: string) => (e: React.MouseEvent) => {
