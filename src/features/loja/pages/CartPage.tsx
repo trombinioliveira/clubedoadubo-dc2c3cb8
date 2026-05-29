@@ -17,7 +17,7 @@ export default function CartPage() {
 
   const hasOnlySubscription =
     items.length > 0 && items.every((i) => getProduct(i.productId)?.recurring);
-  const shipping = items.length === 0 || hasOnlySubscription ? 0 : SHIPPING_FLAT;
+  const shipping = 0;
   const total = subtotal + shipping;
 
   const handleCheckout = (e: React.FormEvent) => {
@@ -107,7 +107,7 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Frete</span>
-                <span>{shipping === 0 ? "Grátis" : formatBRL(shipping)}</span>
+                <span>A combinar</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
                 <span>Total</span>
