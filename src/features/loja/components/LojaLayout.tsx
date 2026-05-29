@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Leaf, ShoppingCart, Menu } from "lucide-react";
+import { ShoppingCart, Menu, Leaf } from "lucide-react";
+import logoImage from "@/assets/logo.webp";
 import { CartProvider, useCart } from "../CartContext";
 import {
   Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle,
@@ -31,11 +32,12 @@ function LojaHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between gap-2 px-4">
-        <Link to="/loja" className="flex items-center gap-2 text-base font-bold sm:text-lg">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full earth-gradient text-primary-foreground">
-            <Leaf className="h-5 w-5" />
-          </span>
-          <span className="truncate">Loja do Adubo</span>
+        <Link to="/loja" className="flex items-center gap-2 sm:gap-3">
+          <img src={logoImage} alt="Clube do Adubo" className="h-9 w-9 sm:h-10 sm:w-10 object-contain" />
+          <div className="flex flex-col">
+            <span className="font-bold text-foreground text-sm sm:text-base leading-tight">Clube do Adubo</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
@@ -69,7 +71,11 @@ function LojaHeader() {
             <SheetContent side="right" className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <Leaf className="h-5 w-5 text-primary" /> Loja do Adubo
+                  <img src={logoImage} alt="Clube do Adubo" className="h-6 w-6 object-contain" />
+                  <span className="flex flex-col text-left leading-tight">
+                    <span className="text-sm font-bold">Clube do Adubo</span>
+                    <span className="text-[10px] font-normal text-muted-foreground">Economia Circular Urbana</span>
+                  </span>
                 </SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-1">
