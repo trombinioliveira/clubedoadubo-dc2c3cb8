@@ -77,7 +77,9 @@ export default function ProductPage() {
                 <span className="text-base font-medium text-muted-foreground"> / {product.unitLabel}</span>
               )}
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">{product.minLabel}</p>
+            {product.minLabel && (
+              <p className="mt-1 text-sm text-muted-foreground">{product.minLabel}</p>
+            )}
 
             {!product.recurring && (
               <div className="mt-5">
