@@ -81,6 +81,7 @@ export default function LojaPage() {
                 <p className="mt-1 flex-1 text-sm text-muted-foreground">
                   {product.shortDescription}
                 </p>
+                <SealStrip className="mt-3" />
                 <div className="mt-4 flex items-end justify-between">
                   <div>
                     <p className="text-xl font-extrabold text-primary">
