@@ -57,6 +57,13 @@
     --status-sold: 25 55% 55%;
     --status-paid: 160 60% 45%;
 
+    /* Seals — artisanal stamp palette */
+    --seal-deep: 145 40% 18%;
+    --seal-moss: 95 20% 33%;
+    --seal-beige: 40 32% 86%;
+    --seal-cream: 45 35% 96%;
+    --seal-ink: 150 18% 14%;
+
     --sidebar-background: 45 25% 95%;
     --sidebar-foreground: 150 20% 15%;
     --sidebar-primary: 145 45% 32%;
