@@ -85,9 +85,11 @@ const App = () => (
               } />
             </Route>
 
+            {/* Raiz redireciona para a loja */}
+            <Route path="/" element={<Navigate to="/loja" replace />} />
 
             <Route element={<PublicLayout />}>
-              <Route path="/" element={<Index />} />
+              <Route path="/inicio" element={<Index />} />
               <Route path="/planos" element={<LandingCompra />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/transparencia" element={<TransparenciaPage />} />
