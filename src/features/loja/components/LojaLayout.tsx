@@ -14,6 +14,19 @@ const NAV_LINKS = [
 function LojaHeader() {
   const { totalItems } = useCart();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNav = (to: string) => (e: React.MouseEvent) => {
+    const [path, hash] = to.split("#");
+    if (!hash) return;
+    e.preventDefault();
+    if (location.pathname === path) {
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(to);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md">
