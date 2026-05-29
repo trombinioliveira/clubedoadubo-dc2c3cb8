@@ -36,7 +36,7 @@ export const PRODUCTS: Product[] = [
     slug: "adubo-liquido",
     name: "Adubo Líquido Orgânico",
     category: "liquido",
-    shortDescription: "Garrafas de 0,5 L de adubo líquido pronto para borrifar nas folhas ou colocar na terra.",
+    shortDescription: "Garrafas de 0,5 L de Fertilizante líquido a base de Húmus de Minhoca, pronto para borrifar nas folhas ou colocar no seus vasos e jardins.",
     description:
       "Adubo líquido concentrado rico em nutrientes, resultado do processamento da matéria orgânica. Rápida absorção pelas plantas, ideal para adubação foliar e de cobertura. Vendido em garrafas de 0,5 L.",
     image: liquidoImg,
