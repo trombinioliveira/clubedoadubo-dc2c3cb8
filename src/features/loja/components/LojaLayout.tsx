@@ -71,7 +71,11 @@ function LojaHeader() {
             <SheetContent side="right" className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <Leaf className="h-5 w-5 text-primary" /> Loja do Adubo
+                  <img src={logoImage} alt="Clube do Adubo" className="h-6 w-6 object-contain" />
+                  <span className="flex flex-col text-left leading-tight">
+                    <span className="text-sm font-bold">Clube do Adubo</span>
+                    <span className="text-[10px] font-normal text-muted-foreground">Economia Circular Urbana</span>
+                  </span>
                 </SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-1">
