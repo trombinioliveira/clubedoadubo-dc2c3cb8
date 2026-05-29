@@ -138,7 +138,7 @@ export default function CartPage() {
               {placing ? "Processando..." : "Finalizar pedido"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              Vitrine de demonstração — o pagamento real será ativado com o Shopify.
+              Finalizaremos seu Pedido por Whatsapp para maior comodidade.
             </p>
           </form>
         </div>
