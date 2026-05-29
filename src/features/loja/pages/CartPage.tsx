@@ -123,6 +123,10 @@ export default function CartPage() {
               <Input id="nome" required placeholder="Seu nome" />
             </div>
             <div>
+              <Label htmlFor="whatsapp">WhatsApp com DDD</Label>
+              <Input id="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
+            </div>
+            <div>
               <Label htmlFor="cep">CEP</Label>
               <Input id="cep" required placeholder="00000-000" />
             </div>
