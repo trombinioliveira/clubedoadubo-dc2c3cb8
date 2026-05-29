@@ -88,11 +88,6 @@ function LojaHeader() {
                     Carrinho{totalItems > 0 ? ` (${totalItems})` : ""}
                   </Link>
                 </SheetClose>
-                <SheetClose asChild>
-                  <Link to="/" className="mt-2 rounded-lg px-3 py-3 text-base font-medium text-muted-foreground hover:bg-muted">
-                    ← Voltar ao Clube do Adubo
-                  </Link>
-                </SheetClose>
               </nav>
             </SheetContent>
           </Sheet>
