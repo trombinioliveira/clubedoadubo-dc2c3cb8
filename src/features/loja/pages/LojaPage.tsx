@@ -100,6 +100,10 @@ export default function LojaPage() {
         </div>
       </section>
 
+      {/* Selos — diferenciação artesanal */}
+      <SealsSection />
+
+
       {/* Sobre — o que fazemos */}
       <section id="sobre" className="border-t border-border bg-card">
         <div className="container mx-auto px-4 py-12 md:py-16">
