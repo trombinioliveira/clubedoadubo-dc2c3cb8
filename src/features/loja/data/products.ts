@@ -44,7 +44,6 @@ export const PRODUCTS: Product[] = [
     minQuantity: 4,
     unitPrice: 12.9,
     minLabel: "Mínimo 2 kg (4 sacos)",
-    badge: "Mais vendido",
   },
   {
     id: "liquido-05l",
@@ -59,6 +58,7 @@ export const PRODUCTS: Product[] = [
     minQuantity: 4,
     unitPrice: 18.9,
     minLabel: "Mínimo 2 L (4 garrafas)",
+    badge: "Mais vendido",
   },
   {
     id: "assinatura-mensal",
