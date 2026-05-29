@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sheet";
 
 const NAV_LINKS = [
-  { to: "/loja", label: "Produtos", end: true },
+  { to: "/loja#produtos", label: "Produtos", end: false },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
 ];
 
