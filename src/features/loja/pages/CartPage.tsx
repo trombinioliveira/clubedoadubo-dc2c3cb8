@@ -169,8 +169,8 @@ export default function CartPage() {
           <form onSubmit={handleCheckout} className="space-y-3 rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-bold">Entrega</h2>
             <div>
-              <Label htmlFor="nome">Nome completo</Label>
-              <Input id="nome" name="nome" required placeholder="Seu nome" />
+              <Label htmlFor="nome">Primeiro nome</Label>
+              <Input id="nome" name="nome" required placeholder="Seu primeiro nome" />
             </div>
             <div>
               <Label htmlFor="whatsapp">WhatsApp com DDD</Label>
