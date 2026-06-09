@@ -251,6 +251,18 @@ export default function GamePage() {
               </div>
             );
           })}
+          {/* message balloon in the white space above the center button */}
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[160px] -translate-x-1/2"
+            style={{ transform: "translate(-50%, calc(-50% - 96px))" }}
+          >
+            <p
+              key={messageKey}
+              className="animate-in fade-in slide-in-from-bottom-1 mx-auto rounded-2xl bg-gradient-to-br from-primary/15 to-accent/20 px-3 py-1.5 text-center text-xs font-semibold leading-tight text-foreground shadow-[var(--shadow-soft)] backdrop-blur"
+            >
+              {cycleMessage}
+            </p>
+          </div>
           {/* center button */}
           <button
             onClick={enterCycle}
