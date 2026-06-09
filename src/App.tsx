@@ -69,6 +69,7 @@ const App = () => (
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
             <Route path="/checkin/:pointSlug" element={<CheckinPage />} />
             <Route path="/p/:pointSlug" element={<PointPublicPage />} />
+            <Route path="/game" element={<GamePage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
             {/* Convite — standalone public page (no header/footer) */}
