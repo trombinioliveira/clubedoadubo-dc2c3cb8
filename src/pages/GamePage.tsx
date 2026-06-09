@@ -140,15 +140,23 @@ export default function GamePage() {
   const [confirmed, setConfirmed] = useState(false);
   const [currentStage, setCurrentStage] = useState(0); // index into stages
   const [received, setReceived] = useState(false);
+  const [cycleMessage, setCycleMessage] = useState("Toque para entrar no ciclo");
+  const [messageKey, setMessageKey] = useState(0);
 
   const expected = pros * 20;
   const active = stages[currentStage];
   const next = stages[(currentStage + 1) % stages.length];
 
+  const showMessage = (msg: string) => {
+    setCycleMessage(msg);
+    setMessageKey((k) => k + 1);
+  };
+
   const enterCycle = () => {
     if (!joined) {
       setJoined(true);
       setCurrentStage(1);
+      showMessage("Você entrou no ciclo! 🌱");
       toast.success("Você entrou no ciclo! 🌱", {
         description: `${pros} PRO${pros > 1 ? "s" : ""} em jornada.`,
       });
@@ -163,11 +171,13 @@ export default function GamePage() {
       if (nextIdx >= stages.length) {
         setReceived(true);
         setRewardTab("recebida");
+        showMessage("Recompensa recebida! 🏆");
         toast.success("Recompensa recebida! 🏆", {
           description: `Você recebeu R$ ${expected}.`,
         });
         return 0;
       }
+      showMessage(stages[nextIdx].title);
       toast(`Avançou para: ${stages[nextIdx].title}`, {
         description: stages[nextIdx].detail,
       });
@@ -179,6 +189,7 @@ export default function GamePage() {
     setConfirmed(true);
     setJoined(true);
     setCurrentStage(1);
+    showMessage("Participação confirmada! 🌱");
     toast.success("Participação confirmada!", {
       description: `${pros} PRO${pros > 1 ? "s" : ""} adicionados ao ciclo.`,
     });
@@ -190,6 +201,7 @@ export default function GamePage() {
     setReceived(false);
     setCurrentStage(0);
     setRewardTab("esperada");
+    showMessage("Toque para entrar no ciclo");
     toast("Ciclo reiniciado", { description: "Pronto para começar de novo." });
   };
 
