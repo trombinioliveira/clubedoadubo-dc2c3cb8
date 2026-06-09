@@ -37,6 +37,7 @@ import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
 import CheckinPage from "./pages/CheckinPage";
 import PointPublicPage from "./pages/PointPublicPage";
+import GamePage from "./pages/GamePage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
