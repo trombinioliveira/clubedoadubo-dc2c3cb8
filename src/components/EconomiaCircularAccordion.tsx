@@ -175,7 +175,7 @@ const EconomiaCircularAccordion = () => {
                 { emoji: '🌿', title: 'Coleta do resíduo', desc: 'O material orgânico nos pontos de coleta parceiros no território é coletado pelo Clube do Adubo.' },
                 { emoji: '🏭', title: 'Compostagem', desc: 'O resíduo passa por processamento biológico controlado em lotes rastreáveis.' },
                 { emoji: '🌾', title: 'Produção de adubo', desc: 'O composto orgânico vira húmus de minhoca: um adubo orgânico de altíssima qualidade, considerado o resultado final da digestão de restos vegetais e animais pelas minhocas pronto para uso no solo e na agricultura.' },
-                { emoji: '📦', title: 'Venda e retorno', desc: 'O adubo é vendido e o valor gerado retorna ao ciclo, beneficiando quem participa.' },
+                { emoji: '💲', title: 'Venda e recompensa', desc: 'O adubo é vendido e o valor gerado retorna ao ciclo, beneficiando quem participa.' },
               ].map((step, i, arr) => (
                 <div key={i} className="flex flex-col items-center gap-2">
                   <Card className="w-full border-border/50">
