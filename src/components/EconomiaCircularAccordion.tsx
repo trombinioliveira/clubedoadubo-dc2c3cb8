@@ -385,11 +385,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 8 — Como o ciclo funciona na prática */}
-        <AccordionItem value="item-8">
+        {/* 9 — Como o ciclo funciona na prática */}
+        <AccordionItem value="item-9">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">9</span>
               Como o ciclo funciona na prática
             </span>
           </AccordionTrigger>
