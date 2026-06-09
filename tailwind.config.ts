@@ -105,6 +105,16 @@ export default {
           from: { opacity: "0", transform: "translateX(20px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
+        "pulse-attention": {
+          "0%, 100%": {
+            boxShadow:
+              "0 12px 36px -8px hsl(145 45% 32% / 0.6), inset 0 2px 8px hsl(0 0% 100% / 0.25), 0 0 0 0 hsl(170 55% 42% / 0.5)",
+          },
+          "50%": {
+            boxShadow:
+              "0 12px 36px -8px hsl(145 45% 32% / 0.6), inset 0 2px 8px hsl(0 0% 100% / 0.25), 0 0 0 16px hsl(170 55% 42% / 0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
