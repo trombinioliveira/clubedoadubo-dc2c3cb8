@@ -270,7 +270,7 @@ export default function GamePage() {
           {/* center button */}
           <button
             onClick={enterCycle}
-            className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] text-center text-primary-foreground shadow-[0_12px_36px_-8px_hsl(145_45%_32%/0.6),inset_0_2px_8px_hsl(0_0%_100%/0.25)] transition-transform active:scale-95"
+            className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 animate-pulse-attention flex-col items-center justify-center rounded-full bg-gradient-to-br from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] text-center text-primary-foreground shadow-[0_12px_36px_-8px_hsl(145_45%_32%/0.6),inset_0_2px_8px_hsl(0_0%_100%/0.25)] transition-transform active:scale-95"
           >
             <Sprout className="mb-1 h-7 w-7" />
             <span className="text-sm font-bold leading-tight">
