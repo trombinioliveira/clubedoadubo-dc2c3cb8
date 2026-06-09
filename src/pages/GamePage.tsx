@@ -209,10 +209,10 @@ export default function GamePage() {
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background pb-28">
       {/* Header */}
-      <header className="px-5 pt-8 text-center">
-        <Link to="/loja" className="mb-4 flex flex-col items-center gap-1">
+      <header className="px-5 pt-3 text-center">
+        <Link to="/loja" className="mb-3 flex items-center justify-center gap-2">
           <img src={logoImage} alt="Clube do Adubo" className="h-10 w-10 object-contain" />
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col text-left">
             <span className="font-bold text-foreground text-base leading-tight">Clube do Adubo</span>
             <span className="text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
           </div>
