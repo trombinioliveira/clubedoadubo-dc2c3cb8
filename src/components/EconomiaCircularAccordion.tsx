@@ -32,7 +32,10 @@ const EconomiaCircularAccordion = () => {
         {/* 1 — Do descarte ao retorno */}
         <AccordionItem value="item-1">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Do descarte ao retorno
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">1</span>
+              Do descarte ao retorno
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <p className="text-sm text-muted-foreground mb-4">
@@ -82,7 +85,10 @@ const EconomiaCircularAccordion = () => {
         {/* 2 — Por que o resíduo orgânico importa */}
         <AccordionItem value="item-2">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Por que o resíduo orgânico importa
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">2</span>
+              Por que o resíduo orgânico importa
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
@@ -112,7 +118,10 @@ const EconomiaCircularAccordion = () => {
         {/* 3 — Do Brasil ao nosso território */}
         <AccordionItem value="item-3">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Do Brasil ao nosso território
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">3</span>
+              Do Brasil ao nosso território
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-5">
@@ -155,7 +164,10 @@ const EconomiaCircularAccordion = () => {
         {/* 4 — Como o Clube do Adubo responde */}
         <AccordionItem value="item-4">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Como o Clube do Adubo responde
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">4</span>
+              Como o Clube do Adubo responde
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-2 gap-3">
@@ -180,7 +192,10 @@ const EconomiaCircularAccordion = () => {
         {/* 5 — O que já está acontecendo */}
         <AccordionItem value="item-5">
           <AccordionTrigger className="text-left text-sm font-bold">
-            O que já está acontecendo
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">5</span>
+              O que já está acontecendo
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
@@ -208,7 +223,10 @@ const EconomiaCircularAccordion = () => {
         {/* 6 — Como esse ciclo pode se espalhar */}
         <AccordionItem value="item-6">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Como esse ciclo pode se espalhar
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">6</span>
+              Como esse ciclo pode se espalhar
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-3">
@@ -231,7 +249,10 @@ const EconomiaCircularAccordion = () => {
         {/* 7 — Como o ciclo funciona na prática */}
         <AccordionItem value="item-7">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Como o ciclo funciona na prática
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
+              Como o ciclo funciona na prática
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-wrap items-center justify-center gap-2 text-sm font-medium text-foreground">
@@ -251,7 +272,10 @@ const EconomiaCircularAccordion = () => {
         {/* 8 — Fontes consultadas */}
         <AccordionItem value="item-8">
           <AccordionTrigger className="text-left text-sm font-bold">
-            Fontes consultadas
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
+              Fontes consultadas
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <ul className="space-y-2 text-xs text-muted-foreground/80">
