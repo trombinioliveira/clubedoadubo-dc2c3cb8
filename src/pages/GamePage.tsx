@@ -12,6 +12,7 @@ import {
   Minus,
   Plus,
   ArrowRight,
+  ChevronRight,
   HelpCircle,
   Clock,
   Check,
