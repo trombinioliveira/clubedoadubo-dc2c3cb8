@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import logoImage from "@/assets/logo.webp";
 import { toast } from "sonner";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import EconomiaCircularPage from "@/pages/EconomiaCircularPage";
 import {
   Leaf,
   Recycle,
