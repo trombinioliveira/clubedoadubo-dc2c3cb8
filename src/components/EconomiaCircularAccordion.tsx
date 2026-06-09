@@ -170,20 +170,32 @@ const EconomiaCircularAccordion = () => {
             </span>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-2">
               {[
                 { emoji: '🌿', title: 'Coleta do resíduo', desc: 'O material orgânico é recebido nos pontos de coleta parceiros no território.' },
                 { emoji: '🏭', title: 'Compostagem', desc: 'O resíduo passa por processamento biológico controlado em lotes rastreáveis.' },
                 { emoji: '🌾', title: 'Produção de adubo', desc: 'O composto orgânico vira adubo natural pronto para uso no solo e na agricultura.' },
                 { emoji: '📦', title: 'Venda e retorno', desc: 'O adubo é vendido e o valor gerado retorna ao ciclo, beneficiando quem participa.' },
-              ].map((step, i) => (
-                <Card key={i} className="border-border/50">
-                  <CardContent className="p-4">
-                    <span className="text-xl mb-2 block">{step.emoji}</span>
-                    <h3 className="font-bold text-foreground text-sm mb-1">{step.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
-                  </CardContent>
-                </Card>
+              ].map((step, i, arr) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <Card className="w-full border-border/50">
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                        {i + 1}
+                      </span>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-foreground text-sm mb-1">
+                          <span className="mr-1">{step.emoji}</span>
+                          {step.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  {i < arr.length - 1 && (
+                    <ArrowRight className="h-5 w-5 rotate-90 text-primary" />
+                  )}
+                </div>
               ))}
             </div>
           </AccordionContent>
