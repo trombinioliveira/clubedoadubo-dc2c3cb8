@@ -259,11 +259,80 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 6 — O que já está acontecendo */}
+        {/* 6 — Por que esse ciclo é tão inovador */}
         <AccordionItem value="item-6">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">6</span>
+              Por que esse ciclo é tão inovador?
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                O Clube do Adubo nasce de uma ideia simples, mas poderosa: transformar resíduo
+                orgânico em adubo, vender esse adubo e devolver parte do resultado para quem ajudou o
+                ciclo a acontecer.
+              </p>
+              <p className="font-medium text-foreground">Aqui, o impacto não termina na coleta.</p>
+              <p>
+                O ciclo só se completa quando o adubo volta para a vida — em uma planta, uma horta, um
+                jardim, uma casa, um comércio ou em uma amostra comercial para o agronegócio.
+              </p>
+              <p className="font-medium text-foreground">
+                É por isso que comprar o adubo é tão importante.
+              </p>
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
+                    Adubo físico
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Quando você compra um adubo físico, você leva a transformação para casa e ajuda o
+                    ciclo a continuar girando.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
+                    Adubo Digital
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Quando você compra um Adubo Digital, você ajuda esse adubo a chegar mais longe:
+                    ele pode representar uma amostra comercial, um teste, uma demonstração ou uma
+                    oportunidade de entrada no agronegócio.
+                  </p>
+                </CardContent>
+              </Card>
+              <p>
+                Esse é o diferencial do Clube do Adubo: unir sustentabilidade real, produto físico,
+                participação digital, venda, expansão comercial e recompensa financeira em uma única
+                jornada.
+              </p>
+              <p>
+                A recompensa financeira é importante porque mostra que o impacto também pode gerar
+                retorno. Quando o ciclo vende, o resultado pode voltar para quem participou.
+              </p>
+              <div className="space-y-1 font-medium text-foreground">
+                <p>Não é apenas uma compra.</p>
+                <p>Não é apenas uma doação.</p>
+                <p>Não é apenas um produto.</p>
+              </div>
+              <p>
+                É um novo jeito de participar de uma economia circular: você entra no ciclo,
+                acompanha o caminho do adubo e ajuda a transformar descarte em vida, venda e
+                recompensa.
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* 7 — O que já está acontecendo */}
+        <AccordionItem value="item-7">
+          <AccordionTrigger className="text-left text-sm font-bold">
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
               O que já está acontecendo
             </span>
           </AccordionTrigger>
@@ -290,11 +359,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 7 — Como esse ciclo pode se espalhar */}
-        <AccordionItem value="item-7">
+        {/* 8 — Como esse ciclo pode se espalhar */}
+        <AccordionItem value="item-8">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
               Como esse ciclo pode se espalhar
             </span>
           </AccordionTrigger>
@@ -316,11 +385,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 8 — Como o ciclo funciona na prática */}
-        <AccordionItem value="item-8">
+        {/* 9 — Como o ciclo funciona na prática */}
+        <AccordionItem value="item-9">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">9</span>
               Como o ciclo funciona na prática
             </span>
           </AccordionTrigger>
@@ -339,11 +408,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 9 — Fontes consultadas */}
-        <AccordionItem value="item-9">
+        {/* 10 — Fontes consultadas */}
+        <AccordionItem value="item-10">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">9</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">10</span>
               Fontes consultadas
             </span>
           </AccordionTrigger>
