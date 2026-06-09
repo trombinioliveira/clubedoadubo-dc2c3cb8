@@ -263,7 +263,7 @@ export default function GamePage() {
               key={stage.num}
               stage={stage}
               angle={-90 + i * 60}
-              radius={138}
+              radius={150}
               active={joined && i === currentStage}
               done={joined && i < currentStage}
               onClick={() =>
