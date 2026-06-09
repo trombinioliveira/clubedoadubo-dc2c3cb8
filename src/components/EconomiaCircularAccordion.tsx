@@ -201,11 +201,63 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 5 — O que já está acontecendo */}
+        {/* 5 — Como funciona o sistema de recompensa */}
         <AccordionItem value="item-5">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">5</span>
+              Como funciona o sistema de recompensa
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                No Clube do Adubo, a recompensa nasce quando o ciclo se completa.
+              </p>
+              <p>
+                Você entra no ciclo escolhendo uma quantidade de PROs. A partir daí, sua participação
+                acompanha uma jornada: o resíduo orgânico é coletado, passa pela produção, vira adubo
+                e segue para venda.
+              </p>
+              <p>
+                Quando esse adubo é vendido, o sistema registra o resultado e calcula a recompensa
+                correspondente à sua participação no ciclo.
+              </p>
+              <p className="font-medium text-foreground">A recompensa pode aparecer em dois estados:</p>
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
+                    Recompensa esperada
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    É uma estimativa do que você poderá receber quando o ciclo chegar à etapa de venda.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="border-secondary/30 bg-secondary/10">
+                <CardContent className="p-4">
+                  <p className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider mb-1.5">
+                    Recompensa recebida
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    É o valor que já foi confirmado depois que a venda aconteceu e o ciclo foi concluído.
+                  </p>
+                </CardContent>
+              </Card>
+              <p className="font-medium text-foreground">
+                O mais importante: a recompensa depende do ciclo real acontecer. Ela não é automática,
+                não é imediata e não é uma promessa fixa. Ela acompanha a produção, a venda e o
+                resultado real do Clube do Adubo.
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* 6 — O que já está acontecendo */}
+        <AccordionItem value="item-6">
+          <AccordionTrigger className="text-left text-sm font-bold">
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">6</span>
               O que já está acontecendo
             </span>
           </AccordionTrigger>
@@ -232,11 +284,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 6 — Como esse ciclo pode se espalhar */}
-        <AccordionItem value="item-6">
+        {/* 7 — Como esse ciclo pode se espalhar */}
+        <AccordionItem value="item-7">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">6</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
               Como esse ciclo pode se espalhar
             </span>
           </AccordionTrigger>
@@ -258,11 +310,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 7 — Como o ciclo funciona na prática */}
-        <AccordionItem value="item-7">
+        {/* 8 — Como o ciclo funciona na prática */}
+        <AccordionItem value="item-8">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
               Como o ciclo funciona na prática
             </span>
           </AccordionTrigger>
@@ -281,11 +333,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 8 — Fontes consultadas */}
-        <AccordionItem value="item-8">
+        {/* 9 — Fontes consultadas */}
+        <AccordionItem value="item-9">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">9</span>
               Fontes consultadas
             </span>
           </AccordionTrigger>
