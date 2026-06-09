@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import logoImage from "@/assets/logo.webp";
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import EconomiaCircularPage from "@/pages/EconomiaCircularPage";
+import EconomiaCircularAccordion from "@/components/EconomiaCircularAccordion";
 import {
   Leaf,
   Recycle,
@@ -251,7 +251,7 @@ export default function GamePage() {
       {/* Passo 1 modal */}
       <Dialog open={showStep1} onOpenChange={setShowStep1}>
         <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto p-0">
-          <EconomiaCircularPage />
+          <EconomiaCircularAccordion />
         </DialogContent>
       </Dialog>
 
