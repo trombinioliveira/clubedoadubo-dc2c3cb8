@@ -215,13 +215,17 @@ const EconomiaCircularAccordion = () => {
                 No Clube do Adubo, a recompensa nasce quando o ciclo se completa.
               </p>
               <p>
-                Você entra no ciclo escolhendo uma quantidade de PROs. A partir daí, sua participação
-                acompanha uma jornada: o resíduo orgânico é coletado, passa pela produção, vira adubo
-                e segue para venda.
+                Você entra no ciclo escolhendo uma quantidade de PROs. (unidade de Processamento de Resíduo Orgânico):
+                <br /><br />
+                CADA PRO = 100g de resíduo orgânico = R$ 1,00
+                <br />
+                CADA PRO TEM UM REGISTRO ÚNICO E SÓ SEU
+                <br /><br />
+                A partir daí, sua participação acompanha uma jornada rastreável: o resíduo orgânico é coletado, passa pela produção, vira adubo e segue para venda.
               </p>
               <p>
                 Quando esse adubo é vendido, o sistema registra o resultado e calcula a recompensa
-                correspondente à sua participação no ciclo.
+                correspondente à sua participação no ciclo (R$ 2,00 por PRO).
               </p>
               <p className="font-medium text-foreground">A recompensa pode aparecer em dois estados:</p>
               <Card className="border-primary/30 bg-primary/5">
@@ -231,6 +235,8 @@ const EconomiaCircularAccordion = () => {
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     É uma estimativa do que você poderá receber quando o ciclo chegar à etapa de venda.
+                    <br />
+                    (Soma de todos os seus PROS)
                   </p>
                 </CardContent>
               </Card>
