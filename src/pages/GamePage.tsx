@@ -145,6 +145,7 @@ export default function GamePage() {
   const [received, setReceived] = useState(false);
   const [cycleMessage, setCycleMessage] = useState("Toque para entrar no ciclo");
   const [messageKey, setMessageKey] = useState(0);
+  const [showStep1, setShowStep1] = useState(false);
 
   const expected = pros * 20;
   const active = stages[currentStage];
