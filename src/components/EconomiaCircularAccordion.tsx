@@ -328,11 +328,37 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 7 — O que já está acontecendo */}
+        {/* 7 — O que é Adubo Digital */}
         <AccordionItem value="item-7">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
+              O que é Adubo Digital?
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                O Adubo Digital é uma forma de comprar participação em uma unidade de adubo que pode
+                ser usada para expansão comercial.
+              </p>
+              <p>
+                Ele pode representar uma amostra, um teste ou uma demonstração do produto para novos
+                clientes, parceiros e oportunidades no agronegócio.
+              </p>
+              <p>
+                Você não precisa receber o adubo em casa. O adubo segue o caminho comercial, ajuda o
+                Clube do Adubo a abrir mercado e pode contribuir para que o ciclo gere novas vendas.
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* 8 — O que já está acontecendo */}
+        <AccordionItem value="item-8">
+          <AccordionTrigger className="text-left text-sm font-bold">
+            <span className="flex items-center gap-2">
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">8</span>
               O que já está acontecendo
             </span>
           </AccordionTrigger>
