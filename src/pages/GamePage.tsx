@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import logoImage from "@/assets/logo.webp";
 import { toast } from "sonner";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import EconomiaCircularAccordion from "@/components/EconomiaCircularAccordion";
 import {
   Leaf,
@@ -248,9 +249,15 @@ export default function GamePage() {
         </div>
       </header>
 
-      {/* Passo 1 modal */}
+      {/* Modal Passo 1 */}
       <Dialog open={showStep1} onOpenChange={setShowStep1}>
-        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto p-0">
+        <DialogContent aria-label="Modal Passo 1" className="max-h-[85vh] max-w-2xl overflow-y-auto p-0">
+          <VisuallyHidden>
+            <DialogHeader>
+              <DialogTitle>Modal Passo 1</DialogTitle>
+              <DialogDescription>Entenda o projeto e a economia circular</DialogDescription>
+            </DialogHeader>
+          </VisuallyHidden>
           <EconomiaCircularAccordion />
         </DialogContent>
       </Dialog>
