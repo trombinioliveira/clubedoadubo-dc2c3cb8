@@ -213,6 +213,31 @@ export default function GamePage() {
           <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-primary via-[hsl(170_55%_42%)] to-accent p-[3px] shadow-[0_0_40px_-8px_hsl(170_55%_42%/0.4)]">
             <div className="h-full w-full rounded-full bg-background" />
           </div>
+          {/* directional arrows showing the cycle flow */}
+          {stages.map((_, i) => {
+            const a = -90 + i * 60 + 30; // midpoint between two nodes
+            const rad = (a * Math.PI) / 180;
+            const r = 138;
+            const x = Math.cos(rad) * r;
+            const y = Math.sin(rad) * r;
+            const passed = joined && i < currentStage;
+            return (
+              <div
+                key={`arrow-${i}`}
+                className="absolute left-1/2 top-1/2"
+                style={{
+                  transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${a + 90}deg)`,
+                }}
+              >
+                <ChevronRight
+                  className={`h-5 w-5 transition-colors ${
+                    passed ? "text-accent" : "text-primary/45"
+                  }`}
+                  strokeWidth={3}
+                />
+              </div>
+            );
+          })}
           {/* center button */}
           <button
             onClick={enterCycle}
