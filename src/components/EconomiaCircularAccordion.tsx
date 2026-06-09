@@ -242,7 +242,7 @@ const EconomiaCircularAccordion = () => {
               </Card>
               <Card className="border-secondary/30 bg-secondary/10">
                 <CardContent className="p-4">
-                  <p className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider mb-1.5">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
                     Recompensa recebida
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
