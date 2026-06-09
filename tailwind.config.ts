@@ -122,6 +122,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "slide-in-right": "slide-in-right 0.4s ease-out",
+        "pulse-attention": "pulse-attention 1.8s ease-in-out infinite",
       },
     },
   },
