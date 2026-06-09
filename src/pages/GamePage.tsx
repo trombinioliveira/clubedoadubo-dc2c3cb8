@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   Leaf,
   Recycle,
@@ -13,6 +14,8 @@ import {
   ArrowRight,
   HelpCircle,
   Clock,
+  Check,
+  RotateCcw,
 } from "lucide-react";
 
 type Stage = {
@@ -73,33 +76,121 @@ const stages: Stage[] = [
 ];
 
 const presets = [1, 5, 10, 20];
+const accumDays = [0, 2, 7, 14, 16, 18];
 
-function StageBadge({ stage, angle, radius }: { stage: Stage; angle: number; radius: number }) {
+function StageBadge({
+  stage,
+  angle,
+  radius,
+  active,
+  done,
+  onClick,
+}: {
+  stage: Stage;
+  angle: number;
+  radius: number;
+  active: boolean;
+  done: boolean;
+  onClick: () => void;
+}) {
   const rad = (angle * Math.PI) / 180;
   const x = Math.cos(rad) * radius;
   const y = Math.sin(rad) * radius;
   const { Icon } = stage;
   return (
-    <div
-      className="absolute left-1/2 top-1/2 flex flex-col items-center"
+    <button
+      onClick={onClick}
+      className="absolute left-1/2 top-1/2 flex flex-col items-center transition-transform active:scale-90"
       style={{ transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))` }}
     >
-      <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[hsl(170_55%_40%)] text-primary-foreground shadow-[0_6px_18px_-4px_hsl(145_45%_32%/0.45)]">
-        <Icon className="h-5 w-5" />
-        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+      <div
+        className={`relative flex h-12 w-12 items-center justify-center rounded-full text-primary-foreground transition-all ${
+          active
+            ? "scale-110 bg-gradient-to-br from-accent to-[hsl(35_75%_55%)] shadow-[0_0_22px_-2px_hsl(45_80%_50%/0.8)] ring-2 ring-accent ring-offset-2 ring-offset-background"
+            : done
+              ? "bg-gradient-to-br from-primary to-[hsl(170_55%_40%)] shadow-[0_6px_18px_-4px_hsl(145_45%_32%/0.45)]"
+              : "bg-muted text-muted-foreground"
+        }`}
+      >
+        {done && !active ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+        <span
+          className={`absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+            active ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
+          }`}
+        >
           {stage.num}
         </span>
       </div>
-      <span className="mt-1 max-w-[64px] text-center text-[10px] font-semibold leading-tight text-foreground">
+      <span
+        className={`mt-1 max-w-[64px] text-center text-[10px] font-semibold leading-tight ${
+          active ? "text-primary" : "text-foreground"
+        }`}
+      >
         {stage.title}
       </span>
-    </div>
+    </button>
   );
 }
 
 export default function GamePage() {
   const [pros, setPros] = useState(5);
   const [rewardTab, setRewardTab] = useState<"esperada" | "recebida">("esperada");
+  const [joined, setJoined] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [currentStage, setCurrentStage] = useState(0); // index into stages
+  const [received, setReceived] = useState(false);
+
+  const expected = pros * 20;
+  const active = stages[currentStage];
+  const next = stages[(currentStage + 1) % stages.length];
+
+  const enterCycle = () => {
+    if (!joined) {
+      setJoined(true);
+      setCurrentStage(1);
+      toast.success("Você entrou no ciclo! 🌱", {
+        description: `${pros} PRO${pros > 1 ? "s" : ""} em jornada.`,
+      });
+    } else {
+      advance();
+    }
+  };
+
+  const advance = () => {
+    setCurrentStage((s) => {
+      const nextIdx = s + 1;
+      if (nextIdx >= stages.length) {
+        setReceived(true);
+        setRewardTab("recebida");
+        toast.success("Recompensa recebida! 🏆", {
+          description: `Você recebeu R$ ${expected}.`,
+        });
+        return 0;
+      }
+      toast(`Avançou para: ${stages[nextIdx].title}`, {
+        description: stages[nextIdx].detail,
+      });
+      return nextIdx;
+    });
+  };
+
+  const confirmParticipation = () => {
+    setConfirmed(true);
+    setJoined(true);
+    setCurrentStage(1);
+    toast.success("Participação confirmada!", {
+      description: `${pros} PRO${pros > 1 ? "s" : ""} adicionados ao ciclo.`,
+    });
+  };
+
+  const reset = () => {
+    setJoined(false);
+    setConfirmed(false);
+    setReceived(false);
+    setCurrentStage(0);
+    setRewardTab("esperada");
+    toast("Ciclo reiniciado", { description: "Pronto para começar de novo." });
+  };
 
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background pb-28">
@@ -123,9 +214,22 @@ export default function GamePage() {
             <div className="h-full w-full rounded-full bg-background" />
           </div>
           {/* center button */}
-          <button className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] text-center text-primary-foreground shadow-[0_12px_36px_-8px_hsl(145_45%_32%/0.6),inset_0_2px_8px_hsl(0_0%_100%/0.25)] transition-transform active:scale-95">
+          <button
+            onClick={enterCycle}
+            className="absolute left-1/2 top-1/2 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] text-center text-primary-foreground shadow-[0_12px_36px_-8px_hsl(145_45%_32%/0.6),inset_0_2px_8px_hsl(0_0%_100%/0.25)] transition-transform active:scale-95"
+          >
             <Sprout className="mb-1 h-7 w-7" />
-            <span className="text-sm font-bold leading-tight">Entrar no<br />ciclo</span>
+            <span className="text-sm font-bold leading-tight">
+              {joined ? (
+                <>
+                  Avançar<br />etapa
+                </>
+              ) : (
+                <>
+                  Entrar no<br />ciclo
+                </>
+              )}
+            </span>
           </button>
           {/* stage nodes around circle */}
           {stages.map((stage, i) => (
@@ -134,6 +238,11 @@ export default function GamePage() {
               stage={stage}
               angle={-90 + i * 60}
               radius={138}
+              active={joined && i === currentStage}
+              done={joined && i < currentStage}
+              onClick={() =>
+                toast(stage.title, { description: stage.detail })
+              }
             />
           ))}
         </div>
@@ -142,16 +251,29 @@ export default function GamePage() {
       {/* Journey summary */}
       <section className="px-5 pt-6">
         <div className="rounded-3xl bg-card p-5 shadow-[var(--shadow-soft)]">
-          <h2 className="text-lg font-bold text-foreground">O ciclo está girando</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-foreground">
+              {joined ? "O ciclo está girando" : "O ciclo aguarda você"}
+            </h2>
+            {joined && (
+              <button
+                onClick={reset}
+                className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground transition active:scale-95"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Reiniciar
+              </button>
+            )}
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Cada etapa aproxima você de um mundo mais sustentável.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {[
-              { label: "Etapa atual", value: "Produção" },
-              { label: "Tempo acumulado", value: "14 dias" },
-              { label: "Próxima etapa", value: "Adubo pronto" },
-              { label: "Recompensa", value: "Esperada" },
+              { label: "Etapa atual", value: joined ? active.title : "—" },
+              { label: "Tempo acumulado", value: joined ? `${accumDays[currentStage]} dias` : "0 dias" },
+              { label: "Próxima etapa", value: joined ? next.title : "Participação" },
+              { label: "Recompensa", value: received ? "Recebida" : "Esperada" },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-muted/60 p-3">
                 <p className="text-[11px] font-medium text-muted-foreground">{item.label}</p>
@@ -194,7 +316,7 @@ export default function GamePage() {
               <button
                 key={p}
                 onClick={() => setPros(p)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${
                   pros === p
                     ? "bg-primary text-primary-foreground shadow-[var(--shadow-soft)]"
                     : "bg-muted text-muted-foreground"
@@ -207,9 +329,25 @@ export default function GamePage() {
           <p className="mt-4 rounded-2xl bg-accent/15 px-4 py-2 text-center text-xs font-semibold text-foreground">
             Cada PRO representa a sua participação no ciclo.
           </p>
-          <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] py-3.5 font-bold text-primary-foreground shadow-[0_8px_24px_-8px_hsl(145_45%_32%/0.6)] transition active:scale-[0.98]">
-            Confirmar participação
-            <ArrowRight className="h-4 w-4" />
+          <button
+            onClick={confirmParticipation}
+            className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-bold transition active:scale-[0.98] ${
+              confirmed
+                ? "bg-[hsl(160_60%_45%)] text-primary-foreground"
+                : "bg-gradient-to-r from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] text-primary-foreground shadow-[0_8px_24px_-8px_hsl(145_45%_32%/0.6)]"
+            }`}
+          >
+            {confirmed ? (
+              <>
+                <Check className="h-4 w-4" />
+                Participação confirmada
+              </>
+            ) : (
+              <>
+                Confirmar participação
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </div>
       </section>
@@ -218,12 +356,16 @@ export default function GamePage() {
       <section className="px-5 pt-6">
         <h2 className="mb-3 px-1 text-lg font-bold text-foreground">Etapas da jornada</h2>
         <div className="space-y-3">
-          {stages.map((stage) => {
+          {stages.map((stage, i) => {
             const { Icon } = stage;
+            const isActive = joined && i === currentStage;
             return (
-              <div
+              <button
                 key={stage.num}
-                className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-soft)]"
+                onClick={() => toast(stage.title, { description: stage.detail })}
+                className={`flex w-full items-center gap-3 rounded-3xl p-4 text-left shadow-[var(--shadow-soft)] transition active:scale-[0.99] ${
+                  isActive ? "bg-accent/10 ring-2 ring-accent/40" : "bg-card"
+                }`}
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[hsl(170_55%_40%)] text-primary-foreground">
                   <Icon className="h-5 w-5" />
@@ -231,6 +373,11 @@ export default function GamePage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-foreground">{stage.title}</h3>
+                    {isActive && (
+                      <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
+                        Agora
+                      </span>
+                    )}
                     {stage.pill && (
                       <span className="flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-foreground">
                         <Clock className="h-3 w-3" />
@@ -240,7 +387,7 @@ export default function GamePage() {
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{stage.detail}</p>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -273,7 +420,7 @@ export default function GamePage() {
               {rewardTab === "esperada" ? "Recompensa esperada" : "Recompensa recebida"}
             </p>
             <p className="text-3xl font-extrabold text-foreground">
-              {rewardTab === "esperada" ? "R$ 20" : "R$ 0"}
+              {rewardTab === "esperada" ? `R$ ${expected}` : received ? `R$ ${expected}` : "R$ 0"}
             </p>
           </div>
           <p className="mt-3 text-center text-xs text-muted-foreground">
@@ -290,7 +437,14 @@ export default function GamePage() {
         >
           Ver minha jornada
         </Link>
-        <button className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground">
+        <button
+          onClick={() =>
+            toast("Como funciona", {
+              description: "Você escolhe seus PROs, o ciclo gira e a recompensa chega após a venda.",
+            })
+          }
+          className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground"
+        >
           <HelpCircle className="h-4 w-4" />
           Entender como funciona
         </button>
@@ -298,9 +452,12 @@ export default function GamePage() {
 
       {/* Sticky bottom CTA */}
       <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-md border-t border-border bg-background/90 px-5 py-3 backdrop-blur">
-        <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] py-3.5 font-bold text-primary-foreground shadow-[0_8px_24px_-8px_hsl(145_45%_32%/0.6)] transition active:scale-[0.98]">
+        <button
+          onClick={enterCycle}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[hsl(145_50%_38%)] to-[hsl(170_55%_40%)] py-3.5 font-bold text-primary-foreground shadow-[0_8px_24px_-8px_hsl(145_45%_32%/0.6)] transition active:scale-[0.98]"
+        >
           <Sprout className="h-5 w-5" />
-          Entrar no ciclo
+          {joined ? "Avançar etapa" : "Entrar no ciclo"}
         </button>
       </div>
     </div>
