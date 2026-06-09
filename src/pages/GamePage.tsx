@@ -222,8 +222,14 @@ export default function GamePage() {
           Acompanhe sua jornada do apoio até a recompensa
         </p>
         <div className="mt-4 grid grid-cols-3 gap-2">
+          <button
+            onClick={() => setShowStep1(true)}
+            className="flex flex-col items-center gap-0.5 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 px-2 py-3 text-center shadow-[var(--shadow-soft)] transition active:scale-95"
+          >
+            <span className="text-[11px] font-bold text-primary">Passo 1</span>
+            <span className="text-[11px] font-semibold leading-tight text-foreground">Entenda o projeto</span>
+          </button>
           {[
-            { step: "Passo 1", label: "Entenda o projeto", to: "/economia-circular" },
             { step: "Passo 2", label: "Cadastro rápido", to: "/auth" },
             { step: "Passo 3", label: "Participar", to: "/assinatura" },
           ].map((b) => (
@@ -238,6 +244,13 @@ export default function GamePage() {
           ))}
         </div>
       </header>
+
+      {/* Passo 1 modal */}
+      <Dialog open={showStep1} onOpenChange={setShowStep1}>
+        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto p-0">
+          <EconomiaCircularPage />
+        </DialogContent>
+      </Dialog>
 
       {/* Hero cycle */}
       <section className="px-5 pt-8">
