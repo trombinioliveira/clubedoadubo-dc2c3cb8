@@ -221,6 +221,22 @@ export default function GamePage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Acompanhe sua jornada do apoio até a recompensa
         </p>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {[
+            { step: "Passo 1", label: "Entenda o projeto", to: "/economia-circular" },
+            { step: "Passo 2", label: "Cadastro rápido", to: "/auth" },
+            { step: "Passo 3", label: "Participar", to: "/assinatura" },
+          ].map((b) => (
+            <Link
+              key={b.step}
+              to={b.to}
+              className="flex flex-col items-center gap-0.5 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 px-2 py-3 text-center shadow-[var(--shadow-soft)] transition active:scale-95"
+            >
+              <span className="text-[11px] font-bold text-primary">{b.step}</span>
+              <span className="text-[11px] font-semibold leading-tight text-foreground">{b.label}</span>
+            </Link>
+          ))}
+        </div>
       </header>
 
       {/* Hero cycle */}
