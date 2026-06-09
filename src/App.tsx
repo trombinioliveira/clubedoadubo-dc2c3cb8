@@ -37,6 +37,7 @@ import TutorialPage from "./pages/TutorialPage";
 import ConvitePage from "./pages/ConvitePage";
 import CheckinPage from "./pages/CheckinPage";
 import PointPublicPage from "./pages/PointPublicPage";
+import GamePage from "./pages/GamePage";
 
 // Feature Pages
 import { AdminDashboard } from "@/features/admin";
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
             <Route path="/checkin/:pointSlug" element={<CheckinPage />} />
             <Route path="/p/:pointSlug" element={<PointPublicPage />} />
+            <Route path="/game" element={<GamePage />} />
             
             {/* Public pages with PublicLayout (header + footer) */}
             {/* Convite — standalone public page (no header/footer) */}
