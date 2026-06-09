@@ -329,10 +329,10 @@ const EconomiaCircularAccordion = () => {
         </AccordionItem>
 
         {/* 7 — O que já está acontecendo */}
-        <AccordionItem value="item-6">
+        <AccordionItem value="item-7">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">6</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">7</span>
               O que já está acontecendo
             </span>
           </AccordionTrigger>
