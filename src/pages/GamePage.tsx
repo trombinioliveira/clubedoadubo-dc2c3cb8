@@ -218,7 +218,7 @@ export default function GamePage() {
           {stages.map((_, i) => {
             const a = -90 + i * 60 + 30; // midpoint between two nodes
             const rad = (a * Math.PI) / 180;
-            const r = 138;
+            const r = 102;
             const x = Math.cos(rad) * r;
             const y = Math.sin(rad) * r;
             const passed = joined && i < currentStage;
