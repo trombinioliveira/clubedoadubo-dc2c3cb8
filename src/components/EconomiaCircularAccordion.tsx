@@ -434,11 +434,11 @@ const EconomiaCircularAccordion = () => {
           </AccordionContent>
         </AccordionItem>
 
-        {/* 10 — Fontes consultadas */}
-        <AccordionItem value="item-10">
+        {/* 11 — Fontes consultadas */}
+        <AccordionItem value="item-11">
           <AccordionTrigger className="text-left text-sm font-bold">
             <span className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">10</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">11</span>
               Fontes consultadas
             </span>
           </AccordionTrigger>
