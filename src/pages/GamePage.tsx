@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import logoImage from "@/assets/logo.webp";
 import { toast } from "sonner";
 import {
   Leaf,
@@ -209,10 +210,13 @@ export default function GamePage() {
     <div className="mx-auto min-h-screen max-w-md bg-background pb-28">
       {/* Header */}
       <header className="px-5 pt-8 text-center">
-        <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[hsl(170_55%_40%)] text-primary-foreground shadow-[0_8px_24px_-6px_hsl(145_45%_32%/0.5)]">
-          <Leaf className="h-6 w-6" />
-        </div>
-        <p className="text-xs font-bold uppercase tracking-widest text-primary">Clube do Adubo</p>
+        <Link to="/loja" className="mb-4 flex flex-col items-center gap-1">
+          <img src={logoImage} alt="Clube do Adubo" className="h-10 w-10 object-contain" />
+          <div className="flex flex-col items-center text-center">
+            <span className="font-bold text-foreground text-base leading-tight">Clube do Adubo</span>
+            <span className="text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
+          </div>
+        </Link>
         <h1 className="mt-1 text-2xl font-extrabold text-foreground">Ciclo do Clube do Adubo</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Acompanhe sua jornada do apoio até a recompensa
