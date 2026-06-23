@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import logoImage from "@/assets/logo.webp";
 import { CartProvider, useCart } from "../CartContext";
+import { captureUtm } from "../utm";
 
 const NAV_LINKS = [
   { to: "/loja#produtos", label: "Adubos Orgânicos", end: false },
@@ -138,6 +139,11 @@ function LojaFooter() {
 
 export function LojaLayout() {
   const location = useLocation();
+
+  // Preserva parâmetros UTM (Google Ads etc.) sem quebrar a navegação
+  useEffect(() => {
+    captureUtm();
+  }, []);
 
   useEffect(() => {
     if (location.hash) {
