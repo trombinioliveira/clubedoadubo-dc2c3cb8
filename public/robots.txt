@@ -4,6 +4,7 @@ Allow: /loja/produto/adubo-liquido
 Allow: /loja/produto/adubo-granulado
 Allow: /loja/produto/assinatura-mensal
 Allow: /loja/adubo-digital
+Allow: /loja/servicos-de-adubacao
 Allow: /termos
 Allow: /politica-de-privacidade
 
