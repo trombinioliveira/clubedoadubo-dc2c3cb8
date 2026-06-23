@@ -7,80 +7,28 @@ export const PublicFooter = () => {
     <footer className="border-t border-border bg-card/30 mt-auto">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-10 sm:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {/* Column 1 - Identity */}
-          <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-3">
-              <img 
-                src={logoImage} 
-                alt="Clube do Adubo" 
-                className="w-8 h-8 object-contain" 
-              />
-              <div className="flex flex-col">
-                <span className="font-bold text-foreground text-sm leading-tight">
-                  Clube do Adubo
-                </span>
-                <span className="text-[10px] text-muted-foreground leading-tight">
-                  Economia Circular Urbana
-                </span>
-              </div>
-            </Link>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Um sistema urbano para transformar resíduo orgânico em impacto real.
-            </p>
-          </div>
-
-          {/* Column 2 - Participation */}
-          <div>
-            <Link 
-              to="/planos#inicio" 
-              className="font-semibold text-foreground text-sm hover:text-primary transition-colors"
-            >
-              Planos
-            </Link>
-            <p className="text-xs text-muted-foreground mt-1">
-              Veja como participar do ciclo
-            </p>
-          </div>
-
-          {/* Column 3 - Trust */}
-          <div>
-            <Link 
-              to="/transparencia" 
-              className="font-semibold text-foreground text-sm hover:text-primary transition-colors"
-            >
-              Transparência
-            </Link>
-            <p className="text-xs text-muted-foreground mt-1">
-              Entenda a lógica pública do sistema
-            </p>
-          </div>
-
-          {/* Column 4 - Education */}
-          <div>
-            <Link 
-              to="/faq" 
-              className="font-semibold text-foreground text-sm hover:text-primary transition-colors"
-            >
-              FAQ
-            </Link>
-            <p className="text-xs text-muted-foreground mt-1">
-              Tire suas dúvidas sobre o ciclo
-            </p>
-          </div>
-
-          {/* Column 5 - Human */}
-          <div>
-            <Link 
-              to="/contato" 
-              className="font-semibold text-foreground text-sm hover:text-primary transition-colors"
-            >
-              Contato
-            </Link>
-            <p className="text-xs text-muted-foreground mt-1">
-              Fale com a gente. Pessoas reais.
-            </p>
-          </div>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Link to="/loja" className="flex items-center gap-2">
+            <img
+              src={logoImage}
+              alt="Clube do Adubo"
+              className="w-8 h-8 object-contain"
+            />
+            <div className="flex flex-col items-start">
+              <span className="font-bold text-foreground text-sm leading-tight">
+                Clube do Adubo
+              </span>
+              <span className="text-[10px] text-muted-foreground leading-tight">
+                Loja de Adubos Orgânicos
+              </span>
+            </div>
+          </Link>
+          <Link
+            to="/loja"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Ir para a loja
+          </Link>
         </div>
       </div>
 
@@ -91,14 +39,6 @@ export const PublicFooter = () => {
             <Link to="/termos" className="hover:text-foreground transition-colors">Termos de Uso</Link>
             <span>•</span>
             <Link to="/politica-de-privacidade" className="hover:text-foreground transition-colors">Política de Privacidade</Link>
-            <span>•</span>
-            <Link to="/politica-de-riscos" className="hover:text-foreground transition-colors">Política de Riscos</Link>
-            <span>•</span>
-            <Link to="/natureza-do-pro" className="hover:text-foreground transition-colors">Natureza do PRO</Link>
-            <span>•</span>
-            <Link to="/economia-circular" className="hover:text-foreground transition-colors">O que é economia circular</Link>
-            <span>•</span>
-            <Link to="/painel-publico#inicio" className="hover:text-foreground transition-colors font-medium text-primary/80">📊 Painel Público</Link>
           </div>
         </div>
       </div>
