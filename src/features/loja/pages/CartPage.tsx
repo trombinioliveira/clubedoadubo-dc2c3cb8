@@ -200,28 +200,37 @@ export default function CartPage() {
           </div>
 
           <form onSubmit={handleCheckout} className="space-y-3 rounded-xl border border-border bg-card p-5">
-            <h2 className="text-lg font-bold">Entrega</h2>
+            <h2 className="text-lg font-bold">Dados para finalizar pelo WhatsApp</h2>
+            <p className="text-sm text-muted-foreground">
+              Preencha seus dados para enviarmos o pedido pelo WhatsApp. Entrega, frete e
+              pagamento serão confirmados no atendimento.
+            </p>
             <div>
               <Label htmlFor="nome">Primeiro nome</Label>
-              <Input id="nome" name="nome" required placeholder="Seu primeiro nome" />
+              <Input id="nome" name="nome" required placeholder="Seu primeiro nome"
+                value={saved.nome} onChange={(e) => persist("nome", e.target.value)} />
             </div>
             <div>
               <Label htmlFor="whatsapp">WhatsApp com DDD</Label>
-              <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
+              <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000"
+                value={saved.whatsapp} onChange={(e) => persist("whatsapp", e.target.value)} />
             </div>
             <div>
               <Label htmlFor="cep">CEP</Label>
-              <Input id="cep" name="cep" required placeholder="00000-000" />
+              <Input id="cep" name="cep" required placeholder="00000-000"
+                value={saved.cep} onChange={(e) => persist("cep", e.target.value)} />
             </div>
             <div>
               <Label htmlFor="endereco">Endereço</Label>
-              <Input id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade/UF" />
+              <Input id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade/UF"
+                value={saved.endereco} onChange={(e) => persist("endereco", e.target.value)} />
             </div>
             <Button type="submit" size="lg" className="w-full" disabled={placing}>
-              {placing ? "Processando..." : "Finalizar pedido"}
+              {placing ? "Processando..." : "Finalizar pelo WhatsApp"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              Finalizaremos seu Pedido por Whatsapp para maior comodidade.
+              Seu pedido será finalizado pelo WhatsApp para confirmarmos entrega, frete e
+              forma de pagamento.
             </p>
           </form>
         </div>
