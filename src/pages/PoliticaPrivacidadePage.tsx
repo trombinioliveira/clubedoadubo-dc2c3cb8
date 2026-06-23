@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 export default function PoliticaPrivacidadePage() {
+  const [params] = useSearchParams();
+  const rawReturn = params.get('returnTo') ?? '';
+  // Aceitar apenas caminhos internos (começando com "/") — nunca open redirect externo.
+  const safeReturn =
+    rawReturn.startsWith('/') && !rawReturn.startsWith('//') ? rawReturn : null;
+
   return (
     <>
       <Helmet>
