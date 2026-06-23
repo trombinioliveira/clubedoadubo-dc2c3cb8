@@ -31,8 +31,8 @@ export default function TermosPage() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">2. Natureza da Plataforma</h2>
             <p>
-              O Clube do Adubo é uma plataforma de economia circular urbana baseada no processamento real
-              de resíduo orgânico e comercialização de adubo físico.
+              O Clube do Adubo é uma marca de adubos orgânicos artesanais, baseada na produção
+              e comercialização de adubo físico à base de húmus de minhoca.
             </p>
           </section>
 
