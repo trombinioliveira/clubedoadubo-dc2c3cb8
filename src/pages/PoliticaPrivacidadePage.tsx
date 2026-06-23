@@ -5,12 +5,17 @@ export default function PoliticaPrivacidadePage() {
   return (
     <>
       <Helmet>
-        <title>Clube do Adubo | Política de Privacidade</title>
-        <meta name="description" content="Política de Privacidade do Clube do Adubo — saiba como seus dados são coletados, utilizados e protegidos conforme a LGPD." />
-        <link rel="canonical" href="https://clubedoadubo.com.br/politica-de-privacidade" />
-        <meta property="og:title" content="Clube do Adubo | Política de Privacidade" />
-        <meta property="og:description" content="Como o Clube do Adubo protege seus dados pessoais conforme a LGPD." />
-        <meta property="og:url" content="https://clubedoadubo.com.br/politica-de-privacidade" />
+        <title>Política de Privacidade | Clube do Adubo</title>
+        <meta name="description" content="Política de privacidade do Clube do Adubo sobre dados de navegação, atendimento, pedidos e comunicação pelo WhatsApp." />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://www.clubedoadubo.com.br/politica-de-privacidade" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Política de Privacidade | Clube do Adubo" />
+        <meta property="og:description" content="Política de privacidade do Clube do Adubo sobre dados de navegação, atendimento, pedidos e comunicação pelo WhatsApp." />
+        <meta property="og:url" content="https://www.clubedoadubo.com.br/politica-de-privacidade" />
+        <meta property="og:image" content="https://www.clubedoadubo.com.br/og-image.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://www.clubedoadubo.com.br/og-image.jpg" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">

@@ -5,12 +5,17 @@ export default function TermosPage() {
   return (
     <>
       <Helmet>
-        <title>Clube do Adubo | Termos de Uso</title>
-        <meta name="description" content="Termos de Uso do Clube do Adubo — plataforma de economia circular urbana baseada no processamento real de resíduo orgânico." />
-        <link rel="canonical" href="https://clubedoadubo.com.br/termos" />
-        <meta property="og:title" content="Clube do Adubo | Termos de Uso" />
-        <meta property="og:description" content="Termos de Uso do Clube do Adubo — economia circular urbana com impacto real." />
-        <meta property="og:url" content="https://clubedoadubo.com.br/termos" />
+        <title>Termos de Uso | Clube do Adubo</title>
+        <meta name="description" content="Termos de uso do Clube do Adubo para compra de adubos orgânicos, atendimento pelo WhatsApp e participação em experiências digitais." />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://www.clubedoadubo.com.br/termos" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Termos de Uso | Clube do Adubo" />
+        <meta property="og:description" content="Termos de uso do Clube do Adubo para compra de adubos orgânicos, atendimento pelo WhatsApp e participação em experiências digitais." />
+        <meta property="og:url" content="https://www.clubedoadubo.com.br/termos" />
+        <meta property="og:image" content="https://www.clubedoadubo.com.br/og-image.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://www.clubedoadubo.com.br/og-image.jpg" />
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">
@@ -20,7 +25,7 @@ export default function TermosPage() {
         <div className="prose prose-sm max-w-none space-y-8 text-foreground/90">
           <section>
             <h2 className="text-xl font-semibold text-foreground">1. Identificação</h2>
-            <p>Clube do Adubo — Plataforma de Economia Circular Urbana.</p>
+            <p>Clube do Adubo — Adubos orgânicos artesanais.</p>
           </section>
 
           <section>
