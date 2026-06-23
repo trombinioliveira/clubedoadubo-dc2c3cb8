@@ -84,6 +84,9 @@ const App = () => (
               } />
             </Route>
 
+            {/* Rotas de tracking de clique — registram clique e redirecionam */}
+            <Route path="/go/:slug" element={<GoRedirectPage />} />
+
             {/* Raiz redireciona para a loja */}
             <Route path="/" element={<Navigate to="/loja" replace />} />
 
