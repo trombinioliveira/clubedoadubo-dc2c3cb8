@@ -1,7 +1,17 @@
 User-agent: *
 Allow: /loja
+Allow: /loja/produto/adubo-liquido
+Allow: /loja/produto/adubo-granulado
+Allow: /loja/produto/assinatura-mensal
+Allow: /loja/adubo-digital
 Allow: /termos
 Allow: /politica-de-privacidade
+
+Disallow: /loja/carrinho
+Disallow: /loja/admin
+Disallow: /auth
+Disallow: /alterar-senha
+Disallow: /redefinir-senha
 Disallow: /inicio
 Disallow: /planos
 Disallow: /faq
@@ -11,11 +21,15 @@ Disallow: /economia-circular
 Disallow: /natureza-do-pro
 Disallow: /politica-de-riscos
 Disallow: /painel-publico
+Disallow: /painel-publico/fila
 Disallow: /convite
 Disallow: /game
 Disallow: /u/
 Disallow: /ponto/
+Disallow: /p/
+Disallow: /checkin
 Disallow: /jornada
+Disallow: /perfil
 Disallow: /dashboard
 Disallow: /ciclo
 Disallow: /dreams
@@ -25,5 +39,6 @@ Disallow: /fifo
 Disallow: /indicacoes
 Disallow: /tutorial
 Disallow: /admin
+Disallow: /compra/
 
 Sitemap: https://www.clubedoadubo.com.br/sitemap.xml

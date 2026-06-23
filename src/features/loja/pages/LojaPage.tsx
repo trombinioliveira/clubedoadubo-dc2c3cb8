@@ -3,12 +3,30 @@ import { Link } from "react-router-dom";
 import { Leaf, Truck, RefreshCw } from "lucide-react";
 import { PRODUCTS, formatBRL } from "../data/products";
 import { SealsSection, SealStrip } from "../components/seals";
+import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+const LOJA_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Clube do Adubo",
+  url: "https://www.clubedoadubo.com.br/loja",
+  description:
+    "Adubos líquidos e granulados à base de húmus de minhoca, produzidos artesanalmente para plantas, vasos, hortas e jardins.",
+};
 
 export default function LojaPage() {
   return (
     <div>
+      <Seo
+        title="Clube do Adubo | Adubos orgânicos artesanais"
+        description="Compre adubo líquido e granulado à base de húmus de minhoca. Entrega em São Paulo Capital e no Litoral Norte/SP. Brasil via Adubo Digital."
+        path="/loja"
+        ogTitle="Clube do Adubo | Adubos orgânicos artesanais"
+        ogDescription="Adubos líquidos e granulados à base de húmus de minhoca, produzidos artesanalmente para plantas, vasos, hortas e jardins."
+        jsonLd={LOJA_JSONLD}
+      />
       {/* Hero */}
       <section className="earth-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-16 text-center md:py-24">
@@ -22,10 +40,10 @@ export default function LojaPage() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" variant="secondary">
-              <a href="#produtos">Ver produtos</a>
+              <a href="#produtos" data-analytics-event="view_products">Ver produtos</a>
             </Button>
             <Button asChild size="lg" variant="outline" className="bg-background/10 text-primary-foreground border-primary-foreground/40 hover:bg-background/20">
-              <Link to="/loja/adubo-digital">Conheça o Adubo Digital</Link>
+              <Link to="/loja/adubo-digital" data-analytics-event="view_adubo_digital">Conheça o Adubo Digital</Link>
             </Button>
           </div>
         </div>

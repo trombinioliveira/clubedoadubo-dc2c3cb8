@@ -393,7 +393,7 @@ export default function Auth() {
             <img src={logo} alt="Clube do Adubo" className="h-10 w-auto" />
             <div className="hidden sm:block">
               <span className="font-bold text-lg text-foreground">Clube do Adubo</span>
-              <p className="text-xs text-muted-foreground">Economia Circular Urbana</p>
+              <p className="text-xs text-muted-foreground">Adubos orgânicos artesanais</p>
             </div>
           </Link>
         </div>
@@ -452,7 +452,7 @@ export default function Auth() {
           <Card className="w-full max-w-md shadow-elevated border-border/50">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl font-bold">Bem-vindo!</CardTitle>
-              <CardDescription className="text-muted-foreground">Faça parte do ciclo de economia circular urbana</CardDescription>
+              <CardDescription className="text-muted-foreground">Faça parte do Clube do Adubo — adubos orgânicos artesanais</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs
@@ -648,7 +648,7 @@ export default function Auth() {
               <span className="hidden md:inline">•</span>
               <Link to="/natureza-do-pro" className="hover:text-foreground transition-colors">Natureza do PRO</Link>
             </div>
-            <p className="text-xs text-muted-foreground text-center md:text-right">Economia Circular Urbana • Impacto real e rastreável</p>
+            <p className="text-xs text-muted-foreground text-center md:text-right">Adubos orgânicos artesanais • Impacto real e rastreável</p>
           </div>
         </div>
       </footer>

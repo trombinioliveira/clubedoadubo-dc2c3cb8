@@ -306,7 +306,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
             <img src={logo} alt="Clube do Adubo" className="h-10 w-auto" />
             <div className="hidden sm:block">
               <span className="font-bold text-lg text-foreground">Clube do Adubo</span>
-              <p className="text-xs text-muted-foreground">Economia Circular Urbana</p>
+              <p className="text-xs text-muted-foreground">Adubos orgânicos artesanais</p>
             </div>
           </Link>
         </div>
