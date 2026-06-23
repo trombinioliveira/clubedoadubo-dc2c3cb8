@@ -85,36 +85,8 @@ export default function ServicosAdubacaoPage() {
 
     setSubmitting(true);
 
-    const lead = await saveInterestLead({
-      interest_type: "servicos_adubacao",
-      source_page: SOURCE_PAGE,
-      first_name: firstName,
-      whatsapp,
-      email: email || null,
-      place_type: placeType,
-      city_neighborhood: cityNeighborhood,
-      notes: notes || null,
-      consent_contact: consentContact,
-      consent_privacy: true,
-      status: "novo",
-    });
-
-    if (!lead.ok) {
-      setSubmitting(false);
-      toast.error("Não conseguimos registrar seus dados agora. Tente novamente em alguns instantes.");
-      return;
-    }
-
+    // Tracking no banco pausado: abre o WhatsApp diretamente, sem depender do Supabase.
     const targetUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
-
-    // Registro de clique não bloqueia o WhatsApp
-    void recordLinkClick({
-      link_key: "servicos_adubacao_whatsapp",
-      source_page: SOURCE_PAGE,
-      target_url: targetUrl,
-      interest_type: "servicos_adubacao",
-      lead_id: lead.id,
-    });
 
     const mensagem = [
       "Olá! Quero entender os Serviços de Adubação do Clube do Adubo.",
@@ -134,9 +106,6 @@ export default function ServicosAdubacaoPage() {
     window.open(url, "_blank", "noopener,noreferrer");
 
     setSubmitting(false);
-    toast.success("Redirecionando para o WhatsApp", {
-      description: "Continue a conversa que abrimos para você.",
-    });
   };
 
   return (
