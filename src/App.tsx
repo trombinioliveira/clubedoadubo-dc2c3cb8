@@ -47,7 +47,7 @@ import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
 // Loja (vitrine virtual)
-import { LojaLayout, LojaPage, ProductPage, CartPage, LojaAdminPage } from "@/features/loja";
+import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, LojaAdminPage } from "@/features/loja";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +74,7 @@ const App = () => (
             {/* Loja virtual — única experiência pública nesta fase */}
             <Route path="/loja" element={<LojaLayout />}>
               <Route index element={<LojaPage />} />
+              <Route path="adubo-digital" element={<AduboDigitalPage />} />
               <Route path="produto/:slug" element={<ProductPage />} />
               <Route path="carrinho" element={<CartPage />} />
               <Route path="admin" element={
