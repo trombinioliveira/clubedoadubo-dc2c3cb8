@@ -11,14 +11,10 @@ export const PublicHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
-    { label: 'Início', path: '/inicio' },
-    { label: 'Planos', path: '/planos' },
-    { label: 'Transparência', path: '/transparencia' },
-    { label: 'FAQ', path: '/faq' },
-    { label: 'Contato', path: '/contato' },
+    { label: 'Loja', path: '/loja' },
   ];
 
-  const logoTo = user ? '/jornada' : '/inicio';
+  const logoTo = '/loja';
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">

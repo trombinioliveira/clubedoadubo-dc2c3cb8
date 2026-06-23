@@ -1,16 +1,29 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
-Allow: /
+Allow: /loja
+Allow: /termos
+Allow: /politica-de-privacidade
+Disallow: /inicio
+Disallow: /planos
+Disallow: /faq
+Disallow: /transparencia
+Disallow: /contato
+Disallow: /economia-circular
+Disallow: /natureza-do-pro
+Disallow: /politica-de-riscos
+Disallow: /painel-publico
+Disallow: /convite
+Disallow: /game
+Disallow: /u/
+Disallow: /ponto/
+Disallow: /jornada
+Disallow: /dashboard
+Disallow: /ciclo
+Disallow: /dreams
+Disallow: /sonhos
+Disallow: /assinatura
+Disallow: /fifo
+Disallow: /indicacoes
+Disallow: /tutorial
+Disallow: /admin
 
-Sitemap: https://clubedoadubo.com.br/sitemap.xml
+Sitemap: https://www.clubedoadubo.com.br/sitemap.xml
