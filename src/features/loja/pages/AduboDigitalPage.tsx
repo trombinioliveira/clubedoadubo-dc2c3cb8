@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Globe, Recycle, Sprout, CheckCircle2 } from "lucide-react";
+import { Globe, Recycle, Sprout, ExternalLink } from "lucide-react";
 import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
+import { recordLinkClick } from "../tracking";
 
-const WHATSAPP_NUMBER = "5512996682454";
-const WHATSAPP_MESSAGE =
-  "Olá! Quero entender como funciona o Adubo Digital para participar de qualquer lugar do Brasil.";
+const ADUBO_DIGITAL_URL = "https://www.adubodigital.com.br";
+const SOURCE_PAGE = "/loja/adubo-digital";
 
 const COMO_FUNCIONA = [
   "Você participa digitalmente.",
@@ -17,7 +17,16 @@ const COMO_FUNCIONA = [
 ];
 
 export default function AduboDigitalPage() {
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  const handleVisitSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Registro de clique não bloqueia a navegação
+    void recordLinkClick({
+      link_key: "adubo_digital_site",
+      source_page: SOURCE_PAGE,
+      target_url: ADUBO_DIGITAL_URL,
+      interest_type: "adubo_digital",
+    });
+  };
+
 
   return (
     <div>
