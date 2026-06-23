@@ -67,15 +67,11 @@ const App = () => (
             {/* Public profile page - standalone (no layout) */}
             <Route path="/u/:codigo" element={<PublicProfilePage />} />
             <Route path="/ponto/:slug" element={<CollectionPointPage />} />
+            {/* Pontos de coleta / check-in — sistema operacional, mantidos tecnicamente */}
             <Route path="/checkin/:pointSlug" element={<CheckinPage />} />
             <Route path="/p/:pointSlug" element={<PointPublicPage />} />
-            <Route path="/game" element={<GamePage />} />
-            
-            {/* Public pages with PublicLayout (header + footer) */}
-            {/* Convite — standalone public page (no header/footer) */}
-            <Route path="/convite" element={<ConvitePage />} />
 
-            {/* Loja virtual — layout próprio, separado do Clube */}
+            {/* Loja virtual — única experiência pública nesta fase */}
             <Route path="/loja" element={<LojaLayout />}>
               <Route index element={<LojaPage />} />
               <Route path="produto/:slug" element={<ProductPage />} />
@@ -90,19 +86,28 @@ const App = () => (
             {/* Raiz redireciona para a loja */}
             <Route path="/" element={<Navigate to="/loja" replace />} />
 
+            {/* CONTENÇÃO PÚBLICA: páginas antigas redirecionadas para a loja.
+                Componentes preservados no código (imports mantidos) para reativação futura. */}
+            <Route path="/inicio" element={<Navigate to="/loja" replace />} />
+            <Route path="/planos" element={<Navigate to="/loja" replace />} />
+            <Route path="/faq" element={<Navigate to="/loja" replace />} />
+            <Route path="/transparencia" element={<Navigate to="/loja" replace />} />
+            <Route path="/contato" element={<Navigate to="/loja" replace />} />
+            <Route path="/economia-circular" element={<Navigate to="/loja" replace />} />
+            <Route path="/natureza-do-pro" element={<Navigate to="/loja" replace />} />
+            <Route path="/politica-de-riscos" element={<Navigate to="/loja" replace />} />
+            <Route path="/painel-publico" element={<Navigate to="/loja" replace />} />
+            <Route path="/painel-publico/fila" element={<Navigate to="/loja" replace />} />
+            <Route path="/convite" element={<Navigate to="/loja" replace />} />
+            <Route path="/game" element={<Navigate to="/loja" replace />} />
+            <Route path="/u/:codigo" element={<Navigate to="/loja" replace />} />
+            <Route path="/ponto/:slug" element={<Navigate to="/loja" replace />} />
+
+            {/* Páginas legais — mantidas públicas e acessíveis (necessárias à loja) */}
             <Route element={<PublicLayout />}>
-              <Route path="/inicio" element={<Index />} />
-              <Route path="/planos" element={<LandingCompra />} />
-              <Route path="/faq" element={<FaqPage />} />
-              <Route path="/transparencia" element={<TransparenciaPage />} />
-              <Route path="/contato" element={<ContatoPage />} />
-              <Route path="/economia-circular" element={<EconomiaCircularPage />} />
               <Route path="/termos" element={<TermosPage />} />
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidadePage />} />
-              <Route path="/politica-de-riscos" element={<PoliticaRiscosPage />} />
-              <Route path="/natureza-do-pro" element={<NaturezaProPage />} />
-              <Route path="/painel-publico" element={<PublicTransparencyDashboard />} />
-              <Route path="/painel-publico/fila" element={<PublicFilaPage />} />
+              {/* Resultados de checkout — necessários ao fluxo de compra */}
               <Route path="/compra/sucesso" element={<CheckoutResultPage status="sucesso" />} />
               <Route path="/compra/pendente" element={<CheckoutResultPage status="pendente" />} />
               <Route path="/compra/erro" element={<CheckoutResultPage status="erro" />} />
