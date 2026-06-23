@@ -7,6 +7,7 @@ import { captureUtm } from "../utm";
 
 const NAV_LINKS = [
   { to: "/loja#produtos", label: "Adubos Orgânicos", end: false },
+  { to: "/loja/servicos-de-adubacao", label: "Adubação", end: false },
   { to: "/loja/produto/assinatura-mensal", label: "Assinatura", end: false },
   { to: "/loja#sobre", label: "Sobre", end: false },
 ];
