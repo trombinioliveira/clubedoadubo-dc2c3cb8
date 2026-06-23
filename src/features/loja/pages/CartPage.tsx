@@ -299,7 +299,11 @@ export default function CartPage() {
             </Button>
             <p className="text-center text-xs text-muted-foreground">
               Seu pedido será finalizado pelo WhatsApp para confirmarmos entrega, frete e
-              forma de pagamento.
+              forma de pagamento. Ao finalizar, você concorda com a{" "}
+              <Link to="/politica-de-privacidade?returnTo=/loja/carrinho" className="text-primary underline">
+                Política de Privacidade
+              </Link>
+              .
             </p>
           </form>
         </div>
