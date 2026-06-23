@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "../CartContext";
@@ -9,11 +9,40 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const WHATSAPP_NUMBER = "5512996682454";
+const CHECKOUT_STORAGE_KEY = "loja-checkout-dados";
 
 export default function CartPage() {
   const { items, getProduct, updateQuantity, removeItem, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const [placing, setPlacing] = useState(false);
+  const [saved, setSaved] = useState<{ nome: string; whatsapp: string; cep: string; endereco: string }>({
+    nome: "",
+    whatsapp: "",
+    cep: "",
+    endereco: "",
+  });
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CHECKOUT_STORAGE_KEY);
+      if (raw) setSaved((prev) => ({ ...prev, ...JSON.parse(raw) }));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const persist = (field: string, value: string) => {
+    setSaved((prev) => {
+      const next = { ...prev, [field]: value };
+      try {
+        localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
 
   const hasOnlySubscription =
     items.length > 0 && items.every((i) => getProduct(i.productId)?.recurring);
