@@ -191,7 +191,7 @@ function SubscriptionView({
               <Label htmlFor="observacao">Observação (opcional)</Label>
               <Textarea id="observacao" name="observacao" placeholder="Conte quais plantas, vasos, horta ou jardim você quer cuidar" />
             </div>
-            <Button type="submit" size="lg" className="w-full" disabled={placing}>
+            <Button type="submit" size="lg" className="w-full" disabled={placing} data-analytics-event="subscription_whatsapp">
               {placing ? "Processando..." : "Montar assinatura pelo WhatsApp"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
@@ -247,7 +247,16 @@ export default function ProductPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <Link to="/loja" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+      <Seo
+        title={PRODUCT_SEO[product.slug]?.title ?? `${product.name} | Clube do Adubo`}
+        description={PRODUCT_SEO[product.slug]?.description ?? product.shortDescription}
+        path={`/loja/produto/${product.slug}`}
+        ogType="product"
+        ogTitle={PRODUCT_SEO[product.slug]?.ogTitle}
+        ogDescription={PRODUCT_SEO[product.slug]?.ogDescription}
+        jsonLd={buildProductJsonLd(product.slug, product.unitPrice)}
+      />
+      <Link to="/loja" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground" data-analytics-event="back_to_store">
         <ArrowLeft className="h-4 w-4" /> Voltar aos produtos
       </Link>
 
@@ -256,6 +265,7 @@ export default function ProductPage() {
           <img
             src={product.image}
             alt={product.name}
+            loading="lazy"
             width={1024}
             height={1024}
             className="h-full w-full object-cover"
@@ -313,7 +323,7 @@ export default function ProductPage() {
               <span className="text-xl font-bold">{formatBRL(total)}</span>
             </div>
 
-            <Button onClick={handleAdd} size="lg" className="mt-4 w-full">
+            <Button onClick={handleAdd} size="lg" className="mt-4 w-full" data-analytics-event="add_to_cart">
               {added ? (
                 <><Check className="mr-2 h-5 w-5" /> Adicionado</>
               ) : (
@@ -321,7 +331,7 @@ export default function ProductPage() {
               )}
             </Button>
             <Button asChild variant="outline" size="lg" className="mt-2 w-full">
-              <Link to="/loja/carrinho">Ir para o carrinho</Link>
+              <Link to="/loja/carrinho" data-analytics-event="go_to_cart">Ir para o carrinho</Link>
             </Button>
           </div>
         </div>
