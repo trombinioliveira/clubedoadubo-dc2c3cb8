@@ -119,6 +119,21 @@ function SubscriptionView({
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <Seo
+        title="Assinatura Mensal de Adubos Orgânicos | Clube do Adubo"
+        description="Monte uma assinatura mensal e flexível de adubos orgânicos pelo WhatsApp. Plano sob medida para plantas, vasos, hortas e jardins."
+        path="/loja/produto/assinatura-mensal"
+        ogTitle="Assinatura Mensal e Flexível de Adubos | Clube do Adubo"
+        ogDescription="Receba adubos orgânicos todo mês em um plano flexível, combinado pelo WhatsApp conforme suas plantas e região de entrega."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Assinatura Mensal e Flexível de Adubos",
+          serviceType: "Assinatura de adubos orgânicos",
+          provider: { "@type": "Organization", name: "Clube do Adubo" },
+          areaServed: "São Paulo Capital e Litoral Norte/SP",
+        }}
+      />
       <Link to="/loja" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Voltar aos produtos
       </Link>
