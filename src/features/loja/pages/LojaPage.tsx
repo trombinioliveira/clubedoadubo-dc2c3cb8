@@ -16,16 +16,16 @@ export default function LojaPage() {
             Adubos premium artesanais, direto para suas plantas
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base opacity-90 md:text-lg">
-            Produzimos adubo líquido e granulado à base de húmus de minhoca, com entrega
-            em São Paulo Capital e no Litoral Norte/SP. Para todo o Brasil, participe pelo
-            Adubo Digital.
+            Adubos líquidos e granulados à base de húmus de minhoca, feitos artesanalmente
+            para plantas, vasos, hortas e jardins. Entrega em São Paulo Capital e no
+            Litoral Norte/SP.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" variant="secondary">
               <a href="#produtos">Ver produtos</a>
             </Button>
             <Button asChild size="lg" variant="outline" className="bg-background/10 text-primary-foreground border-primary-foreground/40 hover:bg-background/20">
-              <Link to="/loja/produto/assinatura-mensal">Brasil via Adubo Digital</Link>
+              <Link to="/loja/adubo-digital">Conheça o Adubo Digital</Link>
             </Button>
           </div>
         </div>

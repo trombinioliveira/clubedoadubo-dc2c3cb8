@@ -38,7 +38,7 @@ export const PRODUCTS: Product[] = [
     category: "liquido",
     shortDescription: "Garrafa de 0,5 L de adubo líquido orgânico à base de húmus de minhoca. Ideal para plantas, vasos, hortas e jardins.",
     description:
-      "Adubo líquido concentrado rico em nutrientes, resultado do processamento da matéria orgânica. Rápida absorção pelas plantas, ideal para adubação foliar e de cobertura. Vendido em garrafas de 0,5 L.",
+      "Adubo líquido orgânico à base de húmus de minhoca, produzido artesanalmente a partir da transformação de matéria orgânica. Ideal para o cuidado de plantas, vasos, hortas e jardins. Vendido em garrafa de 0,5 L.",
     image: liquidoImg,
     unitLabel: "garrafa de 0,5 L",
     minQuantity: 1,
@@ -53,7 +53,7 @@ export const PRODUCTS: Product[] = [
     category: "granulado",
     shortDescription: "Saco de 0,5 kg de adubo granulado orgânico à base de húmus de minhoca. Ideal para misturar à terra de vasos, canteiros, hortas e jardins.",
     description:
-      "Adubo granulado produzido a partir do processamento de resíduos orgânicos do Clube do Adubo. Liberação gradual de nutrientes, ideal para hortas, jardins e vasos. Vendido em sacos de 0,5 kg.",
+      "Adubo granulado orgânico à base de húmus de minhoca, produzido artesanalmente a partir da transformação de matéria orgânica. Ideal para misturar à terra de vasos, canteiros, hortas e jardins. Vendido em saco de 0,5 kg.",
     image: granuladoImg,
     unitLabel: "saco de 0,5 kg",
     minQuantity: 1,
@@ -65,15 +65,15 @@ export const PRODUCTS: Product[] = [
     slug: "assinatura-mensal",
     name: "Assinatura Mensal de Adubos",
     category: "assinatura",
-    shortDescription: "Receba adubos em casa todo mês conforme sua necessidade.",
+    shortDescription: "Receba adubos orgânicos todo mês em um plano flexível, montado conforme suas plantas e sua região de entrega.",
     description:
-      "Plano de assinatura mensal: receba uma seleção de adubos granulados e líquidos em casa, com frete incluso para todo o Brasil. Ajuste, pause ou cancele quando quiser. Ideal para quem mantém horta ou jardim ativos o ano todo.",
+      "Receba adubos orgânicos em casa todo mês, conforme a necessidade das suas plantas. Você combina quantidade, frequência e entrega pelo WhatsApp.",
     image: assinaturaImg,
     unitLabel: "plano mensal",
     minQuantity: 1,
     unitPrice: 99,
-    minLabel: "R$ 99 / mês — frete incluso",
-    badge: "Frete grátis",
+    minLabel: "Plano sob medida",
+    badge: "Plano mensal",
     recurring: true,
   },
 ];

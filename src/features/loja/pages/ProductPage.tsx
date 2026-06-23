@@ -6,7 +6,142 @@ import { useCart } from "../CartContext";
 import { SealGrid } from "../components/seals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+
+const WHATSAPP_NUMBER = "5512996682454";
+
+const SUBSCRIPTION_SEALS = [
+  "Produção artesanal",
+  "Rico em húmus de minhoca",
+  "Plano flexível",
+  "Entrega local combinada",
+];
+
+function SubscriptionView({
+  name,
+  image,
+}: {
+  name: string;
+  image: string;
+}) {
+  const [placing, setPlacing] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
+    const nome = String(data.get("nome") ?? "").trim();
+    const whatsapp = String(data.get("whatsapp") ?? "").trim();
+    const cep = String(data.get("cep") ?? "").trim();
+    const endereco = String(data.get("endereco") ?? "").trim();
+    const observacao = String(data.get("observacao") ?? "").trim();
+
+    const whatsappDigits = whatsapp.replace(/\D/g, "");
+    if (whatsappDigits.length < 10 || whatsappDigits.length > 11) {
+      toast.error("WhatsApp inválido", {
+        description: "Informe o número com DDD, ex: (11) 99999-9999.",
+      });
+      return;
+    }
+
+    setPlacing(true);
+
+    const mensagem = [
+      "Olá! Quero montar uma Assinatura Mensal e Flexível de Adubos do Clube do Adubo.",
+      "",
+      "Meus dados:",
+      `Nome: ${nome}`,
+      `WhatsApp: ${whatsapp}`,
+      `CEP: ${cep}`,
+      `Endereço/cidade: ${endereco}`,
+      `Observação: ${observacao}`,
+      "",
+      "Quero combinar quantidade, frequência, entrega e valor pelo WhatsApp.",
+    ].join("\n");
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank");
+    setPlacing(false);
+    toast.success("Redirecionando para o WhatsApp", {
+      description: "Vamos montar sua assinatura na conversa que abrimos para você.",
+    });
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <Link to="/loja" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Voltar aos produtos
+      </Link>
+
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-muted">
+          <img src={image} alt={name} width={1024} height={1024} className="h-full w-full object-cover" />
+          <Badge className="absolute left-4 top-4 bg-secondary text-secondary-foreground">Plano mensal</Badge>
+        </div>
+
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-extrabold md:text-3xl">{name}</h1>
+          <p className="mt-3 text-muted-foreground">
+            Receba adubos orgânicos em casa todo mês, conforme a necessidade das suas plantas.
+            Você combina quantidade, frequência e entrega pelo WhatsApp.
+          </p>
+          <p className="mt-3 text-muted-foreground">
+            Ideal para quem quer manter plantas, vasos, hortas ou jardins sempre bem cuidados,
+            com adubos artesanais à base de húmus de minhoca.
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {SUBSCRIPTION_SEALS.map((s) => (
+              <Badge key={s} variant="outline" className="border-primary/30 text-primary">
+                {s}
+              </Badge>
+            ))}
+          </div>
+
+          <p className="mt-6 text-2xl font-extrabold text-primary">Plano sob medida</p>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-3 rounded-xl border border-border bg-card p-5">
+            <h2 className="text-lg font-bold">Monte sua assinatura</h2>
+            <p className="text-sm text-muted-foreground">
+              Preencha seus dados e envie sua solicitação pelo WhatsApp. Vamos te ajudar a
+              montar o melhor plano conforme suas plantas, frequência de uso e região de entrega.
+            </p>
+            <div>
+              <Label htmlFor="nome">Primeiro nome</Label>
+              <Input id="nome" name="nome" required placeholder="Seu primeiro nome" />
+            </div>
+            <div>
+              <Label htmlFor="whatsapp">WhatsApp com DDD</Label>
+              <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
+            </div>
+            <div>
+              <Label htmlFor="cep">CEP</Label>
+              <Input id="cep" name="cep" required placeholder="00000-000" />
+            </div>
+            <div>
+              <Label htmlFor="endereco">Endereço ou cidade/bairro</Label>
+              <Input id="endereco" name="endereco" required placeholder="Cidade, bairro ou endereço" />
+            </div>
+            <div>
+              <Label htmlFor="observacao">Observação (opcional)</Label>
+              <Textarea id="observacao" name="observacao" placeholder="Conte quais plantas, vasos, horta ou jardim você quer cuidar" />
+            </div>
+            <Button type="submit" size="lg" className="w-full" disabled={placing}>
+              {placing ? "Processando..." : "Montar assinatura pelo WhatsApp"}
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              A assinatura é flexível e combinada pelo WhatsApp. Entrega disponível em São Paulo
+              Capital e no Litoral Norte/SP.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -26,7 +161,16 @@ export default function ProductPage() {
     );
   }
 
-  const step = product.recurring ? 1 : 1;
+  if (product.recurring) {
+    return (
+      <SubscriptionView
+        name="Assinatura Mensal e Flexível de Adubos"
+        image={product.image}
+      />
+    );
+  }
+
+  const step = 1;
   const min = product.minQuantity;
   const total = product.unitPrice * quantity;
 
@@ -71,58 +215,45 @@ export default function ProductPage() {
           <div className="mt-6 rounded-xl border border-border bg-card p-5">
             <p className="text-3xl font-extrabold text-primary">
               {formatBRL(product.unitPrice)}
-              {product.recurring ? (
-                <span className="text-base font-medium text-muted-foreground">/mês</span>
-              ) : (
-                <span className="text-base font-medium text-muted-foreground"> / {product.unitLabel}</span>
-              )}
+              <span className="text-base font-medium text-muted-foreground"> / {product.unitLabel}</span>
             </p>
             {product.minLabel && (
               <p className="mt-1 text-sm text-muted-foreground">{product.minLabel}</p>
             )}
 
-            {!product.recurring && (
-              <div className="mt-5">
-                <p className="mb-2 text-sm font-medium">Quantidade ({product.unitLabel})</p>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity((q) => Math.max(min, q - step))}
-                    disabled={quantity <= min}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-12 text-center text-lg font-bold">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity((q) => q + step)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {min > 1 && (
-                  <p className="mt-2 text-xs text-muted-foreground">Pedido mínimo: {min} {min > 1 ? "unidades" : "unidade"}.</p>
-                )}
+            <div className="mt-5">
+              <p className="mb-2 text-sm font-medium">Quantidade ({product.unitLabel})</p>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity((q) => Math.max(min, q - step))}
+                  disabled={quantity <= min}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="w-12 text-center text-lg font-bold">{quantity}</span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity((q) => q + step)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
-            )}
+              {min > 1 && (
+                <p className="mt-2 text-xs text-muted-foreground">Pedido mínimo: {min} unidades.</p>
+              )}
+            </div>
 
             <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-              <span className="text-sm text-muted-foreground">
-                {product.recurring ? "Cobrança mensal" : "Subtotal"}
-              </span>
-              <span className="text-xl font-bold">
-                {formatBRL(total)}
-                {product.recurring && <span className="text-sm font-medium text-muted-foreground">/mês</span>}
-              </span>
+              <span className="text-sm text-muted-foreground">Subtotal</span>
+              <span className="text-xl font-bold">{formatBRL(total)}</span>
             </div>
 
             <Button onClick={handleAdd} size="lg" className="mt-4 w-full">
               {added ? (
                 <><Check className="mr-2 h-5 w-5" /> Adicionado</>
-              ) : product.recurring ? (
-                "Assinar agora"
               ) : (
                 "Adicionar ao carrinho"
               )}
