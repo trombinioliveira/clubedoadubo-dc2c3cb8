@@ -157,6 +157,11 @@ export default function LojaPage() {
               Para outras regiões do Brasil, o Clube do Adubo se conecta ao Adubo Digital:
               você participa digitalmente e o ciclo acontece fisicamente.
             </p>
+            <div className="mt-8 flex justify-center">
+              <Button asChild size="lg">
+                <Link to="/loja/adubo-digital" data-analytics-event="view_adubo_digital">Conheça o Adubo Digital</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
