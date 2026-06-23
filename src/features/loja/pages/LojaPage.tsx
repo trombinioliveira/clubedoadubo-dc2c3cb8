@@ -33,10 +33,8 @@ export default function LojaPage() {
           <h1 className="mx-auto max-w-3xl text-3xl font-extrabold md:text-5xl">
             Adubos premium artesanais, direto para suas plantas
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base opacity-90 md:text-lg">
-            Adubos líquidos e granulados à base de húmus de minhoca, feitos artesanalmente
-            para plantas, vasos, hortas e jardins. Entrega em São Paulo Capital e no
-            Litoral Norte/SP.
+          <p className="mx-auto mt-4 max-w-2xl text-base opacity-90 md:text-lg whitespace-pre-line">
+            {"Adubos líquidos e granulados à base de húmus de minhoca, feitos artesanalmente para plantas, vasos, hortas e jardins.\n\n\nEntregamos para\u00a0toda São Paulo Capital e Litoral Norte/SP."}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" variant="secondary">
@@ -55,7 +53,7 @@ export default function LojaPage() {
           {[
             { icon: Leaf, title: "Orgânico artesanal", text: "À base de húmus de minhoca e matéria orgânica transformada." },
             { icon: Truck, title: "Entrega local", text: "São Paulo Capital e Litoral Norte/SP." },
-            { icon: RefreshCw, title: "Brasil via Adubo Digital", text: "Para outras regiões, participe digitalmente do ciclo." },
+            { icon: RefreshCw, title: "Entregas para Brasil via Adubo Digital", text: "Para outras regiões, adquira via Adubo Digital" },
           ].map(({ icon: Icon, title, text }) => (
             <div key={title} className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
