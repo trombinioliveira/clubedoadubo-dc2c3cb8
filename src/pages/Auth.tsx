@@ -452,7 +452,7 @@ export default function Auth() {
           <Card className="w-full max-w-md shadow-elevated border-border/50">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl font-bold">Bem-vindo!</CardTitle>
-              <CardDescription className="text-muted-foreground">Faça parte do ciclo de economia circular urbana</CardDescription>
+              <CardDescription className="text-muted-foreground">Faça parte do Clube do Adubo — adubos orgânicos artesanais</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs
