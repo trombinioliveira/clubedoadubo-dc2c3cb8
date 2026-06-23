@@ -16,7 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { saveInterestLead, recordLinkClick } from "../tracking";
+// NOTE: tracking no banco (saveInterestLead/recordLinkClick) pausado temporariamente
+// enquanto a Data API pública do Supabase está bloqueada por billing/quota.
+// A estrutura (tracking.ts, tabelas, policies, RLS) permanece intacta para retomada futura.
 
 const WHATSAPP_NUMBER = "5512996682454";
 const SOURCE_PAGE = "/loja/servicos-de-adubacao";
