@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { createClubeOrder } from "../api/clube";
 
 const WHATSAPP_NUMBER = "5512996682454";
 const SITE_URL = "https://www.clubedoadubo.com.br";
