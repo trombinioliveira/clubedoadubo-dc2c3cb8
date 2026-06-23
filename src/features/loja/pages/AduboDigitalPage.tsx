@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { Globe, Recycle, Sprout, ExternalLink } from "lucide-react";
 import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
-import { recordLinkClick } from "../tracking";
+// NOTE: tracking no banco (recordLinkClick) pausado temporariamente enquanto a Data API
+// pública do Supabase está bloqueada por billing/quota. Estrutura técnica mantida intacta.
 
 const ADUBO_DIGITAL_URL = "https://www.adubodigital.com.br";
 const SOURCE_PAGE = "/loja/adubo-digital";
