@@ -61,13 +61,14 @@ export default function CartPage() {
   const shipping = 0;
   const total = subtotal + shipping;
 
-  const handleCheckout = (e: React.FormEvent) => {
+  const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const form = e.currentTarget as HTMLFormElement;
     const data = new FormData(form);
     const nome = String(data.get("nome") ?? "").trim();
     const whatsapp = String(data.get("whatsapp") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
     const cep = String(data.get("cep") ?? "").trim();
     const endereco = String(data.get("endereco") ?? "").trim();
 
@@ -77,6 +78,12 @@ export default function CartPage() {
       toast.error("WhatsApp inválido", {
         description: "Informe o número com DDD, ex: (11) 99999-9999.",
       });
+      return;
+    }
+
+    // Validação de e-mail
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("E-mail inválido", { description: "Informe um e-mail válido." });
       return;
     }
 
@@ -91,6 +98,45 @@ export default function CartPage() {
 
     setPlacing(true);
 
+    const orderItems = items
+      .map((i) => {
+        const p = getProduct(i.productId);
+        if (!p) return null;
+        return { name: p.name, type: "physical", quantity: i.quantity, price: p.unitPrice, label: p.unitLabel };
+      })
+      .filter(Boolean) as { name: string; type: string; quantity: number; price: number; label: string }[];
+
+    // 1) Salvar pedido no banco ANTES de abrir o WhatsApp. Falha bloqueia o próximo passo.
+    let externalReference = "";
+    try {
+      const res = await createClubeOrder({
+        customer_name: nome,
+        customer_whatsapp: whatsapp,
+        customer_email: email,
+        items: orderItems,
+        quantity_total: items.reduce((acc, i) => acc + i.quantity, 0),
+        subtotal_amount: subtotal,
+        delivery_amount: null,
+        discount_amount: 0,
+        total_amount: subtotal,
+        order_type: "physical_cart",
+        source_page: "/loja/carrinho",
+        payment_method: "whatsapp",
+        delivery_method: "a_combinar",
+        delivery_address: `${endereco} — CEP ${cep}`,
+        notes:
+          "Pedido físico iniciado pelo carrinho da loja. Entrega/frete a combinar pelo atendimento. Entrega física disponível em São Paulo Capital e no Litoral Norte/SP.",
+      });
+      externalReference = res.external_reference;
+    } catch (err) {
+      setPlacing(false);
+      toast.error("Não conseguimos salvar seu pedido agora", {
+        description:
+          "Tente novamente em alguns instantes ou fale com o Clube do Adubo pelo WhatsApp.",
+      });
+      return;
+    }
+
     const linhas = items.map((i) => {
       const p = getProduct(i.productId);
       if (!p) return "";
@@ -100,6 +146,9 @@ export default function CartPage() {
     const mensagem = [
       "Olá! Gostaria de finalizar meu pedido no Clube do Adubo.",
       "",
+      "Pedido:",
+      externalReference,
+      "",
       "Itens:",
       ...linhas,
       "",
@@ -108,6 +157,7 @@ export default function CartPage() {
       "Dados:",
       `Nome: ${nome}`,
       `WhatsApp: ${whatsapp}`,
+      `E-mail: ${email}`,
       `CEP: ${cep}`,
       `Endereço: ${endereco}`,
       "",
