@@ -109,7 +109,7 @@ export default function AduboDigitalPage() {
 
           <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild size="lg">
-              <a href={ADUBO_DIGITAL_URL} target="_blank" rel="noopener noreferrer" onClick={handleVisitSite} data-analytics-event="adubo_digital_site">
+              <a href={ADUBO_DIGITAL_URL} target="_blank" rel="noopener noreferrer" data-analytics-event="adubo_digital_site">
                 <ExternalLink className="mr-2 h-5 w-5" /> Conhecer www.adubodigital.com.br
               </a>
             </Button>
