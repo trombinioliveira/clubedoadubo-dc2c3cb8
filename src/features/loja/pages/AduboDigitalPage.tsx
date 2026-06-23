@@ -18,17 +18,6 @@ const COMO_FUNCIONA = [
 ];
 
 export default function AduboDigitalPage() {
-  const handleVisitSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Registro de clique não bloqueia a navegação
-    void recordLinkClick({
-      link_key: "adubo_digital_site",
-      source_page: SOURCE_PAGE,
-      target_url: ADUBO_DIGITAL_URL,
-      interest_type: "adubo_digital",
-    });
-  };
-
-
   return (
     <div>
       <Seo
