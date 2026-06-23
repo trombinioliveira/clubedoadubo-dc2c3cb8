@@ -228,6 +228,10 @@ function SubscriptionView({
               <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
             </div>
             <div>
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" name="email" type="email" required placeholder="voce@email.com" />
+            </div>
+            <div>
               <Label htmlFor="cep">CEP</Label>
               <Input id="cep" name="cep" required placeholder="00000-000" />
             </div>
