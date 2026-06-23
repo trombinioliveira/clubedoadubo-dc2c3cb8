@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { Globe, Recycle, Sprout, ExternalLink } from "lucide-react";
 import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
-import { recordLinkClick } from "../tracking";
+// NOTE: tracking no banco (recordLinkClick) pausado temporariamente enquanto a Data API
+// pública do Supabase está bloqueada por billing/quota. Estrutura técnica mantida intacta.
 
 const ADUBO_DIGITAL_URL = "https://www.adubodigital.com.br";
-const SOURCE_PAGE = "/loja/adubo-digital";
+
 
 const COMO_FUNCIONA = [
   "Você participa digitalmente.",
@@ -17,17 +18,6 @@ const COMO_FUNCIONA = [
 ];
 
 export default function AduboDigitalPage() {
-  const handleVisitSite = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Registro de clique não bloqueia a navegação
-    void recordLinkClick({
-      link_key: "adubo_digital_site",
-      source_page: SOURCE_PAGE,
-      target_url: ADUBO_DIGITAL_URL,
-      interest_type: "adubo_digital",
-    });
-  };
-
-
   return (
     <div>
       <Seo
@@ -119,7 +109,7 @@ export default function AduboDigitalPage() {
 
           <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild size="lg">
-              <a href={ADUBO_DIGITAL_URL} target="_blank" rel="noopener noreferrer" onClick={handleVisitSite} data-analytics-event="adubo_digital_site">
+              <a href={ADUBO_DIGITAL_URL} target="_blank" rel="noopener noreferrer" data-analytics-event="adubo_digital_site">
                 <ExternalLink className="mr-2 h-5 w-5" /> Conhecer www.adubodigital.com.br
               </a>
             </Button>
