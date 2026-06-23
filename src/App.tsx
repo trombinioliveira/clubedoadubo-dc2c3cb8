@@ -47,7 +47,7 @@ import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
 // Loja (vitrine virtual)
-import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, LojaAdminPage } from "@/features/loja";
+import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, LojaAdminPage, GoRedirectPage } from "@/features/loja";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +83,9 @@ const App = () => (
                 </ProtectedRoute>
               } />
             </Route>
+
+            {/* Rotas de tracking de clique — registram clique e redirecionam */}
+            <Route path="/go/:slug" element={<GoRedirectPage />} />
 
             {/* Raiz redireciona para a loja */}
             <Route path="/" element={<Navigate to="/loja" replace />} />
