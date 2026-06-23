@@ -26,9 +26,10 @@ export default function CartPage() {
   const { items, getProduct, updateQuantity, removeItem, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const [placing, setPlacing] = useState(false);
-  const [saved, setSaved] = useState<{ nome: string; whatsapp: string; cep: string; endereco: string }>({
+  const [saved, setSaved] = useState<{ nome: string; whatsapp: string; email: string; cep: string; endereco: string }>({
     nome: "",
     whatsapp: "",
+    email: "",
     cep: "",
     endereco: "",
   });
