@@ -280,6 +280,11 @@ export default function CartPage() {
                 value={saved.whatsapp} onChange={(e) => persist("whatsapp", e.target.value)} />
             </div>
             <div>
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" name="email" type="email" required placeholder="voce@email.com"
+                value={saved.email} onChange={(e) => persist("email", e.target.value)} />
+            </div>
+            <div>
               <Label htmlFor="cep">CEP</Label>
               <Input id="cep" name="cep" required placeholder="00000-000"
                 value={saved.cep} onChange={(e) => persist("cep", e.target.value)} />
