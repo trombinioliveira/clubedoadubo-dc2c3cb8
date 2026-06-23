@@ -86,18 +86,22 @@ export default function CartPage() {
     }).filter(Boolean);
 
     const mensagem = [
-      "Olá! Gostaria de finalizar meu pedido no Clube do Adubo:",
+      "Olá! Gostaria de finalizar meu pedido no Clube do Adubo.",
       "",
+      "Itens:",
       ...linhas,
       "",
       `Subtotal: ${formatBRL(subtotal)}`,
-      "Frete: a combinar",
       "",
-      "Dados de entrega:",
+      "Dados:",
       `Nome: ${nome}`,
       `WhatsApp: ${whatsapp}`,
       `CEP: ${cep}`,
       `Endereço: ${endereco}`,
+      "",
+      "Entrega/frete: A combinar pelo atendimento.",
+      "",
+      "Observação: Os adubos físicos são entregues em São Paulo Capital e no Litoral Norte/SP.",
     ].join("\n");
 
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
