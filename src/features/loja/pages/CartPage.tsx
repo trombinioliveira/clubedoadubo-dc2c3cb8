@@ -3,10 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "../CartContext";
 import { formatBRL } from "../data/products";
+import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+
+const CART_SEO = (
+  <Seo
+    title="Carrinho | Clube do Adubo"
+    description="Finalize seu pedido de adubos orgânicos pelo WhatsApp com o Clube do Adubo."
+    path="/loja/carrinho"
+    robots="noindex, nofollow"
+  />
+);
 
 const WHATSAPP_NUMBER = "5512996682454";
 const CHECKOUT_STORAGE_KEY = "loja-checkout-dados";
