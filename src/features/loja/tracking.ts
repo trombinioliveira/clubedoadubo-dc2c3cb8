@@ -53,7 +53,7 @@ export async function saveInterestLead(
   input: InterestLeadInput
 ): Promise<{ ok: boolean; id: string | null }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("clube_interest_leads")
       .insert({
         ...input,
@@ -64,7 +64,7 @@ export async function saveInterestLead(
       .single();
 
     if (error) return { ok: false, id: null };
-    return { ok: true, id: data?.id ?? null };
+    return { ok: true, id: (data as { id?: string } | null)?.id ?? null };
   } catch {
     return { ok: false, id: null };
   }
