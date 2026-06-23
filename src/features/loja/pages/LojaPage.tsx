@@ -40,9 +40,6 @@ export default function LojaPage() {
             <Button asChild size="lg" variant="secondary">
               <a href="#produtos" data-analytics-event="view_products">Ver produtos</a>
             </Button>
-            <Button asChild size="lg" variant="outline" className="bg-background/10 text-primary-foreground border-primary-foreground/40 hover:bg-background/20">
-              <Link to="/loja/adubo-digital" data-analytics-event="view_adubo_digital">Conheça o Adubo Digital</Link>
-            </Button>
           </div>
         </div>
       </section>
@@ -53,15 +50,26 @@ export default function LojaPage() {
           {[
             { icon: Leaf, title: "Orgânico artesanal", text: "À base de húmus de minhoca e matéria orgânica transformada." },
             { icon: Truck, title: "Entrega local", text: "São Paulo Capital e Litoral Norte/SP." },
-            { icon: RefreshCw, title: "Entregas para Brasil via Adubo Digital", text: "Para outras regiões, adquira via Adubo Digital" },
-          ].map(({ icon: Icon, title, text }) => (
+            { icon: RefreshCw, title: "Entregas para Brasil via Adubo Digital", text: "Para outras regiões, adquira via ", link: { to: "/loja/adubo-digital", label: "Adubo Digital" } },
+          ].map(({ icon: Icon, title, text, link }) => (
             <div key={title} className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
               </span>
               <div>
                 <p className="font-semibold">{title}</p>
-                <p className="text-sm text-muted-foreground">{text}</p>
+                <p className="text-sm text-muted-foreground">
+                  {text}
+                  {link && (
+                    <Link
+                      to={link.to}
+                      data-analytics-event="view_adubo_digital"
+                      className="font-semibold text-primary underline underline-offset-2"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
+                </p>
               </div>
             </div>
           ))}
@@ -149,6 +157,11 @@ export default function LojaPage() {
               Para outras regiões do Brasil, o Clube do Adubo se conecta ao Adubo Digital:
               você participa digitalmente e o ciclo acontece fisicamente.
             </p>
+            <div className="mt-8 flex justify-center">
+              <Button asChild size="lg">
+                <Link to="/loja/adubo-digital" data-analytics-event="view_adubo_digital">Conheça o Adubo Digital</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
