@@ -3,12 +3,30 @@ import { Link } from "react-router-dom";
 import { Leaf, Truck, RefreshCw } from "lucide-react";
 import { PRODUCTS, formatBRL } from "../data/products";
 import { SealsSection, SealStrip } from "../components/seals";
+import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+const LOJA_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Clube do Adubo",
+  url: "https://www.clubedoadubo.com.br/loja",
+  description:
+    "Adubos líquidos e granulados à base de húmus de minhoca, produzidos artesanalmente para plantas, vasos, hortas e jardins.",
+};
 
 export default function LojaPage() {
   return (
     <div>
+      <Seo
+        title="Clube do Adubo | Adubos orgânicos artesanais"
+        description="Compre adubo líquido e granulado à base de húmus de minhoca. Entrega em São Paulo Capital e no Litoral Norte/SP. Brasil via Adubo Digital."
+        path="/loja"
+        ogTitle="Clube do Adubo | Adubos orgânicos artesanais"
+        ogDescription="Adubos líquidos e granulados à base de húmus de minhoca, produzidos artesanalmente para plantas, vasos, hortas e jardins."
+        jsonLd={LOJA_JSONLD}
+      />
       {/* Hero */}
       <section className="earth-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-16 text-center md:py-24">
