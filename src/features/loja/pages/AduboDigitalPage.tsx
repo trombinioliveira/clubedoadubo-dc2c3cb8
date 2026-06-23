@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 // pública do Supabase está bloqueada por billing/quota. Estrutura técnica mantida intacta.
 
 const ADUBO_DIGITAL_URL = "https://www.adubodigital.com.br";
-const SOURCE_PAGE = "/loja/adubo-digital";
+
 
 const COMO_FUNCIONA = [
   "Você participa digitalmente.",
