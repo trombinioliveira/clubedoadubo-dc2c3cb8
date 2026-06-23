@@ -25,7 +25,7 @@ export const PublicHeader = () => {
             <img src={logoImage} alt="Clube do Adubo" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" />
             <div className="flex flex-col">
               <span className="font-bold text-foreground text-sm sm:text-base leading-tight">Clube do Adubo</span>
-              <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
+              <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Adubos orgânicos artesanais</span>
             </div>
           </Link>
 

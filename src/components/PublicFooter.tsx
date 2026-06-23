@@ -19,7 +19,7 @@ export const PublicFooter = () => {
                 Clube do Adubo
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight">
-                Loja de Adubos Orgânicos
+                Adubos orgânicos artesanais
               </span>
             </div>
           </Link>
@@ -58,11 +58,11 @@ export const PublicFooter = () => {
               </a>
             </div>
             <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Clube do Adubo — Economia Circular Urbana
+              © {new Date().getFullYear()} Clube do Adubo — Adubos orgânicos artesanais
             </p>
             <p className="text-sm text-muted-foreground/80 italic max-w-md">
-              Transparência não é um detalhe. Ela sustenta o ciclo.<br />
-              Sem resíduo real, não existe valor.
+              Adubos orgânicos artesanais à base de húmus de minhoca.<br />
+              Entrega em São Paulo Capital e no Litoral Norte/SP.
             </p>
           </div>
         </div>
