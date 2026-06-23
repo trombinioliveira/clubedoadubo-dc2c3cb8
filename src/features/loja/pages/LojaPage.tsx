@@ -53,7 +53,7 @@ export default function LojaPage() {
           {[
             { icon: Leaf, title: "Orgânico artesanal", text: "À base de húmus de minhoca e matéria orgânica transformada." },
             { icon: Truck, title: "Entrega local", text: "São Paulo Capital e Litoral Norte/SP." },
-            { icon: RefreshCw, title: "Brasil via Adubo Digital", text: "Para outras regiões, participe digitalmente do ciclo." },
+            { icon: RefreshCw, title: "Entregas para Brasil via Adubo Digital", text: "Para outras regiões, adquira via Adubo Digital" },
           ].map(({ icon: Icon, title, text }) => (
             <div key={title} className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
