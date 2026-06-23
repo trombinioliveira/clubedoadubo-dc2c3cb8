@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Globe, Recycle, Sprout, CheckCircle2 } from "lucide-react";
+import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
 
 const WHATSAPP_NUMBER = "5512996682454";
@@ -20,6 +21,21 @@ export default function AduboDigitalPage() {
 
   return (
     <div>
+      <Seo
+        title="Adubo Digital | Compra digital com impacto físico real"
+        description="Participe do ciclo do Clube do Adubo de qualquer lugar do Brasil. O Adubo Digital conecta compra digital a impacto físico real."
+        path="/loja/adubo-digital"
+        ogTitle="Adubo Digital | Impacto físico real"
+        ogDescription="Você compra digitalmente. O ciclo acontece fisicamente dentro da operação do Clube do Adubo."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: "Adubo Digital | Compra digital com impacto físico real",
+          description:
+            "Participe do ciclo do Clube do Adubo de qualquer lugar do Brasil. O Adubo Digital conecta compra digital a impacto físico real.",
+          url: "https://www.clubedoadubo.com.br/loja/adubo-digital",
+        }}
+      />
       {/* Hero */}
       <section className="earth-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-16 text-center md:py-24">
@@ -94,12 +110,12 @@ export default function AduboDigitalPage() {
 
           <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild size="lg">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-analytics-event="adubo_digital_whatsapp">
                 <CheckCircle2 className="mr-2 h-5 w-5" /> Quero entender pelo WhatsApp
               </a>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/loja">Voltar para a loja</Link>
+              <Link to="/loja" data-analytics-event="back_to_store">Voltar para a loja</Link>
             </Button>
           </div>
         </div>
