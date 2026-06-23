@@ -69,7 +69,7 @@ function LojaHeader() {
           <img src={logoImage} alt="Clube do Adubo" className="h-10 w-10 object-contain" />
           <div className="flex flex-col">
             <span className="font-bold text-foreground text-base leading-tight">Clube do Adubo</span>
-            <span className="text-xs text-muted-foreground leading-tight">Economia Circular Urbana</span>
+            <span className="text-xs text-muted-foreground leading-tight">Adubos orgânicos artesanais</span>
           </div>
         </Link>
 
@@ -98,7 +98,7 @@ function LojaHeader() {
             <img src={logoImage} alt="Clube do Adubo" className="h-9 w-9 object-contain" />
             <div className="flex flex-col items-center text-center">
               <span className="font-bold text-foreground text-sm leading-tight">Clube do Adubo</span>
-              <span className="text-[10px] text-muted-foreground leading-tight">Economia Circular Urbana</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">Adubos orgânicos artesanais</span>
             </div>
           </Link>
           <Link to="/loja/carrinho" aria-label="Carrinho" className="absolute right-0 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-muted hover:bg-muted/70">
@@ -127,7 +127,7 @@ function LojaFooter() {
   return (
     <footer className="border-t border-border bg-card">
       <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 text-center text-sm text-muted-foreground sm:flex-row sm:text-left">
-        <p>© {new Date().getFullYear()} Clube do Adubo — Loja Virtual</p>
+        <p>© {new Date().getFullYear()} Clube do Adubo — Adubos orgânicos artesanais</p>
         <div className="flex gap-6">
           <Link to="/loja" className="hover:text-foreground">Produtos</Link>
         </div>

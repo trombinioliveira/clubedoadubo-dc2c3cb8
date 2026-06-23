@@ -86,7 +86,7 @@ export function SealsSection({ className }: { className?: string }) {
           </h2>
           <p className="mt-3 text-sm text-muted-foreground md:text-base">
             Cada selo representa um compromisso real com produção artesanal,
-            solo vivo e regeneração — nada de fertilizante industrial.
+            solo vivo e regeneração — um adubo feito com cuidado, origem e impacto local.
           </p>
         </div>
 
