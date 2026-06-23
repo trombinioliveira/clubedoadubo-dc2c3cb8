@@ -129,11 +129,12 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
+        {CART_SEO}
         <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground" />
         <h1 className="mt-4 text-2xl font-bold">Seu carrinho está vazio</h1>
         <p className="mt-2 text-muted-foreground">Adicione adubos para continuar.</p>
         <Button asChild className="mt-6">
-          <Link to="/loja">Ver produtos</Link>
+          <Link to="/loja" data-analytics-event="back_to_store">Ver produtos</Link>
         </Button>
       </div>
     );
@@ -141,6 +142,7 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      {CART_SEO}
       <h1 className="mb-6 text-2xl font-bold md:text-3xl">Carrinho</h1>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Itens */}
@@ -150,7 +152,7 @@ export default function CartPage() {
             if (!product) return null;
             return (
               <div key={item.productId} className="flex gap-4 rounded-xl border border-border bg-card p-4">
-                <img src={product.image} alt={product.name} width={96} height={96} className="h-24 w-24 rounded-lg object-cover" />
+                <img src={product.image} alt={product.name} loading="lazy" width={96} height={96} className="h-24 w-24 rounded-lg object-cover" />
                 <div className="flex flex-1 flex-col">
                   <div className="flex items-start justify-between">
                     <div>
@@ -235,7 +237,7 @@ export default function CartPage() {
               <Input id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade/UF"
                 value={saved.endereco} onChange={(e) => persist("endereco", e.target.value)} />
             </div>
-            <Button type="submit" size="lg" className="w-full" disabled={placing}>
+            <Button type="submit" size="lg" className="w-full" disabled={placing} data-analytics-event="finish_order_whatsapp">
               {placing ? "Processando..." : "Finalizar pelo WhatsApp"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
