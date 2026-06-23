@@ -40,9 +40,6 @@ export default function LojaPage() {
             <Button asChild size="lg" variant="secondary">
               <a href="#produtos" data-analytics-event="view_products">Ver produtos</a>
             </Button>
-            <Button asChild size="lg" variant="outline" className="bg-background/10 text-primary-foreground border-primary-foreground/40 hover:bg-background/20">
-              <Link to="/loja/adubo-digital" data-analytics-event="view_adubo_digital">Conheça o Adubo Digital</Link>
-            </Button>
           </div>
         </div>
       </section>
