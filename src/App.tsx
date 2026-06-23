@@ -47,7 +47,7 @@ import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
 // Loja (vitrine virtual)
-import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, LojaAdminPage } from "@/features/loja";
+import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, ServicosAdubacaoPage, LojaAdminPage } from "@/features/loja";
 
 const queryClient = new QueryClient();
 
