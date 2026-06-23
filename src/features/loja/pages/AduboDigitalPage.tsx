@@ -113,14 +113,14 @@ export default function AduboDigitalPage() {
             <p className="text-sm text-muted-foreground md:text-base">
               O Adubo Digital não é investimento, não promete lucro e não gera rendimento.
               É uma compra digital com impacto físico real, conectada à operação do Clube do
-              Adubo.
+              Adubo. Acesse o site oficial do Adubo Digital para conhecer a proposta completa.
             </p>
           </div>
 
           <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild size="lg">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-analytics-event="adubo_digital_whatsapp">
-                <CheckCircle2 className="mr-2 h-5 w-5" /> Quero entender pelo WhatsApp
+              <a href={ADUBO_DIGITAL_URL} target="_blank" rel="noopener noreferrer" onClick={handleVisitSite} data-analytics-event="adubo_digital_site">
+                <ExternalLink className="mr-2 h-5 w-5" /> Conhecer www.adubodigital.com.br
               </a>
             </Button>
             <Button asChild size="lg" variant="outline">
