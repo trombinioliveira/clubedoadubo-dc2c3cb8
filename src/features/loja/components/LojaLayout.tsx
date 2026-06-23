@@ -132,6 +132,7 @@ function LojaFooter() {
         <p>© {new Date().getFullYear()} Clube do Adubo — Adubos orgânicos artesanais</p>
         <div className="flex gap-6">
           <Link to="/loja" className="hover:text-foreground">Produtos</Link>
+          <Link to="/loja/servicos-de-adubacao" className="hover:text-foreground">Serviços de adubação</Link>
         </div>
       </div>
     </footer>
