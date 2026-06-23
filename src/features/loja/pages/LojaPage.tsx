@@ -56,7 +56,14 @@ export default function LojaPage() {
       <section id="produtos" className="container mx-auto px-4 py-12 md:py-16">
         <h2 className="mb-8 text-2xl font-bold md:text-3xl">Nossos adubos orgânicos</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PRODUCTS.map((product) => (
+          {PRODUCTS.map((product) => {
+            const isAssinatura = product.category === "assinatura";
+            const cardName = isAssinatura ? "Assinatura Mensal e Flexível de Adubos" : product.name;
+            const cardDescription = isAssinatura
+              ? "Receba adubos em casa todo mês, conforme a necessidade das suas plantas. Você combina quantidade, frequência e entrega pelo WhatsApp."
+              : product.shortDescription;
+            const cardBadge = isAssinatura ? "Plano mensal" : product.badge;
+            return (
             <Link
               key={product.id}
               to={`/loja/produto/${product.slug}`}
@@ -65,39 +72,45 @@ export default function LojaPage() {
               <div className="relative aspect-square overflow-hidden bg-muted">
                 <img
                   src={product.image}
-                  alt={product.name}
+                  alt={cardName}
                   loading="lazy"
                   width={1024}
                   height={1024}
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                 />
-                {product.badge && (
+                {cardBadge && (
                   <Badge className="absolute left-3 top-3 bg-secondary text-secondary-foreground">
-                    {product.badge}
+                    {cardBadge}
                   </Badge>
                 )}
               </div>
               <div className="flex flex-1 flex-col p-5">
-                <h3 className="text-lg font-bold">{product.name}</h3>
+                <h3 className="text-lg font-bold">{cardName}</h3>
                 <p className="mt-1 flex-1 text-sm text-muted-foreground">
-                  {product.shortDescription}
+                  {cardDescription}
                 </p>
                 <SealStrip className="mt-3" />
                 <div className="mt-4 flex items-end justify-between">
                   <div>
-                    <p className="text-xl font-extrabold text-primary">
-                      {formatBRL(product.unitPrice)}
-                      {product.recurring && <span className="text-sm font-medium text-muted-foreground">/mês</span>}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{product.minLabel}</p>
+                    {isAssinatura ? (
+                      <p className="text-xl font-extrabold text-primary">Plano sob medida</p>
+                    ) : (
+                      <>
+                        <p className="text-xl font-extrabold text-primary">
+                          {formatBRL(product.unitPrice)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{product.minLabel}</p>
+                      </>
+                    )}
                   </div>
                   <span className="text-sm font-semibold text-primary group-hover:underline">
-                    Ver mais →
+                    {isAssinatura ? "Montar minha assinatura →" : "Ver mais →"}
                   </span>
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 
