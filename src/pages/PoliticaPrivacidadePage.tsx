@@ -28,8 +28,15 @@ export default function PoliticaPrivacidadePage() {
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">
+        <Button asChild variant="outline" size="sm" className="mb-6">
+          <Link to={safeReturn ?? '/loja'}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {safeReturn ? 'Voltar para onde eu estava' : 'Voltar para a loja'}
+          </Link>
+        </Button>
         <h1 className="text-3xl font-bold text-foreground mb-2">Política de Privacidade</h1>
         <p className="text-sm text-muted-foreground mb-8">Última atualização: Fevereiro de 2026</p>
+
 
         <div className="prose prose-sm max-w-none space-y-8 text-foreground/90">
           <section>
