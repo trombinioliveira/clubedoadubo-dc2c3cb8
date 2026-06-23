@@ -5,4 +5,3 @@ export { default as ProductPage } from "./pages/ProductPage";
 export { default as CartPage } from "./pages/CartPage";
 export { default as AduboDigitalPage } from "./pages/AduboDigitalPage";
 export { default as LojaAdminPage } from "./pages/LojaAdminPage";
-export { default as GoRedirectPage } from "./pages/GoRedirectPage";

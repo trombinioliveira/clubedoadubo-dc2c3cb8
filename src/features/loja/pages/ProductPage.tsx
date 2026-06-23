@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { createClubeOrder } from "../api/clube";
 
 const WHATSAPP_NUMBER = "5512996682454";
 const SITE_URL = "https://www.clubedoadubo.com.br";
@@ -77,13 +76,12 @@ function SubscriptionView({
 }) {
   const [placing, setPlacing] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
     const data = new FormData(form);
     const nome = String(data.get("nome") ?? "").trim();
     const whatsapp = String(data.get("whatsapp") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
     const cep = String(data.get("cep") ?? "").trim();
     const endereco = String(data.get("endereco") ?? "").trim();
     const observacao = String(data.get("observacao") ?? "").trim();
@@ -95,61 +93,15 @@ function SubscriptionView({
       });
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("E-mail inválido", { description: "Informe um e-mail válido." });
-      return;
-    }
 
     setPlacing(true);
-
-    // 1) Salvar solicitação no banco ANTES de abrir o WhatsApp.
-    let externalReference = "";
-    try {
-      const res = await createClubeOrder({
-        customer_name: nome,
-        customer_whatsapp: whatsapp,
-        customer_email: email,
-        items: [
-          {
-            name: "Assinatura Mensal e Flexível de Adubos",
-            type: "subscription",
-            quantity: 1,
-            price: null,
-            label: "Plano sob medida",
-          },
-        ],
-        quantity_total: 1,
-        subtotal_amount: null,
-        delivery_amount: null,
-        discount_amount: 0,
-        total_amount: null,
-        order_type: "subscription_request",
-        source_page: "/loja/produto/assinatura-mensal",
-        payment_method: "whatsapp",
-        delivery_method: "a_combinar",
-        delivery_address: `${endereco} — CEP ${cep}`,
-        notes: `Solicitação de assinatura mensal e flexível. Cliente deseja combinar quantidade, frequência, entrega e valor pelo WhatsApp. Observação do cliente: ${observacao || "—"}`,
-      });
-      externalReference = res.external_reference;
-    } catch (err) {
-      setPlacing(false);
-      toast.error("Não conseguimos salvar sua solicitação agora", {
-        description:
-          "Tente novamente em alguns instantes ou fale com o Clube do Adubo pelo WhatsApp.",
-      });
-      return;
-    }
 
     const mensagem = [
       "Olá! Quero montar uma Assinatura Mensal e Flexível de Adubos do Clube do Adubo.",
       "",
-      "Pedido:",
-      externalReference,
-      "",
       "Meus dados:",
       `Nome: ${nome}`,
       `WhatsApp: ${whatsapp}`,
-      `E-mail: ${email}`,
       `CEP: ${cep}`,
       `Endereço/cidade: ${endereco}`,
       `Observação: ${observacao}`,
@@ -228,10 +180,6 @@ function SubscriptionView({
               <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
             </div>
             <div>
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" name="email" type="email" required placeholder="voce@email.com" />
-            </div>
-            <div>
               <Label htmlFor="cep">CEP</Label>
               <Input id="cep" name="cep" required placeholder="00000-000" />
             </div>
@@ -248,11 +196,7 @@ function SubscriptionView({
             </Button>
             <p className="text-center text-xs text-muted-foreground">
               A assinatura é flexível e combinada pelo WhatsApp. Entrega disponível em São Paulo
-              Capital e no Litoral Norte/SP. Ao enviar, você concorda com a{" "}
-              <Link to="/politica-de-privacidade?returnTo=/loja/produto/assinatura-mensal" className="text-primary underline">
-                Política de Privacidade
-              </Link>
-              .
+              Capital e no Litoral Norte/SP.
             </p>
           </form>
         </div>

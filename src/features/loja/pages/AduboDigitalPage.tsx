@@ -1,15 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Globe, Recycle, Sprout, CheckCircle2 } from "lucide-react";
 import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { createClubeLead } from "../api/clube";
 
-const SOURCE_PAGE = "/loja/adubo-digital";
+const WHATSAPP_NUMBER = "5512996682454";
+const WHATSAPP_MESSAGE =
+  "Olá! Quero entender como funciona o Adubo Digital para participar de qualquer lugar do Brasil.";
 
 const COMO_FUNCIONA = [
   "Você participa digitalmente.",
@@ -19,134 +16,9 @@ const COMO_FUNCIONA = [
   "O impacto fica registrado dentro do ciclo.",
 ];
 
-function LeadForm() {
-  const [placing, setPlacing] = useState(false);
-  const [consent, setConsent] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement;
-    const data = new FormData(form);
-    const first_name = String(data.get("nome") ?? "").trim();
-    const whatsapp = String(data.get("whatsapp") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const instagram = String(data.get("instagram") ?? "").trim();
-
-    if (first_name.length < 2) {
-      toast.error("Informe seu primeiro nome.");
-      return;
-    }
-    if (whatsapp.replace(/\D/g, "").length < 10) {
-      toast.error("WhatsApp inválido", { description: "Informe o número com DDD." });
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("E-mail inválido.");
-      return;
-    }
-    if (!consent) {
-      toast.error("É preciso aceitar receber contato para continuar.");
-      return;
-    }
-
-    setPlacing(true);
-    try {
-      const res = await createClubeLead({
-        first_name,
-        whatsapp,
-        email,
-        instagram: instagram || undefined,
-        lead_type: "general",
-        source_page: SOURCE_PAGE,
-        consent_contact: true,
-        consent_privacy: true,
-        notes: "Interesse no Adubo Digital",
-      });
-      setToken(res.public_access_token);
-      toast.success("Cadastro recebido 🌱", {
-        description: "Agora você pode seguir para o próximo passo do Clube do Adubo.",
-      });
-    } catch (err) {
-      toast.error("Não conseguimos salvar seu cadastro agora", {
-        description: "Tente novamente em alguns instantes.",
-      });
-    } finally {
-      setPlacing(false);
-    }
-  };
-
-  if (token) {
-    return (
-      <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-soft">
-        <CheckCircle2 className="mx-auto mb-3 h-9 w-9 text-primary" />
-        <h3 className="text-lg font-bold">Cadastro recebido 🌱</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Recebemos seus dados. Agora você pode seguir para o próximo passo do Clube do Adubo.
-        </p>
-        <Button asChild size="lg" className="mt-5 w-full">
-          <a href={`/go/clube-adubo-digital?t=${token}`} data-analytics-event="adubo_digital_whatsapp">
-            <CheckCircle2 className="mr-2 h-5 w-5" /> Continuar pelo WhatsApp
-          </a>
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="mx-auto max-w-md space-y-3 rounded-2xl border border-border bg-card p-6 text-left shadow-soft"
-    >
-      <h3 className="text-lg font-bold">Quero entender o Adubo Digital</h3>
-      <p className="text-sm text-muted-foreground">
-        Deixe seus dados e a gente continua pelo WhatsApp.
-      </p>
-      <div>
-        <Label htmlFor="nome">Primeiro nome</Label>
-        <Input id="nome" name="nome" required placeholder="Seu primeiro nome" />
-      </div>
-      <div>
-        <Label htmlFor="whatsapp">WhatsApp com DDD</Label>
-        <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
-      </div>
-      <div>
-        <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" required placeholder="voce@email.com" />
-      </div>
-      <div>
-        <Label htmlFor="instagram">Instagram (opcional)</Label>
-        <Input id="instagram" name="instagram" placeholder="@seuinstagram" />
-      </div>
-      <label className="flex items-start gap-2 pt-1 text-sm text-muted-foreground">
-        <Checkbox
-          checked={consent}
-          onCheckedChange={(v) => setConsent(v === true)}
-          className="mt-0.5"
-        />
-        <span>
-          Aceito receber contato do Clube do Adubo sobre produtos, adubo, plantas, comunidade e
-          próximos passos.
-        </span>
-      </label>
-      <p className="text-xs text-muted-foreground">
-        Ao enviar, você concorda com a{" "}
-        <Link
-          to={`/politica-de-privacidade?returnTo=${SOURCE_PAGE}`}
-          className="text-primary underline"
-        >
-          Política de Privacidade
-        </Link>
-        .
-      </p>
-      <Button type="submit" size="lg" className="w-full" disabled={placing}>
-        {placing ? "Enviando..." : "Quero entender pelo WhatsApp"}
-      </Button>
-    </form>
-  );
-}
-
 export default function AduboDigitalPage() {
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+
   return (
     <div>
       <Seo
@@ -224,7 +96,7 @@ export default function AduboDigitalPage() {
         </div>
       </section>
 
-      {/* Segurança + cadastro */}
+      {/* Segurança */}
       <section className="border-t border-border bg-card">
         <div className="container mx-auto px-4 py-10 md:py-14">
           <div className="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-border bg-background p-5">
@@ -236,11 +108,12 @@ export default function AduboDigitalPage() {
             </p>
           </div>
 
-          <div className="mt-8">
-            <LeadForm />
-          </div>
-
-          <div className="mx-auto mt-8 flex max-w-3xl justify-center">
+          <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button asChild size="lg">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-analytics-event="adubo_digital_whatsapp">
+                <CheckCircle2 className="mr-2 h-5 w-5" /> Quero entender pelo WhatsApp
+              </a>
+            </Button>
             <Button asChild size="lg" variant="outline">
               <Link to="/loja" data-analytics-event="back_to_store">Voltar para a loja</Link>
             </Button>

@@ -32,12 +32,3 @@ verify_jwt = false
 
 [functions.checkin-auth]
 verify_jwt = false
-
-[functions.create-clube-lead]
-verify_jwt = false
-
-[functions.create-clube-order]
-verify_jwt = false
-
-[functions.track-clube-go]
-verify_jwt = false
