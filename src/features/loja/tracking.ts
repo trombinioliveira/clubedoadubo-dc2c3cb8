@@ -86,7 +86,7 @@ export async function recordLinkClick(
   input: LinkClickInput
 ): Promise<{ ok: boolean }> {
   try {
-    const { error } = await supabase.from("clube_link_clicks").insert({
+    const { error } = await (supabase as any).from("clube_link_clicks").insert({
       ...input,
       ...buildUtmFields(),
     });
