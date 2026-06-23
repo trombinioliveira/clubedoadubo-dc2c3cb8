@@ -10,7 +10,7 @@ export interface SealDef {
 export const PRIMARY_SEALS: SealDef[] = [
   { id: "artesanal", title: "Produção Artesanal", icon: "hand" },
   { id: "humus", title: "Rico em Húmus de Minhoca", icon: "worm" },
-  { id: "circular", title: "Economia Circular", icon: "cycle" },
+  { id: "circular", title: "Ciclo Orgânico", icon: "cycle" },
   { id: "sem-quimicos", title: "Sem Fertilizantes Químicos", icon: "leaf" },
 ];
 
