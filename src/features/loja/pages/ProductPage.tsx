@@ -4,6 +4,7 @@ import { ArrowLeft, Minus, Plus, Check } from "lucide-react";
 import { getProductBySlug, formatBRL } from "../data/products";
 import { useCart } from "../CartContext";
 import { SealGrid } from "../components/seals";
+import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,52 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 const WHATSAPP_NUMBER = "5512996682454";
+const SITE_URL = "https://www.clubedoadubo.com.br";
+
+const PRODUCT_SEO: Record<
+  string,
+  { title: string; description: string; ogTitle: string; ogDescription: string; productName: string }
+> = {
+  "adubo-liquido": {
+    title: "Adubo Líquido Orgânico 0,5 L | Clube do Adubo",
+    description:
+      "Adubo líquido orgânico artesanal à base de húmus de minhoca para plantas, vasos, hortas e jardins. Entrega em São Paulo Capital e no Litoral Norte/SP.",
+    ogTitle: "Adubo Líquido Orgânico 0,5 L | Clube do Adubo",
+    ogDescription:
+      "Adubo líquido orgânico à base de húmus de minhoca, produzido artesanalmente para o cuidado das suas plantas.",
+    productName: "Adubo Líquido Orgânico 0,5 L",
+  },
+  "adubo-granulado": {
+    title: "Adubo Granulado Orgânico 0,5 kg | Clube do Adubo",
+    description:
+      "Adubo granulado orgânico artesanal à base de húmus de minhoca para vasos, canteiros, hortas e jardins. Entrega em São Paulo Capital e no Litoral Norte/SP.",
+    ogTitle: "Adubo Granulado Orgânico 0,5 kg | Clube do Adubo",
+    ogDescription:
+      "Adubo granulado orgânico à base de húmus de minhoca, ideal para misturar à terra de vasos, canteiros, hortas e jardins.",
+    productName: "Adubo Granulado Orgânico 0,5 kg",
+  },
+};
+
+function buildProductJsonLd(slug: string, price: number) {
+  const seo = PRODUCT_SEO[slug];
+  if (!seo) return undefined;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: seo.productName,
+    description:
+      "Adubo orgânico à base de húmus de minhoca, produzido artesanalmente a partir da transformação de matéria orgânica.",
+    brand: { "@type": "Brand", name: "Clube do Adubo" },
+    category: "Adubo orgânico",
+    offers: {
+      "@type": "Offer",
+      price: price.toFixed(2),
+      priceCurrency: "BRL",
+      availability: "https://schema.org/InStock",
+      url: `${SITE_URL}/loja/produto/${slug}`,
+    },
+  };
+}
 
 const SUBSCRIPTION_SEALS = [
   "Produção artesanal",
