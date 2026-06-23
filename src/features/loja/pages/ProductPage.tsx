@@ -248,7 +248,11 @@ function SubscriptionView({
             </Button>
             <p className="text-center text-xs text-muted-foreground">
               A assinatura é flexível e combinada pelo WhatsApp. Entrega disponível em São Paulo
-              Capital e no Litoral Norte/SP.
+              Capital e no Litoral Norte/SP. Ao enviar, você concorda com a{" "}
+              <Link to="/politica-de-privacidade?returnTo=/loja/produto/assinatura-mensal" className="text-primary underline">
+                Política de Privacidade
+              </Link>
+              .
             </p>
           </form>
         </div>
