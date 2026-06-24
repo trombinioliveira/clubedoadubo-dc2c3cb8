@@ -77,6 +77,7 @@ const App = () => (
             <Route path="/loja" element={<LojaLayout />}>
               <Route index element={<LojaPage />} />
               <Route path="adubo-digital" element={<AduboDigitalPage />} />
+              <Route path="adubo-liquido" element={<AduboLiquidoPage />} />
               <Route path="servicos-de-adubacao" element={<ServicosAdubacaoPage />} />
               <Route path="produto/:slug" element={<ProductPage />} />
               <Route path="carrinho" element={<CartPage />} />
