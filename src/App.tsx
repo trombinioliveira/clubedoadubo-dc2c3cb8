@@ -59,6 +59,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <GoogleTagManager />
           <Routes>
             {/* Auth pages - standalone */}
             <Route path="/auth" element={<Auth />} />
