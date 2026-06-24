@@ -52,3 +52,13 @@ declare module 'input-otp' {
 
   export const OTPInputContext: React.Context<OTPInputContextValue>;
 }
+
+// ── Vite env vars ───────────────────────────────────────
+interface ImportMetaEnv {
+  /** ID do Google Tag Manager, formato GTM-XXXXXXX. Vazio = GTM desativado. */
+  readonly VITE_GTM_ID?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
