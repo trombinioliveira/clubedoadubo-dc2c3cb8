@@ -47,7 +47,8 @@ import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
 // Loja (vitrine virtual)
-import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, ServicosAdubacaoPage, LojaAdminPage } from "@/features/loja";
+import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, AduboLiquidoPage, ServicosAdubacaoPage, LojaAdminPage } from "@/features/loja";
+import { GoogleTagManager } from "@/features/loja/components/GoogleTagManager";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <GoogleTagManager />
           <Routes>
             {/* Auth pages - standalone */}
             <Route path="/auth" element={<Auth />} />
@@ -75,6 +77,7 @@ const App = () => (
             <Route path="/loja" element={<LojaLayout />}>
               <Route index element={<LojaPage />} />
               <Route path="adubo-digital" element={<AduboDigitalPage />} />
+              <Route path="adubo-liquido" element={<AduboLiquidoPage />} />
               <Route path="servicos-de-adubacao" element={<ServicosAdubacaoPage />} />
               <Route path="produto/:slug" element={<ProductPage />} />
               <Route path="carrinho" element={<CartPage />} />
