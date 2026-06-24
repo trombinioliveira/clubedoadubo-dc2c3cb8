@@ -47,7 +47,8 @@ import { ProfileDeadlineGuard } from "@/components/shared/ProfileDeadlineGuard";
 import { PasswordChangeGuard } from "@/components/shared/PasswordChangeGuard";
 
 // Loja (vitrine virtual)
-import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, ServicosAdubacaoPage, LojaAdminPage } from "@/features/loja";
+import { LojaLayout, LojaPage, ProductPage, CartPage, AduboDigitalPage, AduboLiquidoPage, ServicosAdubacaoPage, LojaAdminPage } from "@/features/loja";
+import { GoogleTagManager } from "@/features/loja/components/GoogleTagManager";
 
 const queryClient = new QueryClient();
 
