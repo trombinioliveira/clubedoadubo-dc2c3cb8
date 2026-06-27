@@ -8,8 +8,12 @@
 declare global {
   interface Window {
     dataLayer?: Record<string, unknown>[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
+
+/** ID de conversão do Google Ads para clique no WhatsApp. */
+const GOOGLE_ADS_CONVERSION = "AW-18273891190/jjPmCOaK7cUcEPbm1YlE";
 
 export type WhatsappOffer = "unidade" | "kit_3" | "assinatura" | "cta_final";
 
@@ -26,4 +30,9 @@ export function pushWhatsappClick(offer: WhatsappOffer): void {
     offer,
     source_page: SOURCE_PAGE,
   });
+
+  // Dispara a conversão do Google Ads.
+  if (typeof window.gtag === "function") {
+    window.gtag("event", "conversion", { send_to: GOOGLE_ADS_CONVERSION });
+  }
 }
