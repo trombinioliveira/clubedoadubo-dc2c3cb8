@@ -30,4 +30,9 @@ export function pushWhatsappClick(offer: WhatsappOffer): void {
     offer,
     source_page: SOURCE_PAGE,
   });
+
+  // Dispara a conversão do Google Ads.
+  if (typeof window.gtag === "function") {
+    window.gtag("event", "conversion", { send_to: GOOGLE_ADS_CONVERSION });
+  }
 }
