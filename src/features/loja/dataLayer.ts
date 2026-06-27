@@ -14,7 +14,7 @@ declare global {
 export type WhatsappOffer = "unidade" | "kit_3" | "assinatura" | "cta_final";
 
 const PRODUCT = "adubo_liquido_500ml";
-const SOURCE_PAGE = "/loja/adubo-liquido";
+const SOURCE_PAGE = "/loja/produto/adubo-liquido";
 
 /** Dispara o evento `whatsapp_click` no dataLayer do GTM. */
 export function pushWhatsappClick(offer: WhatsappOffer): void {
