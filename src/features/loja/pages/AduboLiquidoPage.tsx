@@ -48,7 +48,7 @@ const PRODUCT_JSONLD = {
     price: "15.00",
     priceCurrency: "BRL",
     availability: "https://schema.org/InStock",
-    url: "https://www.clubedoadubo.com.br/loja/adubo-liquido",
+    url: "https://www.clubedoadubo.com.br/loja/produto/adubo-liquido",
   },
 };
 
@@ -110,7 +110,7 @@ export default function AduboLiquidoPage() {
       <Seo
         title="Adubo Líquido Orgânico | Clube do Adubo"
         description="Compre adubo líquido orgânico à base de húmus de minhoca para plantas mais fortes, verdes e saudáveis. Atendimento pelo WhatsApp."
-        path="/loja/adubo-liquido"
+        path="/loja/produto/adubo-liquido"
         ogType="product"
         ogTitle="Adubo Líquido Orgânico 0,5 L | Clube do Adubo"
         ogDescription="Adubo líquido orgânico à base de húmus de minhoca para plantas mais fortes, verdes e saudáveis. Atendimento pelo WhatsApp."

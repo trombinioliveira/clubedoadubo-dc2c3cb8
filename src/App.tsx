@@ -77,8 +77,11 @@ const App = () => (
             <Route path="/loja" element={<LojaLayout />}>
               <Route index element={<LojaPage />} />
               <Route path="adubo-digital" element={<AduboDigitalPage />} />
-              <Route path="adubo-liquido" element={<AduboLiquidoPage />} />
+              {/* Rota antiga do Adubo Líquido — redireciona para a URL oficial do produto */}
+              <Route path="adubo-liquido" element={<Navigate to="/loja/produto/adubo-liquido" replace />} />
               <Route path="servicos-de-adubacao" element={<ServicosAdubacaoPage />} />
+              {/* URL oficial do Adubo Líquido (landing dedicada) antes da rota dinâmica de produto */}
+              <Route path="produto/adubo-liquido" element={<AduboLiquidoPage />} />
               <Route path="produto/:slug" element={<ProductPage />} />
               <Route path="carrinho" element={<CartPage />} />
               <Route path="admin" element={

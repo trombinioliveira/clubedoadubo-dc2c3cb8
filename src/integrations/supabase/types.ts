@@ -122,6 +122,315 @@ export type Database = {
         }
         Relationships: []
       }
+      clube_interest_leads: {
+        Row: {
+          city_neighborhood: string | null
+          consent_contact: boolean | null
+          consent_privacy: boolean | null
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          instagram: string | null
+          interest_type: string
+          landing_page: string | null
+          notes: string | null
+          place_type: string | null
+          referrer: string | null
+          region: string | null
+          source_page: string
+          status: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          whatsapp: string
+        }
+        Insert: {
+          city_neighborhood?: string | null
+          consent_contact?: boolean | null
+          consent_privacy?: boolean | null
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          instagram?: string | null
+          interest_type: string
+          landing_page?: string | null
+          notes?: string | null
+          place_type?: string | null
+          referrer?: string | null
+          region?: string | null
+          source_page: string
+          status?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          whatsapp: string
+        }
+        Update: {
+          city_neighborhood?: string | null
+          consent_contact?: boolean | null
+          consent_privacy?: boolean | null
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          instagram?: string | null
+          interest_type?: string
+          landing_page?: string | null
+          notes?: string | null
+          place_type?: string | null
+          referrer?: string | null
+          region?: string | null
+          source_page?: string
+          status?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      clube_leads: {
+        Row: {
+          consent_contact: boolean
+          consent_privacy: boolean
+          created_at: string
+          email: string
+          entry_link_click_count: number
+          entry_link_clicked_at: string | null
+          entry_link_unlocked_at: string | null
+          entry_status: string | null
+          entry_target: string | null
+          first_name: string
+          id: string
+          instagram: string | null
+          joined_confirmed_at: string | null
+          joined_confirmed_manually: boolean
+          lead_type: string
+          notes: string | null
+          notification_email_error: string | null
+          notification_email_sent_at: string | null
+          notification_email_status: string | null
+          origin: string | null
+          privacy_policy_version: string | null
+          public_access_token: string | null
+          region: string | null
+          source_page: string
+          status: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          consent_contact?: boolean
+          consent_privacy?: boolean
+          created_at?: string
+          email: string
+          entry_link_click_count?: number
+          entry_link_clicked_at?: string | null
+          entry_link_unlocked_at?: string | null
+          entry_status?: string | null
+          entry_target?: string | null
+          first_name: string
+          id?: string
+          instagram?: string | null
+          joined_confirmed_at?: string | null
+          joined_confirmed_manually?: boolean
+          lead_type: string
+          notes?: string | null
+          notification_email_error?: string | null
+          notification_email_sent_at?: string | null
+          notification_email_status?: string | null
+          origin?: string | null
+          privacy_policy_version?: string | null
+          public_access_token?: string | null
+          region?: string | null
+          source_page: string
+          status?: string
+          updated_at?: string
+          whatsapp: string
+        }
+        Update: {
+          consent_contact?: boolean
+          consent_privacy?: boolean
+          created_at?: string
+          email?: string
+          entry_link_click_count?: number
+          entry_link_clicked_at?: string | null
+          entry_link_unlocked_at?: string | null
+          entry_status?: string | null
+          entry_target?: string | null
+          first_name?: string
+          id?: string
+          instagram?: string | null
+          joined_confirmed_at?: string | null
+          joined_confirmed_manually?: boolean
+          lead_type?: string
+          notes?: string | null
+          notification_email_error?: string | null
+          notification_email_sent_at?: string | null
+          notification_email_status?: string | null
+          origin?: string | null
+          privacy_policy_version?: string | null
+          public_access_token?: string | null
+          region?: string | null
+          source_page?: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      clube_link_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          interest_type: string | null
+          landing_page: string | null
+          lead_id: string | null
+          link_key: string
+          metadata: Json | null
+          referrer: string | null
+          source_page: string
+          target_url: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interest_type?: string | null
+          landing_page?: string | null
+          lead_id?: string | null
+          link_key: string
+          metadata?: Json | null
+          referrer?: string | null
+          source_page: string
+          target_url: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interest_type?: string | null
+          landing_page?: string | null
+          lead_id?: string | null
+          link_key?: string
+          metadata?: Json | null
+          referrer?: string | null
+          source_page?: string
+          target_url?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
+      }
+      clube_orders: {
+        Row: {
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_whatsapp: string
+          delivery_address: string | null
+          delivery_amount: number | null
+          delivery_method: string | null
+          discount_amount: number | null
+          external_reference: string | null
+          id: string
+          items: Json
+          notes: string | null
+          order_notification_email_error: string | null
+          order_notification_email_sent_at: string | null
+          order_notification_email_status: string | null
+          order_type: string | null
+          origin: string | null
+          payment_id: string | null
+          payment_method: string | null
+          preference_id: string | null
+          quantity_total: number | null
+          region: string | null
+          source_page: string | null
+          status: string
+          subtotal_amount: number | null
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_whatsapp: string
+          delivery_address?: string | null
+          delivery_amount?: number | null
+          delivery_method?: string | null
+          discount_amount?: number | null
+          external_reference?: string | null
+          id?: string
+          items: Json
+          notes?: string | null
+          order_notification_email_error?: string | null
+          order_notification_email_sent_at?: string | null
+          order_notification_email_status?: string | null
+          order_type?: string | null
+          origin?: string | null
+          payment_id?: string | null
+          payment_method?: string | null
+          preference_id?: string | null
+          quantity_total?: number | null
+          region?: string | null
+          source_page?: string | null
+          status?: string
+          subtotal_amount?: number | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_whatsapp?: string
+          delivery_address?: string | null
+          delivery_amount?: number | null
+          delivery_method?: string | null
+          discount_amount?: number | null
+          external_reference?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_notification_email_error?: string | null
+          order_notification_email_sent_at?: string | null
+          order_notification_email_status?: string | null
+          order_type?: string | null
+          origin?: string | null
+          payment_id?: string | null
+          payment_method?: string | null
+          preference_id?: string | null
+          quantity_total?: number | null
+          region?: string | null
+          source_page?: string | null
+          status?: string
+          subtotal_amount?: number | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       collection_points: {
         Row: {
           address: string
