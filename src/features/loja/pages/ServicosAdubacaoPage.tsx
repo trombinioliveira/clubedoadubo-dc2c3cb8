@@ -50,63 +50,13 @@ const PLACE_TYPES = [
   "Outro",
 ];
 
+const WHATSAPP_MESSAGE = encodeURIComponent(
+  "Olá! Quero entender os Serviços de Adubação do Clube do Adubo em São Paulo Capital ou Litoral Norte/SP.",
+);
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+
 export default function ServicosAdubacaoPage() {
-  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const firstName = String(data.get("first_name") ?? "").trim();
-    const whatsapp = String(data.get("whatsapp") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const placeType = String(data.get("place_type") ?? "").trim();
-    const cityNeighborhood = String(data.get("city_neighborhood") ?? "").trim();
-    const notes = String(data.get("notes") ?? "").trim();
-    const consentContact = data.get("consent_contact") === "on";
-
-    if (!firstName) {
-      toast.error("Informe seu primeiro nome.");
-      return;
-    }
-    const whatsappDigits = whatsapp.replace(/\D/g, "");
-    if (whatsappDigits.length < 10 || whatsappDigits.length > 11) {
-      toast.error("WhatsApp inválido", { description: "Informe o número com DDD, ex: (11) 99999-9999." });
-      return;
-    }
-    if (!placeType) {
-      toast.error("Selecione o tipo de local.");
-      return;
-    }
-    if (!cityNeighborhood) {
-      toast.error("Informe sua cidade/bairro.");
-      return;
-    }
-
-    setSubmitting(true);
-
-    // Tracking no banco pausado: abre o WhatsApp diretamente, sem depender do Supabase.
-    const targetUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
-
-    const mensagem = [
-      "Olá! Quero entender os Serviços de Adubação do Clube do Adubo.",
-      "",
-      "Meus dados:",
-      `Nome: ${firstName}`,
-      `WhatsApp: ${whatsapp}`,
-      `E-mail: ${email || "-"}`,
-      `Tipo de local: ${placeType}`,
-      `Cidade/bairro: ${cityNeighborhood}`,
-      `Observação: ${notes || "-"}`,
-      "",
-      "Gostaria de saber como funciona o serviço de adubação em São Paulo Capital ou Litoral Norte/SP.",
-    ].join("\n");
-
-    const url = `${targetUrl}?text=${encodeURIComponent(mensagem)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-
-    setSubmitting(false);
-  };
 
   return (
     <div>
