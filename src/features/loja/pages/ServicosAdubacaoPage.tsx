@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   Sprout,
@@ -12,16 +12,8 @@ import {
 } from "lucide-react";
 import { Seo } from "../components/Seo";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-// NOTE: tracking no banco (saveInterestLead/recordLinkClick) pausado temporariamente
-// enquanto a Data API pública do Supabase está bloqueada por billing/quota.
-// A estrutura (tracking.ts, tabelas, policies, RLS) permanece intacta para retomada futura.
 
 const WHATSAPP_NUMBER = "5512996682454";
-const SOURCE_PAGE = "/loja/servicos-de-adubacao";
 
 const PARA_QUEM = [
   { icon: Users, title: "Condomínios de casas", text: "Para áreas verdes, jardins coletivos, canteiros e espaços comuns." },
@@ -40,15 +32,6 @@ const COMO_FUNCIONA = [
   { title: "Você mantém o cuidado", text: "Também podemos orientar uma rotina de manutenção com adubo líquido, granulado ou assinatura." },
 ];
 
-const PLACE_TYPES = [
-  "Casa",
-  "Condomínio de casas",
-  "Prédio residencial",
-  "Prédio comercial",
-  "Comércio ou empresa",
-  "Horta/projeto local",
-  "Outro",
-];
 
 const WHATSAPP_MESSAGE = encodeURIComponent(
   "Olá! Quero entender os Serviços de Adubação do Clube do Adubo em São Paulo Capital ou Litoral Norte/SP.",
