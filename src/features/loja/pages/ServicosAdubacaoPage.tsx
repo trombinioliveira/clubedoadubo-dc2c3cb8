@@ -92,6 +92,20 @@ export default function ServicosAdubacaoPage() {
             Adubação com adubos orgânicos artesanais para casas, condomínios, prédios e
             espaços comerciais.
           </p>
+          <div className="mt-8 flex justify-center">
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              data-analytics-event="servicos_adubacao_whatsapp"
+            >
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                <CheckCircle2 className="mr-2 h-5 w-5" />
+                Conversar pelo WhatsApp
+              </a>
+            </Button>
+          </div>
+
         </div>
       </section>
 
