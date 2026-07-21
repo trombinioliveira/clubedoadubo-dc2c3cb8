@@ -173,86 +173,9 @@ export default function ServicosAdubacaoPage() {
         </div>
       </section>
 
-      {/* Formulário */}
+      {/* Voltar para a loja */}
       <section className="container mx-auto px-4 py-12 md:py-16">
-        <form
-          onSubmit={handleSubmit}
-          className="mx-auto max-w-xl space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft"
-        >
-          <div>
-            <h2 className="text-xl font-bold text-foreground">Entenda o serviço de adubação</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Preencha seus dados e envie uma mensagem pelo WhatsApp. Vamos entender o tipo
-              de espaço, a região e a melhor forma de atendimento.
-            </p>
-          </div>
-
-          <div>
-            <Label htmlFor="first_name">Primeiro nome *</Label>
-            <Input id="first_name" name="first_name" required placeholder="Seu primeiro nome" />
-          </div>
-          <div>
-            <Label htmlFor="whatsapp">WhatsApp com DDD *</Label>
-            <Input id="whatsapp" name="whatsapp" type="tel" required placeholder="(00) 00000-0000" />
-          </div>
-          <div>
-            <Label htmlFor="email">E-mail</Label>
-            <Input id="email" name="email" type="email" placeholder="seu@email.com" />
-          </div>
-          <div>
-            <Label htmlFor="place_type">Tipo de local *</Label>
-            <select
-              id="place_type"
-              name="place_type"
-              required
-              defaultValue=""
-              className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="" disabled>Selecione...</option>
-              {PLACE_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="city_neighborhood">Cidade/bairro *</Label>
-            <Input id="city_neighborhood" name="city_neighborhood" required placeholder="Ex: São Paulo / Pinheiros" />
-          </div>
-          <div>
-            <Label htmlFor="notes">Observação opcional</Label>
-            <Textarea
-              id="notes"
-              name="notes"
-              placeholder="Conte um pouco sobre o espaço, plantas, jardim, vasos, horta ou área verde."
-            />
-          </div>
-
-          <label className="flex items-start gap-2 text-sm text-muted-foreground">
-            <input type="checkbox" name="consent_contact" className="mt-1 h-4 w-4 rounded border-input" />
-            <span>
-              Aceito receber contato do Clube do Adubo sobre serviços, adubo, plantas e
-              próximos passos.
-            </span>
-          </label>
-
-          <p className="text-xs text-muted-foreground">
-            Ao enviar, você concorda com a{" "}
-            <Link
-              to="/politica-de-privacidade?returnTo=/loja/servicos-de-adubacao"
-              className="text-primary underline"
-            >
-              Política de Privacidade
-            </Link>
-            .
-          </p>
-
-          <Button type="submit" size="lg" className="w-full" disabled={submitting} data-analytics-event="servicos_adubacao_whatsapp">
-            <CheckCircle2 className="mr-2 h-5 w-5" />
-            {submitting ? "Enviando..." : "Conversar pelo WhatsApp"}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
+        <div className="text-center">
           <Button asChild variant="outline">
             <Link to="/loja" data-analytics-event="back_to_store">Voltar para a loja</Link>
           </Button>
@@ -261,3 +184,4 @@ export default function ServicosAdubacaoPage() {
     </div>
   );
 }
+
